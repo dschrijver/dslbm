@@ -2,7 +2,7 @@
 #include "../definitions.h"
 #include "../include/stream.h"
 
-void stream_distributions(SimulationBag *sim) 
+void stream_distributions(SimulationBag *sim)
 {
     ParamBag *params = sim->params;
     DistributionBag *dists = sim->dists;
@@ -16,7 +16,7 @@ void stream_distributions(SimulationBag *sim)
 
     int i_start = params->i_start;
     int i_end = params->i_end;
-    
+
     int *cx = stencil->cx;
     int *cy = stencil->cy;
     int *cz = stencil->cz;
@@ -26,7 +26,7 @@ void stream_distributions(SimulationBag *sim)
 
     FOR_DOMAIN
     {
-        for (int p = 0; p < NP; p++) 
+        for (int p = 0; p < NP; p++)
         {
             ic = i - cx[p];
             jc = j - cy[p];

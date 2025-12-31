@@ -119,7 +119,7 @@ void communicate_dist(double *dist, double *send_buffer, double *recv_buffer, in
     {
         memcpy(send_buffer, &dist[INDEX_F(i_end - 1, 0, 0, 0, 0)], buffer_size);
     }
-    MPI_Sendrecv(send_buffer, buffer_number, MPI_DOUBLE, process_neighbors[1], tag+1, recv_buffer, buffer_number, MPI_DOUBLE, process_neighbors[0], tag+1, comm_xslices, &status_first);
+    MPI_Sendrecv(send_buffer, buffer_number, MPI_DOUBLE, process_neighbors[1], tag + 1, recv_buffer, buffer_number, MPI_DOUBLE, process_neighbors[0], tag + 1, comm_xslices, &status_first);
     if (process_neighbors[0] != MPI_PROC_NULL)
     {
         memcpy(&dist[INDEX_F(i_start - 1, 0, 0, 0, 0)], recv_buffer, buffer_size);

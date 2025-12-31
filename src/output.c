@@ -3,7 +3,7 @@
 #include "../include/datatypes.h"
 #include "../include/output.h"
 
-void output_data(SimulationBag *sim) 
+void output_data(SimulationBag *sim)
 {
     ParamBag *params = sim->params;
     GlobalFieldBag *glob_fields = sim->glob_fields;
@@ -56,7 +56,7 @@ void output_data(SimulationBag *sim)
     params->n_output++;
 }
 
-void output_global_field(double* field, char *fieldname, hid_t loc_id, SimulationBag *sim) 
+void output_global_field(double *field, char *fieldname, hid_t loc_id, SimulationBag *sim)
 {
     ParamBag *params = sim->params;
 
@@ -71,8 +71,8 @@ void output_global_field(double* field, char *fieldname, hid_t loc_id, Simulatio
     hid_t filespace = H5Screate_simple(3, dims_file, NULL);
 
     // Space occupied in processor memory
-    hsize_t dims_proc[3] = {NX_proc+4, NY, NZ};
-    hid_t memspace  = H5Screate_simple(3, dims_proc, NULL);
+    hsize_t dims_proc[3] = {NX_proc + 4, NY, NZ};
+    hid_t memspace = H5Screate_simple(3, dims_proc, NULL);
 
     // Create dataset
     hid_t dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
@@ -82,7 +82,7 @@ void output_global_field(double* field, char *fieldname, hid_t loc_id, Simulatio
 
     // File hyperslab
     hsize_t start_file[3] = {i_start, 0, 0};
-    hsize_t count[3] = {NX_proc, NY, NZ};   
+    hsize_t count[3] = {NX_proc, NY, NZ};
     filespace = H5Dget_space(dset_id);
     H5Sselect_hyperslab(filespace, H5S_SELECT_SET, start_file, NULL, count, NULL);
 
@@ -101,7 +101,7 @@ void output_global_field(double* field, char *fieldname, hid_t loc_id, Simulatio
     H5Sclose(filespace);
 }
 
-void output_comp_field(double* field, char *fieldname, hid_t loc_id, SimulationBag *sim) 
+void output_comp_field(double *field, char *fieldname, hid_t loc_id, SimulationBag *sim)
 {
     ParamBag *params = sim->params;
 
@@ -117,11 +117,11 @@ void output_comp_field(double* field, char *fieldname, hid_t loc_id, SimulationB
     hsize_t dims_file[3] = {NX, NY, NZ};
 
     // Space occupied in processor memory
-    hsize_t dims_proc[4] = {NX_proc+4, NY, NZ, NCOMP};
-    hid_t memspace  = H5Screate_simple(4, dims_proc, NULL);
+    hsize_t dims_proc[4] = {NX_proc + 4, NY, NZ, NCOMP};
+    hid_t memspace = H5Screate_simple(4, dims_proc, NULL);
 
     hsize_t start_file[3] = {i_start, 0, 0};
-    hsize_t count_file[3] = {NX_proc, NY, NZ};   
+    hsize_t count_file[3] = {NX_proc, NY, NZ};
 
     hsize_t start_proc[4] = {2, 0, 0, 0};
     hsize_t count_proc[4] = {NX_proc, NY, NZ, 1};
@@ -129,7 +129,8 @@ void output_comp_field(double* field, char *fieldname, hid_t loc_id, SimulationB
     char names[NCOMP][5] = {"RED", "BLUE"};
 
     hid_t dcpl_id, dset_id, filespace, dxpl_id;
-    for (int n = 0; n < NCOMP; n++) {
+    for (int n = 0; n < NCOMP; n++)
+    {
         filespace = H5Screate_simple(3, dims_file, NULL);
 
         // Create dataset

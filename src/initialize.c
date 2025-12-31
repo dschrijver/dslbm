@@ -71,9 +71,9 @@ void initialize_fields(SimulationBag *sim)
     double R_droplet = 15.0;
     FOR_DOMAIN
     {
-        x = (double)i + 0.5 - 0.5*(double)NX;
-        y = (double)j + 0.5 - 0.5*(double)NY;
-        z = (double)k + 0.5 - 0.5*(double)NZ;
+        x = (double)i + 0.5 - 0.5 * (double)NX;
+        y = (double)j + 0.5 - 0.5 * (double)NY;
+        z = (double)k + 0.5 - 0.5 * (double)NZ;
         r2 = x * x + y * y + z * z;
 
         u[INDEX_GLOB(i, j, k)] = 0.0;
