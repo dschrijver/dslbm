@@ -1,0 +1,12 @@
+#ifndef DEFINITIONS_H
+#define DEFINITIONS_H
+
+// Boundary conditions
+#define XPERIODIC
+#define YPERIODIC
+#define ZPERIODIC
+
+// Initial conditions
+#define INI_FLOATING_DROPLET
+
+#endif
