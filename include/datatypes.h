@@ -47,6 +47,10 @@ typedef struct ParamBag
     double alpha_RED;
     double alpha_BLUE;
 
+    double Fx_ext;
+    double Fy_ext;
+    double Fz_ext;
+
     // MPI
     int number_of_processes;  ///< Stores number of processes
     int process_rank;         ///< Process rank

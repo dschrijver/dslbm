@@ -8,13 +8,13 @@ static inline void set_params(ParamBag *params)
     // General parameters
     params->NTIME = 100000;
     params->NSTORE = 1000;
-    params->NX = 60;
-    params->NY = 60;
-    params->NZ = 60;
+    params->NX = 2;
+    params->NY = 100;
+    params->NZ = 1;
 
     // Relaxation times
     params->tau_RED = 1.0;
-    params->tau_BLUE = 1.0;
+    params->tau_BLUE = 0.625;
 
     // MRT parameters
     params->s_rho_RED = 1.0;
@@ -41,6 +41,10 @@ static inline void set_params(ParamBag *params)
     params->alpha_BLUE = 0.2;
     double gamma = params->rho_0_RED / params->rho_0_BLUE;
     params->alpha_RED = 1.0 - (1.0 - params->alpha_BLUE) / gamma;
+
+    params->Fx_ext = 1e-6;
+    params->Fy_ext = 0.0;
+    params->Fz_ext = 0.0;
 }
 
 #endif

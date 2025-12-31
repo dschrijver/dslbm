@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <mpi.h>
+#include <math.h>
 
 #include "../include/datatypes.h"
 #include "../definitions.h"
@@ -44,7 +45,6 @@ void initialize_fields(SimulationBag *sim)
     ComponentFieldBag *comp_fields = sim->comp_fields;
     Stencil *stencil = sim->stencil;
 
-    int NX = params->NX;
     int NY = params->NY;
     int NZ = params->NZ;
 
@@ -68,7 +68,7 @@ void initialize_fields(SimulationBag *sim)
 
 #ifdef INI_FLOATING_DROPLET
     double x, y, z, r2;
-    double R_droplet = 15.0;
+    int NX = params->NX;
     FOR_DOMAIN
     {
         x = (double)i + 0.5 - 0.5 * (double)NX;
@@ -89,6 +89,56 @@ void initialize_fields(SimulationBag *sim)
         {
             rho_comp[INDEX(i, j, k, RED)] = 0.0;
             rho_comp[INDEX(i, j, k, BLUE)] = rho_0_BLUE;
+        }
+    }
+#endif
+
+#ifdef INI_CONTACT_ANGLE_DROPLET
+    double x, y, z, r2;
+    int NX = params->NX;
+    FOR_DOMAIN
+    {
+        x = (double)i + 0.5 - 0.5 * (double)NX;
+        y = (double)j + 0.5;
+        z = (double)k + 0.5 - 0.5 * (double)NZ;
+        r2 = x * x + y * y + z * z;
+
+        u[INDEX_GLOB(i, j, k)] = 0.0;
+        v[INDEX_GLOB(i, j, k)] = 0.0;
+        w[INDEX_GLOB(i, j, k)] = 0.0;
+
+        if (r2 < R_DROPLET * R_DROPLET)
+        {
+            rho_comp[INDEX(i, j, k, RED)] = rho_0_RED;
+            rho_comp[INDEX(i, j, k, BLUE)] = 0.0;
+        }
+        else
+        {
+            rho_comp[INDEX(i, j, k, RED)] = 0.0;
+            rho_comp[INDEX(i, j, k, BLUE)] = rho_0_BLUE;
+        }
+    }
+#endif
+
+#ifdef INI_POISEUILLE
+    double r;
+    FOR_DOMAIN
+    {
+        r = fabs((double)j + 0.5 - 0.5 * (double)NY);
+
+        u[INDEX_GLOB(i, j, k)] = 0.0;
+        v[INDEX_GLOB(i, j, k)] = 0.0;
+        w[INDEX_GLOB(i, j, k)] = 0.0;
+
+        if (r < 0.25 * (double)NY)
+        {
+            rho_comp[INDEX(i, j, k, RED)] = 0.0;
+            rho_comp[INDEX(i, j, k, BLUE)] = rho_0_BLUE;
+        }
+        else
+        {
+            rho_comp[INDEX(i, j, k, RED)] = rho_0_RED;
+            rho_comp[INDEX(i, j, k, BLUE)] = 0.0;
         }
     }
 #endif

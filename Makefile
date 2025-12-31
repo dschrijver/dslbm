@@ -6,7 +6,7 @@ LIB_FLAGS = -I$(shell pwd)/hdf5/include -L$(shell pwd)/hdf5/lib -l:libhdf5.a -lm
 SRC = $(wildcard main.c src/*.c)
 
 all: cleandata clean dslbm
-	mpirun -n 6 dslbm
+	mpirun -n 1 dslbm
 
 dslbm:
 	$(COMPILER) $(SRC) -o $@ $(OPT_FLAGS) $(DEBUG_FLAGS) $(LIB_FLAGS)

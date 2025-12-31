@@ -8,6 +8,7 @@ enum components
     NCOMP
 };
 
+#define DS_PI 3.14159265358979323846
 #define INDEX_MRT(i, j) (NP * (i) + (j))
 #define INDEX_GLOB(i, j, k) (NY * NZ * (i + 2 - i_start) + NZ * (j) + (k))
 #define INDEX(i, j, k, n) (NY * NZ * NCOMP * (i + 2 - i_start) + NZ * NCOMP * (j) + NCOMP * (k) + (n))

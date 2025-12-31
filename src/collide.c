@@ -193,8 +193,26 @@ void collide_distributions_CGM(SimulationBag *sim)
             kc = mod(kc, NZ);
 #endif
 
+#ifdef BOTTOM_BOUNCEBACK
+            if (jc < 0)
+            {
+                extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
+                goto skip;
+            }
+#endif
+
+#ifdef TOP_BOUNCEBACK
+            if (jc > NY - 1)
+            {
+                extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
+                goto skip;
+            }
+#endif
+
             rho_RED_local = rho_comp[INDEX(ic, jc, kc, RED)];
             rho_BLUE_local = rho_comp[INDEX(ic, jc, kc, BLUE)];
+
+        skip:
 
             rho_local = rho_RED_local + rho_BLUE_local;
 
@@ -205,6 +223,20 @@ void collide_distributions_CGM(SimulationBag *sim)
         Gx /= cs2;
         Gy /= cs2;
         Gz /= cs2;
+
+#ifdef BOTTOM_BOUNCEBACK
+        if (j == 0)
+        {
+            Gy = -tan(DS_PI / 2.0 - (180.0 - THETA_C_BOTTOM) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gz * Gz);
+        }
+#endif
+
+#ifdef TOP_BOUNCEBACK
+        if (j == NY-1)
+        {
+            Gy = tan(DS_PI / 2.0 - (180.0 - THETA_C_TOP) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gz * Gz);
+        }
+#endif
 
         G = sqrt(Gx * Gx + Gy * Gy + Gz * Gz);
 
@@ -240,4 +272,60 @@ void collide_distributions_CGM(SimulationBag *sim)
             f2[INDEX_F(i, j, k, p, BLUE)] -= beta * rho_RED_i * rho_BLUE_i / (rho_i * rho_i) * cos_phi * feq;
         }
     }
+}
+
+void extrapolate_wall_density(int i, int j, int k, double *rho_RED, double *rho_BLUE, SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    Stencil *stencil = sim->stencil;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+
+    int ic, jc, kc;
+    double sum_rho_RED, sum_rho_BLUE, sum_wp;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+
+    int i_start = params->i_start;
+
+    int NP = stencil->NP;
+    int *cx = stencil->cx;
+    int *cy = stencil->cy;
+    int *cz = stencil->cz;
+    double *wp = stencil->wp;
+
+    double *rho_comp = comp_fields->rho_comp;
+
+    sum_rho_RED = 0.0; sum_rho_BLUE = 0.0; sum_wp = 0.0;
+
+    for (int p = 1; p < NP; p++)
+    {
+        ic = i + cx[p];
+        jc = j + cy[p];
+        kc = k + cz[p];
+
+#ifndef XPERIODIC
+        if ((ic < 0) || (ic > params->NX-1))
+            continue;
+#endif
+#ifndef YPERIODIC
+        if ((jc < 0) || (jc > NY-1))
+            continue;
+#else
+        jc = mod(jc, NY);
+#endif
+#ifndef ZPERIODIC
+        if ((kc < 0) || (kc > NZ-1))
+            continue;
+#else
+        kc = mod(kc, NZ);
+#endif
+
+        sum_rho_RED += wp[p] * rho_comp[INDEX(ic, jc, kc, RED)];
+        sum_rho_BLUE += wp[p] * rho_comp[INDEX(ic, jc, kc, BLUE)];
+        sum_wp += wp[p];
+    }
+
+    *rho_RED = sum_rho_RED / sum_wp;
+    *rho_BLUE = sum_rho_BLUE / sum_wp;
 }
