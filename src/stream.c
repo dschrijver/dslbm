@@ -39,6 +39,24 @@ void stream_distributions(SimulationBag *sim)
             kc = mod(kc, NZ);
 #endif
 
+#ifdef LEFT_BOUNCEBACK
+            if (ic < 0)
+            {
+                f1[INDEX_F(i, j, k, p, RED)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], RED)];
+                f1[INDEX_F(i, j, k, p, BLUE)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], BLUE)];
+                continue;
+            }
+#endif
+
+#ifdef RIGHT_BOUNCEBACK
+            if (ic > params->NX - 1)
+            {
+                f1[INDEX_F(i, j, k, p, RED)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], RED)];
+                f1[INDEX_F(i, j, k, p, BLUE)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], BLUE)];
+                continue;
+            }
+#endif
+
 #ifdef BOTTOM_BOUNCEBACK
             if (jc < 0)
             {
@@ -49,7 +67,25 @@ void stream_distributions(SimulationBag *sim)
 #endif
 
 #ifdef TOP_BOUNCEBACK
-            if (jc > NY-1)
+            if (jc > NY - 1)
+            {
+                f1[INDEX_F(i, j, k, p, RED)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], RED)];
+                f1[INDEX_F(i, j, k, p, BLUE)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], BLUE)];
+                continue;
+            }
+#endif
+
+#ifdef BACK_BOUNCEBACK
+            if (kc < 0)
+            {
+                f1[INDEX_F(i, j, k, p, RED)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], RED)];
+                f1[INDEX_F(i, j, k, p, BLUE)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], BLUE)];
+                continue;
+            }
+#endif
+
+#ifdef FRONT_BOUNCEBACK
+            if (kc > NZ - 1)
             {
                 f1[INDEX_F(i, j, k, p, RED)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], RED)];
                 f1[INDEX_F(i, j, k, p, BLUE)] = f2[INDEX_F(i, j, k, stencil->p_bounceback[p], BLUE)];

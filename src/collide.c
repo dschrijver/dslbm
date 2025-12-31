@@ -193,6 +193,22 @@ void collide_distributions_CGM(SimulationBag *sim)
             kc = mod(kc, NZ);
 #endif
 
+#ifdef LEFT_BOUNCEBACK
+            if (ic < 0)
+            {
+                extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
+                goto skip;
+            }
+#endif
+
+#ifdef RIGHT_BOUNCEBACK
+            if (ic > params->NX - 1)
+            {
+                extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
+                goto skip;
+            }
+#endif
+
 #ifdef BOTTOM_BOUNCEBACK
             if (jc < 0)
             {
@@ -203,6 +219,22 @@ void collide_distributions_CGM(SimulationBag *sim)
 
 #ifdef TOP_BOUNCEBACK
             if (jc > NY - 1)
+            {
+                extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
+                goto skip;
+            }
+#endif
+
+#ifdef BACK_BOUNCEBACK
+            if (kc < 0)
+            {
+                extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
+                goto skip;
+            }
+#endif
+
+#ifdef FRONT_BOUNCEBACK
+            if (kc > NZ - 1)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
                 goto skip;
@@ -224,6 +256,20 @@ void collide_distributions_CGM(SimulationBag *sim)
         Gy /= cs2;
         Gz /= cs2;
 
+#ifdef LEFT_BOUNCEBACK
+        if (i == 0)
+        {
+            Gx = -tan(DS_PI / 2.0 - (180.0 - THETA_C_LEFT) / 360.0 * 2.0 * DS_PI) * sqrt(Gy * Gy + Gz * Gz);
+        }
+#endif
+
+#ifdef RIGHT_BOUNCEBACK
+        if (i == params->NX - 1)
+        {
+            Gx = tan(DS_PI / 2.0 - (180.0 - THETA_C_RIGHT) / 360.0 * 2.0 * DS_PI) * sqrt(Gy * Gy + Gz * Gz);
+        }
+#endif
+
 #ifdef BOTTOM_BOUNCEBACK
         if (j == 0)
         {
@@ -232,9 +278,23 @@ void collide_distributions_CGM(SimulationBag *sim)
 #endif
 
 #ifdef TOP_BOUNCEBACK
-        if (j == NY-1)
+        if (j == NY - 1)
         {
             Gy = tan(DS_PI / 2.0 - (180.0 - THETA_C_TOP) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gz * Gz);
+        }
+#endif
+
+#ifdef BACK_BOUNCEBACK
+        if (k == 0)
+        {
+            Gz = -tan(DS_PI / 2.0 - (180.0 - THETA_C_LEFT) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gy * Gy);
+        }
+#endif
+
+#ifdef FRONT_BOUNCEBACK
+        if (k == NZ - 1)
+        {
+            Gy = tan(DS_PI / 2.0 - (180.0 - THETA_C_RIGHT) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gy * Gy);
         }
 #endif
 
@@ -296,7 +356,9 @@ void extrapolate_wall_density(int i, int j, int k, double *rho_RED, double *rho_
 
     double *rho_comp = comp_fields->rho_comp;
 
-    sum_rho_RED = 0.0; sum_rho_BLUE = 0.0; sum_wp = 0.0;
+    sum_rho_RED = 0.0;
+    sum_rho_BLUE = 0.0;
+    sum_wp = 0.0;
 
     for (int p = 1; p < NP; p++)
     {
@@ -305,17 +367,17 @@ void extrapolate_wall_density(int i, int j, int k, double *rho_RED, double *rho_
         kc = k + cz[p];
 
 #ifndef XPERIODIC
-        if ((ic < 0) || (ic > params->NX-1))
+        if ((ic < 0) || (ic > params->NX - 1))
             continue;
 #endif
 #ifndef YPERIODIC
-        if ((jc < 0) || (jc > NY-1))
+        if ((jc < 0) || (jc > NY - 1))
             continue;
 #else
         jc = mod(jc, NY);
 #endif
 #ifndef ZPERIODIC
-        if ((kc < 0) || (kc > NZ-1))
+        if ((kc < 0) || (kc > NZ - 1))
             continue;
 #else
         kc = mod(kc, NZ);

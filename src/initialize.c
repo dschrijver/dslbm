@@ -80,7 +80,7 @@ void initialize_fields(SimulationBag *sim)
         v[INDEX_GLOB(i, j, k)] = 0.0;
         w[INDEX_GLOB(i, j, k)] = 0.0;
 
-        if (r2 < R_droplet * R_droplet)
+        if (r2 < R_DROPLET * R_DROPLET)
         {
             rho_comp[INDEX(i, j, k, RED)] = rho_0_RED;
             rho_comp[INDEX(i, j, k, BLUE)] = 0.0;
