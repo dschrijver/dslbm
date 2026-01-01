@@ -11,6 +11,7 @@
 #include "include/communicate.h"
 #include "include/collide.h"
 #include "include/stream.h"
+#include "include/wetnode.h"
 #include "include/fields.h"
 
 int main(int argc, char **argv)
@@ -90,6 +91,10 @@ int main(int argc, char **argv)
 
         TIME("> Streaming...",
             stream_distributions(sim);
+        )
+
+        TIME("> Wetnode boundary conditions...",
+            wetnode_boundary_conditions(sim);
         )
 
         TIME("> Computing macroscopic fields...",

@@ -209,7 +209,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#ifdef BOTTOM_BOUNCEBACK
+#if defined(BOTTOM_BOUNCEBACK) || defined(BOTTOM_NEBB_NOSLIP)
             if (jc < 0)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -217,7 +217,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#ifdef TOP_BOUNCEBACK
+#if defined(TOP_BOUNCEBACK) || defined(TOP_NEBB_NOSLIP)
             if (jc > NY - 1)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -270,14 +270,14 @@ void collide_distributions_CGM(SimulationBag *sim)
         }
 #endif
 
-#ifdef BOTTOM_BOUNCEBACK
+#if defined(BOTTOM_BOUNCEBACK) || defined(BOTTOM_NEBB_NOSLIP)
         if (j == 0)
         {
             Gy = -tan(DS_PI / 2.0 - (180.0 - THETA_C_BOTTOM) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gz * Gz);
         }
 #endif
 
-#ifdef TOP_BOUNCEBACK
+#if defined(TOP_BOUNCEBACK) || defined(TOP_NEBB_NOSLIP)
         if (j == NY - 1)
         {
             Gy = tan(DS_PI / 2.0 - (180.0 - THETA_C_TOP) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gz * Gz);
