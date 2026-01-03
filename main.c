@@ -13,6 +13,7 @@
 #include "include/stream.h"
 #include "include/wetnode.h"
 #include "include/fields.h"
+#include "definitions.h"
 
 int main(int argc, char **argv)
 {
@@ -93,9 +94,11 @@ int main(int argc, char **argv)
             stream_distributions(sim);
         )
 
+#ifdef WETNODE
         TIME("> Wetnode boundary conditions...",
             wetnode_boundary_conditions(sim);
         )
+#endif
 
         TIME("> Computing macroscopic fields...",
             extract_moments(sim);
