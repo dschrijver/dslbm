@@ -42,9 +42,9 @@ static inline void set_params(ParamBag *params)
     double gamma = params->rho_0_RED / params->rho_0_BLUE;
     params->alpha_RED = 1.0 - (1.0 - params->alpha_BLUE) / gamma;
 
-    params->Fx_ext = 0.0;
-    params->Fy_ext = 0.0;
-    params->Fz_ext = 0.0;
+    params->gx = 0.0;
+    params->gy = 0.0;
+    params->gz = 0.0;
 }
 
 #endif
