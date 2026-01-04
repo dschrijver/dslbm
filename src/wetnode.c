@@ -7,6 +7,7 @@
 
 void wetnode_boundary_conditions(SimulationBag *sim)
 {
+#ifdef WETNODE
     ParamBag *params = sim->params;
     GlobalFieldBag *glob_fields = sim->glob_fields;
 
@@ -19,6 +20,9 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     double *u = glob_fields->u;
     double *v = glob_fields->v;
     double *w = glob_fields->w;
+#else
+    (void) sim;
+#endif
 
     // Mass conservation after streaming
 #ifdef LEFT_NEBB_NOSLIP
