@@ -1,0 +1,32 @@
+# DSLBM
+DSLBM is an MPI parallelized binary fluid code based on the Lattice Boltzmann Method. It makes use of the Color-Gradient Method for phase separation and interface tension. 
+
+## Local installation on Ubuntu
+Run the following command to install make, gcc, openmpi, hdf5 and zlib, 
+```
+sudo apt install binutils openmpi-bin libopenmpi-dev zlib1g zlib1g-dev
+make install_hdf5
+```
+
+## Cluster installation
+Load the modules corresponding to gcc, openmpi and hdf5. 
+
+## Program settings
+Parameters can be tuned in the file [params.h](params.h) before compilation. Boundary conditions and initial conditions, along with their corresponding parameters, can be tuned in [definitions.h](definitions.h). 
+
+## Local compilation and running
+Before compilation, copy [make.def.local](makedefs/make.def.local) to the root directory. Run the following command to compile the code,
+```
+make
+```
+The program can then be ran on $n$ processors using the following command,
+```
+make run_local n=n
+```
+
+## Cluster compilation and running
+Before compiliation, create a make.def file corresponding to the specific cluster architecture. An example can be found in [make.def.example_cluster](makedefs/make.def.example_cluster). Copy this new file to the root directory and compile the code with the following command,
+```
+make
+```
+The ```dslbm``` executable will be generated, after which a custom jobscript can be submitted. 

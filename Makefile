@@ -1,15 +1,17 @@
+include make.def.*
+
 COMPILER = mpicc
-OPT_FLAGS = -std=c11 -O3 
+GENERAL_OPT_FLAGS = -std=c11 -O3
 DEBUG_FLAGS = -Wall -Wextra
-LIB_FLAGS = -I$(shell pwd)/hdf5/include -L$(shell pwd)/hdf5/lib -l:libhdf5.a -lm -lz -lsz
+LIB_FLAGS = -lhdf5 -lz -lm
 
 SRC = $(wildcard main.c src/*.c)
 
-all: cleandata clean dslbm
-	mpirun -n 6 dslbm
+compile:
+	$(COMPILER) $(SRC) -o dslbm $(GENERAL_OPT_FLAGS) $(ADDITIONAL_OPT_FLAGS) $(DEBUG_FLAGS) $(HDF5_FLAGS) $(LIB_FLAGS)
 
-dslbm:
-	$(COMPILER) $(SRC) -o $@ $(OPT_FLAGS) $(DEBUG_FLAGS) $(LIB_FLAGS)
+run_local: 
+	mpirun -n $(n) dslbm
 
 clean:
 	rm -f dslbm
@@ -21,7 +23,9 @@ install_hdf5:
 	mkdir -p hdf5
 	tar -xvzf archives/hdf5* -C hdf5 --strip-components=2
 	cd hdf5;\
-	CC=mpicc ./configure --enable-parallel --enable-shared;\
+	export ac_cv_lib_sz_SZ_BufftoBuffCompress=no;\
+	export ac_cv_header_szlib_h=no;\
+	CC=mpicc ./configure --enable-parallel --disable-shared --disable-szlib;\
 	make;\
 	make install;\
 	cd ../;\

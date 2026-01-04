@@ -2,3 +2,4 @@ dslbm
 *.h5
 hdf5/
 .vscode/
+/make.def.*
