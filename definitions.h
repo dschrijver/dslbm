@@ -63,13 +63,13 @@
 // #define TOP_PRESSURE_RED 0.0
 // #define TOP_PRESSURE_BLUE (0.4 - 1e-5)
 
-// #define BACK_NEBB_PRESSURE
-// #define BACK_PRESSURE_RED 0.0
-// #define BACK_PRESSURE_BLUE 0.4
+#define BACK_NEBB_PRESSURE
+#define BACK_PRESSURE_RED 0.0
+#define BACK_PRESSURE_BLUE 0.4
 
-// #define FRONT_NEBB_PRESSURE
-// #define FRONT_PRESSURE_RED 0.0
-// #define FRONT_PRESSURE_BLUE (0.4 - 1e-5)
+#define FRONT_NEBB_PRESSURE
+#define FRONT_PRESSURE_RED 0.0
+#define FRONT_PRESSURE_BLUE (0.4 - 1e-5)
 
 // -----------------------------------
 
@@ -87,7 +87,7 @@
 // --------------------
 //     Logic checks        
 // --------------------
-#if defined(LEFT_NEBB_NOSLIP) || defined(RIGHT_NEBB_NOSLIP) || defined(BOTTOM_NEBB_NOSLIP) || defined(TOP_NEBB_NOSLIP) || defined(BACK_NEBB_NOSLIP) || defined(FRONT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE) || defined(RIGHT_NEBB_PRESSURE)
+#if defined(LEFT_NEBB_NOSLIP) || defined(RIGHT_NEBB_NOSLIP) || defined(BOTTOM_NEBB_NOSLIP) || defined(TOP_NEBB_NOSLIP) || defined(BACK_NEBB_NOSLIP) || defined(FRONT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE) || defined(RIGHT_NEBB_PRESSURE) || defined(BOTTOM_NEBB_PRESSURE) || defined(TOP_NEBB_PRESSURE) || defined(BACK_NEBB_PRESSURE) || defined(FRONT_NEBB_PRESSURE)
 #define WETNODE
 #endif
 
