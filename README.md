@@ -16,7 +16,7 @@ Parameters can be tuned in the file [params.h](params.h) before compilation. Bou
 
 - The number of nodes in the $x$-direction, NX, should be at least twice as big as the number of MPI processes. 
 - The improved Non-Equilibrium Bounce-Back scheme in this code performs more accurately for Static Contact-Angle simulations. 
-- Corners between no-slip NEBB boundaries are not implemented.  
+- Corners between NEBB boundaries are not implemented.  
 - Custom initial conditions can be added to [definitions.h](definitions.h) and then to [initialize.c](src/initialize.c) using a newly defined flag. 
 - No logic checks are performed when multiple boundary condition methods are defined for the same boundary. 
 
