@@ -8,6 +8,7 @@ static inline void set_params(ParamBag *params)
     // General parameters
     params->NTIME = 100000;
     params->NSTORE = 1000;
+    params->NLOG = 100;
     params->NX = 50;
     params->NY = 200;
     params->NZ = 1;

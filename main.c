@@ -40,6 +40,7 @@ int main(int argc, char **argv)
 
     params->t = 0;
     params->t_output = 0;
+    params->t_log = 0;
     params->n_output = 0;
 
     initialize_fields(sim);
@@ -61,7 +62,7 @@ int main(int argc, char **argv)
         start_timestep = MPI_Wtime();
 
         // LOGGING TIME
-        if (params->process_rank == 0)
+        if ((params->process_rank == 0) && (params->t_log == params->t)) 
         {
             printf("================================================================================\n");
             printf("Time: %d\n", params->t);
@@ -109,13 +110,14 @@ int main(int argc, char **argv)
         duration_timestep = MPI_Wtime() - start_timestep;
 
         // LOGGING INFORMATION
-        if (params->process_rank == 0)
+        if ((params->process_rank == 0) && (params->t_log == params->t))   
         {
             printf("--------------------------------------------------------------------------------\n");
             printf("Step completed!\n");
             printf("    Duration of time step: %.4fs\n", duration_timestep);
             printf("    Total simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0);
             printf("    Expected remaining simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0 / (double)(params->t + 1) * (double)(params->NTIME - params->t - 1));
+            params->t_log += params->NLOG;
         }
 
         params->t++;

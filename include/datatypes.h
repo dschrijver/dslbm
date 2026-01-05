@@ -10,11 +10,13 @@ typedef struct ParamBag
     // Simulation variables
     int t;        ///< Current time in simulation
     int t_output; ///< Time at which to output next h5 files.
+    int t_log;    ///< Time at which to log progress.
     int n_output; ///< Index of next h5 output file.
 
     // General parameters
     int NTIME;  ///< Final time of simulation.
     int NSTORE; ///< Store data in data_*.h5 files every NSTORE steps.
+    int NLOG;   ///< Log progress every NSTORE steps.
     int NX;     ///< Number of fluid points in x (i) direction. Note: Max_number_of_processors <= NX/2.
     int NY;     ///< Number of fluid points in y (j) direction.
     int NZ;     ///< Number of fluid points in z (k) direction.
