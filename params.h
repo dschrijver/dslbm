@@ -6,15 +6,15 @@
 static inline void set_params(ParamBag *params)
 {
     // General parameters
-    params->NTIME = 1000;
-    params->NSTORE = 100;
-    params->NX = 60;
-    params->NY = 60;
-    params->NZ = 60;
+    params->NTIME = 100000;
+    params->NSTORE = 1000;
+    params->NX = 50;
+    params->NY = 200;
+    params->NZ = 1;
 
     // Relaxation times
     params->tau_RED = 1.0;
-    params->tau_BLUE = 0.625;
+    params->tau_BLUE = 1.0;
 
     // MRT parameters
     params->s_rho_RED = 1.0;

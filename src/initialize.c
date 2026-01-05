@@ -143,6 +143,29 @@ void initialize_fields(SimulationBag *sim)
     }
 #endif
 
+#ifdef INI_WASHBURN
+    double y;
+    FOR_DOMAIN
+    {
+        y = fabs((double)j);
+
+        u[INDEX_GLOB(i, j, k)] = 0.0;
+        v[INDEX_GLOB(i, j, k)] = 0.0;
+        w[INDEX_GLOB(i, j, k)] = 0.0;
+
+        if (y < H_START)
+        {
+            rho_comp[INDEX(i, j, k, RED)] = rho_0_RED;
+            rho_comp[INDEX(i, j, k, BLUE)] = 0.0;
+        }
+        else
+        {
+            rho_comp[INDEX(i, j, k, RED)] = 0.0;
+            rho_comp[INDEX(i, j, k, BLUE)] = rho_0_BLUE;
+        }
+    }
+#endif
+
     FOR_DOMAIN
     {
         rho[INDEX_GLOB(i, j, k)] = rho_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)];

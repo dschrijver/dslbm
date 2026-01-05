@@ -241,6 +241,16 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
+#ifdef YPERIODIC_FLIP
+            if ((jc < 0) || (jc > NY - 1))
+            {
+                jc = mod(jc, NY);
+                rho_RED_local = rho_comp[INDEX(ic, jc, kc, BLUE)];
+                rho_BLUE_local = rho_comp[INDEX(ic, jc, kc, RED)];
+                goto skip;
+            }
+#endif
+
             rho_RED_local = rho_comp[INDEX(ic, jc, kc, RED)];
             rho_BLUE_local = rho_comp[INDEX(ic, jc, kc, BLUE)];
 

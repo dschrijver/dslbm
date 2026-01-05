@@ -124,6 +124,16 @@ void stream_distributions(SimulationBag *sim)
             }
 #endif
 
+#ifdef YPERIODIC_FLIP
+            if ((jc < 0) || (jc > NY - 1))
+            {
+                jc = mod(jc, NY);
+                f1[INDEX_F(i, j, k, p, RED)] = f2[INDEX_F(ic, jc, kc, p, BLUE)];
+                f1[INDEX_F(i, j, k, p, BLUE)] = f2[INDEX_F(ic, jc, kc, p, RED)];
+                continue;
+            }
+#endif
+
             f1[INDEX_F(i, j, k, p, RED)] = f2[INDEX_F(ic, jc, kc, p, RED)];
             f1[INDEX_F(i, j, k, p, BLUE)] = f2[INDEX_F(ic, jc, kc, p, BLUE)];
         }
