@@ -40,32 +40,32 @@ void stream_distributions(SimulationBag *sim)
             kc = mod(kc, NZ);
 #endif
 
-#ifdef LEFT_NEBB_NOSLIP
+#if defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
             if (ic < 0)
                 continue;
 #endif
 
-#ifdef RIGHT_NEBB_NOSLIP
+#if defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
             if (ic > params->NX - 1)
                 continue;
 #endif
 
-#ifdef BOTTOM_NEBB_NOSLIP
+#if defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_NEBB_PRESSURE)
             if (jc < 0)
                 continue;
 #endif
 
-#ifdef TOP_NEBB_NOSLIP
+#if defined(TOP_NEBB_NOSLIP) || defined(TOP_NEBB_PRESSURE)
             if (jc > NY - 1)
                 continue;
 #endif
 
-#ifdef BACK_NEBB_NOSLIP
+#if defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
             if (kc < 0)
                 continue;
 #endif
 
-#ifdef FRONT_NEBB_NOSLIP
+#if defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
             if (kc > NZ - 1)
                 continue;
 #endif

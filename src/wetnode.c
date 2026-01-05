@@ -9,24 +9,19 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 {
 #ifdef WETNODE
     ParamBag *params = sim->params;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
 
     int NY = params->NY;
     int NZ = params->NZ;
 
     int i_start = params->i_start;
     int i_end = params->i_end;
-
-    double *u = glob_fields->u;
-    double *v = glob_fields->v;
-    double *w = glob_fields->w;
 #else
-    (void) sim;
+    (void)sim;
 #endif
 
     // Mass conservation after streaming
-#ifdef LEFT_NEBB_NOSLIP
-    if (i_start == 0) 
+#if defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
+    if (i_start == 0)
     {
         for (int j = 0; j < NY; j++)
         {
@@ -38,7 +33,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef RIGHT_NEBB_NOSLIP
+#if defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
     if (i_end == params->NX)
     {
         for (int j = 0; j < NY; j++)
@@ -51,7 +46,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef BOTTOM_NEBB_NOSLIP
+#if defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -61,7 +56,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef TOP_NEBB_NOSLIP
+#if defined(TOP_NEBB_NOSLIP) || defined(TOP_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -71,7 +66,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef BACK_NEBB_NOSLIP
+#if defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -81,7 +76,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef FRONT_NEBB_NOSLIP
+#if defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -93,30 +88,30 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 
     // Set velocities
 #ifdef LEFT_NEBB_NOSLIP
-    if (i_start == 0) 
+    if (i_start == 0)
     {
         for (int j = 0; j < NY; j++)
         {
             for (int k = 0; k < NZ; k++)
             {
-                u[INDEX_GLOB(0, j, k)] = 0.0;
-                v[INDEX_GLOB(0, j, k)] = 0.0;
-                w[INDEX_GLOB(0, j, k)] = 0.0;
+                sim->glob_fields->u[INDEX_GLOB(0, j, k)] = 0.0;
+                sim->glob_fields->v[INDEX_GLOB(0, j, k)] = 0.0;
+                sim->glob_fields->w[INDEX_GLOB(0, j, k)] = 0.0;
             }
         }
     }
 #endif
 
 #ifdef RIGHT_NEBB_NOSLIP
-    if (i_end == params->NX) 
+    if (i_end == params->NX)
     {
         for (int j = 0; j < NY; j++)
         {
             for (int k = 0; k < NZ; k++)
             {
-                u[INDEX_GLOB(params->NX - 1, j, k)] = 0.0;
-                v[INDEX_GLOB(params->NX - 1, j, k)] = 0.0;
-                w[INDEX_GLOB(params->NX - 1, j, k)] = 0.0;
+                sim->glob_fields->u[INDEX_GLOB(params->NX - 1, j, k)] = 0.0;
+                sim->glob_fields->v[INDEX_GLOB(params->NX - 1, j, k)] = 0.0;
+                sim->glob_fields->w[INDEX_GLOB(params->NX - 1, j, k)] = 0.0;
             }
         }
     }
@@ -127,9 +122,9 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     {
         for (int k = 0; k < NZ; k++)
         {
-            u[INDEX_GLOB(i, 0, k)] = 0.0;
-            v[INDEX_GLOB(i, 0, k)] = 0.0;
-            w[INDEX_GLOB(i, 0, k)] = 0.0;
+            sim->glob_fields->u[INDEX_GLOB(i, 0, k)] = 0.0;
+            sim->glob_fields->v[INDEX_GLOB(i, 0, k)] = 0.0;
+            sim->glob_fields->w[INDEX_GLOB(i, 0, k)] = 0.0;
         }
     }
 #endif
@@ -139,9 +134,9 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     {
         for (int k = 0; k < NZ; k++)
         {
-            u[INDEX_GLOB(i, NY - 1, k)] = 0.0;
-            v[INDEX_GLOB(i, NY - 1, k)] = 0.0;
-            w[INDEX_GLOB(i, NY - 1, k)] = 0.0;
+            sim->glob_fields->u[INDEX_GLOB(i, NY - 1, k)] = 0.0;
+            sim->glob_fields->v[INDEX_GLOB(i, NY - 1, k)] = 0.0;
+            sim->glob_fields->w[INDEX_GLOB(i, NY - 1, k)] = 0.0;
         }
     }
 #endif
@@ -151,9 +146,9 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     {
         for (int j = 0; j < NY; j++)
         {
-            u[INDEX_GLOB(i, j, 0)] = 0.0;
-            v[INDEX_GLOB(i, j, 0)] = 0.0;
-            w[INDEX_GLOB(i, j, 0)] = 0.0;
+            sim->glob_fields->u[INDEX_GLOB(i, j, 0)] = 0.0;
+            sim->glob_fields->v[INDEX_GLOB(i, j, 0)] = 0.0;
+            sim->glob_fields->w[INDEX_GLOB(i, j, 0)] = 0.0;
         }
     }
 #endif
@@ -163,9 +158,82 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     {
         for (int j = 0; j < NY; j++)
         {
-            u[INDEX_GLOB(i, j, NZ - 1)] = 0.0;
-            v[INDEX_GLOB(i, j, NZ - 1)] = 0.0;
-            w[INDEX_GLOB(i, j, NZ - 1)] = 0.0;
+            sim->glob_fields->u[INDEX_GLOB(i, j, NZ - 1)] = 0.0;
+            sim->glob_fields->v[INDEX_GLOB(i, j, NZ - 1)] = 0.0;
+            sim->glob_fields->w[INDEX_GLOB(i, j, NZ - 1)] = 0.0;
+        }
+    }
+#endif
+
+    // Set densities
+#ifdef LEFT_NEBB_PRESSURE
+    if (i_start == 0)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                sim->comp_fields->rho_comp[INDEX(0, j, k, RED)] = LEFT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+                sim->comp_fields->rho_comp[INDEX(0, j, k, BLUE)] = LEFT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            }
+        }
+    }
+#endif
+
+#ifdef RIGHT_NEBB_PRESSURE
+    if (i_end == params->NX)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                sim->comp_fields->rho_comp[INDEX(params->NX - 1, j, k, RED)] = RIGHT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+                sim->comp_fields->rho_comp[INDEX(params->NX - 1, j, k, BLUE)] = RIGHT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            }
+        }
+    }
+#endif
+
+#ifdef BOTTOM_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            sim->comp_fields->rho_comp[INDEX(i, 0, k, RED)] = BOTTOM_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+            sim->comp_fields->rho_comp[INDEX(i, 0, k, BLUE)] = BOTTOM_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+        }
+    }
+#endif
+
+#ifdef TOP_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            sim->comp_fields->rho_comp[INDEX(i, NY - 1, k, RED)] = TOP_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+            sim->comp_fields->rho_comp[INDEX(i, NY - 1, k, BLUE)] = TOP_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+        }
+    }
+#endif
+
+#ifdef BACK_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            sim->comp_fields->rho_comp[INDEX(i, j, 0, RED)] = BACK_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+            sim->comp_fields->rho_comp[INDEX(i, j, 0, BLUE)] = BACK_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+        }
+    }
+#endif
+
+#ifdef FRONT_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            sim->comp_fields->rho_comp[INDEX(i, j, NZ - 1, RED)] = FRONT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+            sim->comp_fields->rho_comp[INDEX(i, j, NZ - 1, BLUE)] = FRONT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
         }
     }
 #endif
@@ -237,8 +305,75 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
+    // Compute velocities
+#ifdef LEFT_NEBB_PRESSURE
+    if (i_start == 0)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                wetnode_compute_velocity(0, j, k, 1, 0, 0, sim);
+            }
+        }
+    }
+#endif
+
+#ifdef RIGHT_NEBB_PRESSURE
+    if (i_end == params->NX)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                wetnode_compute_velocity(params->NX - 1, j, k, -1, 0, 0, sim);
+            }
+        }
+    }
+#endif
+
+#ifdef BOTTOM_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            wetnode_compute_velocity(i, 0, k, 0, 1, 0, sim);
+        }
+    }
+#endif
+
+#ifdef TOP_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            wetnode_compute_velocity(i, NY - 1, k, 0, -1, 0, sim);
+        }
+    }
+#endif
+
+#ifdef BACK_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            wetnode_compute_velocity(i, j, 0, 0, 0, 1, sim);
+        }
+    }
+#endif
+
+#ifdef FRONT_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            wetnode_compute_velocity(i, j, NZ - 1, 0, 0, -1, sim);
+        }
+    }
+#endif
+
     // Evaluate forces
-#ifdef LEFT_NEBB_NOSLIP
+#if defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
     if (i_start == 0)
     {
         for (int j = 0; j < NY; j++)
@@ -251,7 +386,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef RIGHT_NEBB_NOSLIP
+#if defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
     if (i_end == params->NX)
     {
         for (int j = 0; j < NY; j++)
@@ -264,7 +399,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef BOTTOM_NEBB_NOSLIP
+#if defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -274,7 +409,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef TOP_NEBB_NOSLIP
+#if defined(TOP_NEBB_NOSLIP) || defined(TOP_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -284,7 +419,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef BACK_NEBB_NOSLIP
+#if defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -294,7 +429,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef FRONT_NEBB_NOSLIP
+#if defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -305,33 +440,33 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 #endif
 
     // Non-equilibrium bounce-back
-#ifdef LEFT_NEBB_NOSLIP
+#if defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
     if (i_start == 0)
     {
         non_equilibrium_bounce_back_x(0, 1, sim);
     }
 #endif
 
-#ifdef RIGHT_NEBB_NOSLIP
+#if defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
     if (i_end == params->NX)
     {
         non_equilibrium_bounce_back_x(params->NX - 1, -1, sim);
     }
 #endif
 
-#ifdef BOTTOM_NEBB_NOSLIP
+#if defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_NEBB_PRESSURE)
     non_equilibrium_bounce_back_y(0, 1, sim);
 #endif
 
-#ifdef TOP_NEBB_NOSLIP
+#if defined(TOP_NEBB_NOSLIP) || defined(TOP_NEBB_PRESSURE)
     non_equilibrium_bounce_back_y(NY - 1, -1, sim);
 #endif
 
-#ifdef BACK_NEBB_NOSLIP
+#if defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
     non_equilibrium_bounce_back_z(0, 1, sim);
 #endif
 
-#ifdef FRONT_NEBB_NOSLIP
+#if defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
     non_equilibrium_bounce_back_z(NZ - 1, -1, sim);
 #endif
 }
@@ -377,7 +512,8 @@ void wetnode_compute_density(int i, int j, int k, int nx, int ny, int nz, Simula
     Stencil *stencil = sim->stencil;
 
     double rho_RED_i, rho_BLUE_i;
-    int cn, un;
+    double un;
+    int cn;
 
     int NY = params->NY;
     int NZ = params->NZ;
@@ -417,10 +553,71 @@ void wetnode_compute_density(int i, int j, int k, int nx, int ny, int nz, Simula
         }
     }
 
-    un = u[INDEX_GLOB(i, j, k)] * nx + v[INDEX_GLOB(i, j, k)] * ny + w[INDEX_GLOB(i, j, k)] * nz;
+    un = u[INDEX_GLOB(i, j, k)] * (double)nx + v[INDEX_GLOB(i, j, k)] * (double)ny + w[INDEX_GLOB(i, j, k)] * (double)nz;
 
     rho_comp[INDEX(i, j, k, RED)] = rho_RED_i / (1.0 - un);
     rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i / (1.0 - un);
+}
+
+void wetnode_compute_velocity(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    GlobalFieldBag *glob_fields = sim->glob_fields;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+    DistributionBag *dists = sim->dists;
+    Stencil *stencil = sim->stencil;
+
+    double un;
+    int cn, comp;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+    int NP = stencil->NP;
+
+    int *cx = stencil->cx;
+    int *cy = stencil->cy;
+    int *cz = stencil->cz;
+
+    int i_start = params->i_start;
+
+    double *rho_comp = comp_fields->rho_comp;
+
+    double *u = glob_fields->u;
+    double *v = glob_fields->v;
+    double *w = glob_fields->w;
+
+    double *f1 = dists->f1;
+    double *f2 = dists->f2;
+
+    if (rho_comp[INDEX(i, j, k, RED)] == 0.0)
+    {
+        comp = BLUE;
+    }
+    else
+    {
+        comp = RED;
+    }
+
+    un = f2[INDEX_F(i, j, k, 0, comp)];
+
+    for (int p = 1; p < NP; p++)
+    {
+        cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
+
+        if (cn < 0)
+        {
+            un += f1[INDEX_F(i, j, k, p, comp)] + f2[INDEX_F(i, j, k, p, comp)];
+        }
+        else if (cn == 0)
+        {
+            un += f1[INDEX_F(i, j, k, p, comp)];
+        }
+    }
+
+    un = 1.0 - un / rho_comp[INDEX(i, j, k, comp)];
+    u[INDEX_GLOB(i, j, k)] = un * (double)nx;
+    v[INDEX_GLOB(i, j, k)] = un * (double)ny;
+    w[INDEX_GLOB(i, j, k)] = un * (double)nz;
 }
 
 void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
@@ -431,8 +628,7 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
     DistributionBag *dists = sim->dists;
     Stencil *stencil = sim->stencil;
 
-    double rho_RED_i, rho_BLUE_i, Fx_RED_i, Fy_RED_i, Fz_RED_i, Fx_BLUE_i, Fy_BLUE_i, Fz_BLUE_i;
-    double Nx_RED, Ny_RED, Nz_RED, Nx_BLUE, Ny_BLUE, Nz_BLUE;
+    double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
     double u_i, v_i, w_i, uc, c_i;
 
     int NY = params->NY;
@@ -467,70 +663,63 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
     {
         for (int k = 0; k < NZ; k++)
         {
-            rho_RED_i = rho_comp[INDEX(i, j, k, RED)];
-            rho_BLUE_i = rho_comp[INDEX(i, j, k, BLUE)];
-
-            u_i = u[INDEX_GLOB(i, j, k)];
-            v_i = v[INDEX_GLOB(i, j, k)];
-            w_i = w[INDEX_GLOB(i, j, k)];
-
-            Fx_RED_i = Fx[INDEX(i, j, k, RED)];
-            Fy_RED_i = Fy[INDEX(i, j, k, RED)];
-            Fz_RED_i = Fz[INDEX(i, j, k, RED)];
-
-            Fx_BLUE_i = Fx[INDEX(i, j, k, BLUE)];
-            Fy_BLUE_i = Fy[INDEX(i, j, k, BLUE)];
-            Fz_BLUE_i = Fz[INDEX(i, j, k, BLUE)];
-
-            Nx_RED = 0.5 * Fx_RED_i / C_norm;
-            Ny_RED = 0.5 * Fy_RED_i - rho_RED_i * v_i;
-            Nz_RED = 0.5 * Fz_RED_i - rho_RED_i * w_i;
-
-            Nx_BLUE = 0.5 * Fx_BLUE_i / C_norm;
-            Ny_BLUE = 0.5 * Fy_BLUE_i - rho_BLUE_i * v_i;
-            Nz_BLUE = 0.5 * Fz_BLUE_i - rho_BLUE_i * w_i;
-
-            for (int p = 1; p < NP; p++)
+            for (int n = 0; n < NCOMP; n++)
             {
-                if (cx[p] == 0)
-                {
-                    Ny_RED += f1[INDEX_F(i, j, k, p, RED)] * (double)cy[p];
-                    Nz_RED += f1[INDEX_F(i, j, k, p, RED)] * (double)cz[p];
+                rho_i = rho_comp[INDEX(i, j, k, n)];
 
-                    Ny_BLUE += f1[INDEX_F(i, j, k, p, BLUE)] * (double)cy[p];
-                    Nz_BLUE += f1[INDEX_F(i, j, k, p, BLUE)] * (double)cz[p];
+                if (rho_i == 0.0)
+                {
+                    for (int p = 0; p < NP; p++)
+                    {
+                        f1[INDEX_F(i, j, k, p, n)] = 0.0;
+                    }
+                    continue;
                 }
 
-                else if (cx[p] * nx > 0)
+                u_i = u[INDEX_GLOB(i, j, k)];
+                v_i = v[INDEX_GLOB(i, j, k)];
+                w_i = w[INDEX_GLOB(i, j, k)];
+
+                Fx_i = Fx[INDEX(i, j, k, n)];
+                Fy_i = Fy[INDEX(i, j, k, n)];
+                Fz_i = Fz[INDEX(i, j, k, n)];
+
+                Nx = 0.5 * Fx_i / C_norm;
+                Ny = 0.5 * Fy_i - rho_i * v_i;
+                Nz = 0.5 * Fz_i - rho_i * w_i;
+
+                for (int p = 1; p < NP; p++)
                 {
-                    uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
+                    if (cx[p] == 0)
+                    {
+                        Ny += f1[INDEX_F(i, j, k, p, n)] * (double)cy[p];
+                        Nz += f1[INDEX_F(i, j, k, p, n)] * (double)cz[p];
+                    }
 
-                    Ny_RED += 2.0 * wp[p] * rho_RED_i * uc / cs2 * (double)cy[p];
-                    Nz_RED += 2.0 * wp[p] * rho_RED_i * uc / cs2 * (double)cz[p];
+                    else if (cx[p] * nx > 0)
+                    {
+                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
 
-                    Ny_BLUE += 2.0 * wp[p] * rho_BLUE_i * uc / cs2 * (double)cy[p];
-                    Nz_BLUE += 2.0 * wp[p] * rho_BLUE_i * uc / cs2 * (double)cz[p];
+                        Ny += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cy[p];
+                        Nz += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cz[p];
+                    }
                 }
+
+                Ny /= C_par;
+                Nz /= C_par;
+
+                for (int p = 1; p < NP; p++)
+                {
+                    if (cx[p] * nx > 0)
+                    {
+                        c_i = sqrt((double)cx[p] * (double)cx[p] + (double)cy[p] * (double)cy[p] + (double)cz[p] * (double)cz[p]);
+                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
+                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + 2.0 * wp[p] * rho_i * uc / cs2 - (double)cx[p] / c_i * Nx - (double)cy[p] / c_i * Ny - (double)cz[p] / c_i * Nz;
+                    }
+                }
+
+                f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fx_i * nx;
             }
-
-            Ny_RED /= C_par;
-            Nz_RED /= C_par;
-
-            Ny_BLUE /= C_par;
-            Nz_BLUE /= C_par;
-
-            for (int p = 1; p < NP; p++)
-            {
-                if (cx[p] * nx > 0)
-                {
-                    c_i = sqrt((double)cx[p] * (double)cx[p] + (double)cy[p] * (double)cy[p] + (double)cz[p] * (double)cz[p]);
-                    f1[INDEX_F(i, j, k, p, RED)] = f1[INDEX_F(i, j, k, p_bounceback[p], RED)] - (double)cx[p] / c_i * Nx_RED - (double)cy[p] / c_i * Ny_RED - (double)cz[p] / c_i * Nz_RED;
-                    f1[INDEX_F(i, j, k, p, BLUE)] = f1[INDEX_F(i, j, k, p_bounceback[p], BLUE)] - (double)cx[p] / c_i * Nx_BLUE - (double)cy[p] / c_i * Ny_BLUE - (double)cz[p] / c_i * Nz_BLUE;
-                }
-            }
-
-            f1[INDEX_F(i, j, k, 0, RED)] += 0.5 * Fx_RED_i * nx;
-            f1[INDEX_F(i, j, k, 0, BLUE)] += 0.5 * Fx_BLUE_i * nx;
         }
     }
 }
@@ -543,8 +732,7 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
     DistributionBag *dists = sim->dists;
     Stencil *stencil = sim->stencil;
 
-    double rho_RED_i, rho_BLUE_i, Fx_RED_i, Fy_RED_i, Fz_RED_i, Fx_BLUE_i, Fy_BLUE_i, Fz_BLUE_i;
-    double Nx_RED, Ny_RED, Nz_RED, Nx_BLUE, Ny_BLUE, Nz_BLUE;
+    double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
     double u_i, v_i, w_i, uc, c_i;
 
     int NY = params->NY;
@@ -580,70 +768,63 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
     {
         for (int k = 0; k < NZ; k++)
         {
-            rho_RED_i = rho_comp[INDEX(i, j, k, RED)];
-            rho_BLUE_i = rho_comp[INDEX(i, j, k, BLUE)];
-
-            u_i = u[INDEX_GLOB(i, j, k)];
-            v_i = v[INDEX_GLOB(i, j, k)];
-            w_i = w[INDEX_GLOB(i, j, k)];
-
-            Fx_RED_i = Fx[INDEX(i, j, k, RED)];
-            Fy_RED_i = Fy[INDEX(i, j, k, RED)];
-            Fz_RED_i = Fz[INDEX(i, j, k, RED)];
-
-            Fx_BLUE_i = Fx[INDEX(i, j, k, BLUE)];
-            Fy_BLUE_i = Fy[INDEX(i, j, k, BLUE)];
-            Fz_BLUE_i = Fz[INDEX(i, j, k, BLUE)];
-
-            Nx_RED = 0.5 * Fx_RED_i - rho_RED_i * u_i;
-            Ny_RED = 0.5 * Fy_RED_i / C_norm;
-            Nz_RED = 0.5 * Fz_RED_i - rho_RED_i * w_i;
-
-            Nx_BLUE = 0.5 * Fx_BLUE_i - rho_BLUE_i * u_i;
-            Ny_BLUE = 0.5 * Fy_BLUE_i / C_norm;
-            Nz_BLUE = 0.5 * Fz_BLUE_i - rho_BLUE_i * w_i;
-
-            for (int p = 1; p < NP; p++)
+            for (int n = 0; n < NCOMP; n++)
             {
-                if (cy[p] == 0)
-                {
-                    Nx_RED += f1[INDEX_F(i, j, k, p, RED)] * (double)cx[p];
-                    Nz_RED += f1[INDEX_F(i, j, k, p, RED)] * (double)cz[p];
+                rho_i = rho_comp[INDEX(i, j, k, n)];
 
-                    Nx_BLUE += f1[INDEX_F(i, j, k, p, BLUE)] * (double)cx[p];
-                    Nz_BLUE += f1[INDEX_F(i, j, k, p, BLUE)] * (double)cz[p];
+                if (rho_i == 0.0)
+                {
+                    for (int p = 0; p < NP; p++)
+                    {
+                        f1[INDEX_F(i, j, k, p, n)] = 0.0;
+                    }
+                    continue;
                 }
 
-                else if (cy[p] * ny > 0)
+                u_i = u[INDEX_GLOB(i, j, k)];
+                v_i = v[INDEX_GLOB(i, j, k)];
+                w_i = w[INDEX_GLOB(i, j, k)];
+
+                Fx_i = Fx[INDEX(i, j, k, n)];
+                Fy_i = Fy[INDEX(i, j, k, n)];
+                Fz_i = Fz[INDEX(i, j, k, n)];
+
+                Nx = 0.5 * Fx_i - rho_i * u_i;
+                Ny = 0.5 * Fy_i / C_norm;
+                Nz = 0.5 * Fz_i - rho_i * w_i;
+
+                for (int p = 1; p < NP; p++)
                 {
-                    uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
+                    if (cy[p] == 0)
+                    {
+                        Nx += f1[INDEX_F(i, j, k, p, n)] * (double)cx[p];
+                        Nz += f1[INDEX_F(i, j, k, p, n)] * (double)cz[p];
+                    }
 
-                    Nx_RED += 2.0 * wp[p] * rho_RED_i * uc / cs2 * (double)cx[p];
-                    Nz_RED += 2.0 * wp[p] * rho_RED_i * uc / cs2 * (double)cz[p];
+                    else if (cy[p] * ny > 0)
+                    {
+                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
 
-                    Nx_BLUE += 2.0 * wp[p] * rho_BLUE_i * uc / cs2 * (double)cx[p];
-                    Nz_BLUE += 2.0 * wp[p] * rho_BLUE_i * uc / cs2 * (double)cz[p];
+                        Nx += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cx[p];
+                        Nz += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cz[p];
+                    }
                 }
+
+                Nx /= C_par;
+                Nz /= C_par;
+
+                for (int p = 1; p < NP; p++)
+                {
+                    if (cy[p] * ny > 0)
+                    {
+                        c_i = sqrt((double)cx[p] * (double)cx[p] + (double)cy[p] * (double)cy[p] + (double)cz[p] * (double)cz[p]);
+                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
+                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + 2.0 * wp[p] * rho_i * uc / cs2 - (double)cx[p] / c_i * Nx - (double)cy[p] / c_i * Ny - (double)cz[p] / c_i * Nz;
+                    }
+                }
+
+                f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fy_i * ny;
             }
-
-            Nx_RED /= C_par;
-            Nz_RED /= C_par;
-
-            Nx_BLUE /= C_par;
-            Nz_BLUE /= C_par;
-
-            for (int p = 1; p < NP; p++)
-            {
-                if (cy[p] * ny > 0)
-                {
-                    c_i = sqrt((double)cx[p] * (double)cx[p] + (double)cy[p] * (double)cy[p] + (double)cz[p] * (double)cz[p]);
-                    f1[INDEX_F(i, j, k, p, RED)] = f1[INDEX_F(i, j, k, p_bounceback[p], RED)] - (double)cx[p] / c_i * Nx_RED - (double)cy[p] / c_i * Ny_RED - (double)cz[p] / c_i * Nz_RED;
-                    f1[INDEX_F(i, j, k, p, BLUE)] = f1[INDEX_F(i, j, k, p_bounceback[p], BLUE)] - (double)cx[p] / c_i * Nx_BLUE - (double)cy[p] / c_i * Ny_BLUE - (double)cz[p] / c_i * Nz_BLUE;
-                }
-            }
-
-            f1[INDEX_F(i, j, k, 0, RED)] += 0.5 * Fy_RED_i * ny;
-            f1[INDEX_F(i, j, k, 0, BLUE)] += 0.5 * Fy_BLUE_i * ny;
         }
     }
 }
@@ -656,8 +837,7 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
     DistributionBag *dists = sim->dists;
     Stencil *stencil = sim->stencil;
 
-    double rho_RED_i, rho_BLUE_i, Fx_RED_i, Fy_RED_i, Fz_RED_i, Fx_BLUE_i, Fy_BLUE_i, Fz_BLUE_i;
-    double Nx_RED, Ny_RED, Nz_RED, Nx_BLUE, Ny_BLUE, Nz_BLUE;
+    double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
     double u_i, v_i, w_i, uc, c_i;
 
     int NY = params->NY;
@@ -693,70 +873,63 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
     {
         for (int j = 0; j < NY; j++)
         {
-            rho_RED_i = rho_comp[INDEX(i, j, k, RED)];
-            rho_BLUE_i = rho_comp[INDEX(i, j, k, BLUE)];
-
-            u_i = u[INDEX_GLOB(i, j, k)];
-            v_i = v[INDEX_GLOB(i, j, k)];
-            w_i = w[INDEX_GLOB(i, j, k)];
-
-            Fx_RED_i = Fx[INDEX(i, j, k, RED)];
-            Fy_RED_i = Fy[INDEX(i, j, k, RED)];
-            Fz_RED_i = Fz[INDEX(i, j, k, RED)];
-
-            Fx_BLUE_i = Fx[INDEX(i, j, k, BLUE)];
-            Fy_BLUE_i = Fy[INDEX(i, j, k, BLUE)];
-            Fz_BLUE_i = Fz[INDEX(i, j, k, BLUE)];
-
-            Nx_RED = 0.5 * Fx_RED_i - rho_RED_i * u_i;
-            Ny_RED = 0.5 * Fy_RED_i - rho_RED_i * v_i;
-            Nz_RED = 0.5 * Fz_RED_i / C_norm;
-
-            Nx_BLUE = 0.5 * Fx_BLUE_i - rho_BLUE_i * u_i;
-            Ny_BLUE = 0.5 * Fy_BLUE_i - rho_BLUE_i * v_i;
-            Nz_BLUE = 0.5 * Fz_BLUE_i / C_norm;
-
-            for (int p = 1; p < NP; p++)
+            for (int n = 0; n < NCOMP; n++)
             {
-                if (cz[p] == 0)
-                {
-                    Nx_RED += f1[INDEX_F(i, j, k, p, RED)] * (double)cx[p];
-                    Ny_RED += f1[INDEX_F(i, j, k, p, RED)] * (double)cy[p];
+                rho_i = rho_comp[INDEX(i, j, k, n)];
 
-                    Nx_BLUE += f1[INDEX_F(i, j, k, p, BLUE)] * (double)cx[p];
-                    Ny_BLUE += f1[INDEX_F(i, j, k, p, BLUE)] * (double)cy[p];
+                if (rho_i == 0.0)
+                {
+                    for (int p = 0; p < NP; p++)
+                    {
+                        f1[INDEX_F(i, j, k, p, n)] = 0.0;
+                    }
+                    continue;
                 }
 
-                else if (cz[p] * nz > 0)
+                u_i = u[INDEX_GLOB(i, j, k)];
+                v_i = v[INDEX_GLOB(i, j, k)];
+                w_i = w[INDEX_GLOB(i, j, k)];
+
+                Fx_i = Fx[INDEX(i, j, k, n)];
+                Fy_i = Fy[INDEX(i, j, k, n)];
+                Fz_i = Fz[INDEX(i, j, k, n)];
+
+                Nx = 0.5 * Fx_i - rho_i * u_i;
+                Ny = 0.5 * Fy_i - rho_i * v_i;
+                Nz = 0.5 * Fz_i / C_norm;
+
+                for (int p = 1; p < NP; p++)
                 {
-                    uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
+                    if (cz[p] == 0)
+                    {
+                        Nx += f1[INDEX_F(i, j, k, p, n)] * (double)cx[p];
+                        Ny += f1[INDEX_F(i, j, k, p, n)] * (double)cy[p];
+                    }
 
-                    Nx_RED += 2.0 * wp[p] * rho_RED_i * uc / cs2 * (double)cx[p];
-                    Ny_RED += 2.0 * wp[p] * rho_RED_i * uc / cs2 * (double)cy[p];
+                    else if (cz[p] * nz > 0)
+                    {
+                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
 
-                    Nx_BLUE += 2.0 * wp[p] * rho_BLUE_i * uc / cs2 * (double)cx[p];
-                    Ny_BLUE += 2.0 * wp[p] * rho_BLUE_i * uc / cs2 * (double)cy[p];
+                        Nx += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cx[p];
+                        Ny += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cy[p];
+                    }
                 }
+
+                Nx /= C_par;
+                Ny /= C_par;
+
+                for (int p = 1; p < NP; p++)
+                {
+                    if (cz[p] * nz > 0)
+                    {
+                        c_i = sqrt((double)cx[p] * (double)cx[p] + (double)cy[p] * (double)cy[p] + (double)cz[p] * (double)cz[p]);
+                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
+                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + 2.0 * wp[p] * rho_i * uc / cs2 - (double)cx[p] / c_i * Nx - (double)cy[p] / c_i * Ny - (double)cz[p] / c_i * Nz;
+                    }
+                }
+
+                f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fz_i * nz;
             }
-
-            Nx_RED /= C_par;
-            Ny_RED /= C_par;
-
-            Nx_BLUE /= C_par;
-            Ny_BLUE /= C_par;
-
-            for (int p = 1; p < NP; p++)
-            {
-                if (cz[p] * nz > 0)
-                {
-                    c_i = sqrt((double)cx[p] * (double)cx[p] + (double)cy[p] * (double)cy[p] + (double)cz[p] * (double)cz[p]);
-                    f1[INDEX_F(i, j, k, p, RED)] = f1[INDEX_F(i, j, k, p_bounceback[p], RED)] - (double)cx[p] / c_i * Nx_RED - (double)cy[p] / c_i * Ny_RED - (double)cz[p] / c_i * Nz_RED;
-                    f1[INDEX_F(i, j, k, p, BLUE)] = f1[INDEX_F(i, j, k, p_bounceback[p], BLUE)] - (double)cx[p] / c_i * Nx_BLUE - (double)cy[p] / c_i * Ny_BLUE - (double)cz[p] / c_i * Nz_BLUE;
-                }
-            }
-
-            f1[INDEX_F(i, j, k, 0, RED)] += 0.5 * Fz_RED_i * nz;
-            f1[INDEX_F(i, j, k, 0, BLUE)] += 0.5 * Fz_BLUE_i * nz;
         }
     }
 }
