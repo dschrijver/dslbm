@@ -12,7 +12,13 @@ make install_hdf5
 Load the modules corresponding to gcc, openmpi and hdf5. 
 
 ## Program settings
-Parameters can be tuned in the file [params.h](params.h) before compilation. Boundary conditions and initial conditions, along with their corresponding parameters, can be tuned in [definitions.h](definitions.h). 
+Parameters can be tuned in the file [params.h](params.h) before compilation. Boundary conditions and initial conditions, along with their corresponding parameters, can be tuned in [definitions.h](definitions.h). There should be some notes about the program settings:
+
+- The number of nodes in the $x$-direction, NX, should be at least twice as big as the number of MPI processes. 
+- The improved Non-Equilibrium Bounce-Back scheme in this code performs more accurately for Static Contact-Angle simulations. 
+- Corners between no-slip NEBB boundaries are not implemented.  
+- Custom initial conditions can be added to [definitions.h](definitions.h) and then to [initialize.c](src/initialize.c) using a newly defined flag. 
+- No logic checks are performed when multiple boundary condition methods are defined for the same boundary. 
 
 ## Local compilation and running
 Before compilation, copy [make.def.local](makedefs/make.def.local) to the root directory. Run the following command to compile the code,
