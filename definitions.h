@@ -8,14 +8,14 @@
 // #define YPERIODIC
 #define ZPERIODIC
 
-#define YPERIODIC_FLIP // For Washburn specifically
+// #define YPERIODIC_FLIP // For Washburn specifically
 
 // --- Half-way Bounce-Back ---
-// #define LEFT_BOUNCEBACK
-// #define THETA_C_LEFT 120.0
+#define LEFT_BOUNCEBACK
+#define THETA_C_LEFT 120.0
 
-// #define RIGHT_BOUNCEBACK
-// #define THETA_C_RIGHT 120.0
+#define RIGHT_BOUNCEBACK
+#define THETA_C_RIGHT 120.0
 
 // #define BOTTOM_BOUNCEBACK
 // #define THETA_C_BOTTOM 90.0
@@ -31,11 +31,11 @@
 // ----------------------------
 
 // --- Non-Equilibrium Bounce-Back ---
-#define LEFT_NEBB_NOSLIP
-#define THETA_C_LEFT 120.0
+// #define LEFT_NEBB_NOSLIP
+// #define THETA_C_LEFT 120.0
 
-#define RIGHT_NEBB_NOSLIP
-#define THETA_C_RIGHT 120.0
+// #define RIGHT_NEBB_NOSLIP
+// #define THETA_C_RIGHT 120.0
 
 // #define BOTTOM_NEBB_NOSLIP
 // #define THETA_C_BOTTOM 90.0
@@ -51,19 +51,19 @@
 
 // #define LEFT_NEBB_PRESSURE
 // #define LEFT_PRESSURE_RED 0.0
-// #define LEFT_PRESSURE_BLUE 0.4
+// #define LEFT_PRESSURE_BLUE (0.4 + 3e-5)
 
 // #define RIGHT_NEBB_PRESSURE
 // #define RIGHT_PRESSURE_RED 0.0
 // #define RIGHT_PRESSURE_BLUE (0.4 - 1e-5)
 
-// #define BOTTOM_NEBB_PRESSURE
-// #define BOTTOM_PRESSURE_RED 0.4
-// #define BOTTOM_PRESSURE_BLUE 0.0
+#define BOTTOM_NEBB_PRESSURE
+#define BOTTOM_PRESSURE_RED 0.004
+#define BOTTOM_PRESSURE_BLUE 0.0
 
-// #define TOP_NEBB_PRESSURE
-// #define TOP_PRESSURE_RED 0.0
-// #define TOP_PRESSURE_BLUE 0.4
+#define TOP_NEBB_PRESSURE
+#define TOP_PRESSURE_RED 0.0
+#define TOP_PRESSURE_BLUE 0.004
 
 // #define BACK_NEBB_PRESSURE
 // #define BACK_PRESSURE_RED 0.0
@@ -87,12 +87,12 @@
 // #define INI_POISEUILLE
 
 #define INI_WASHBURN
-#define H_START 50.0
+#define H_START 25.0
 
 // --------------------
 //     Logic checks        
 // --------------------
-#if defined(LEFT_NEBB_NOSLIP) || defined(RIGHT_NEBB_NOSLIP) || defined(BOTTOM_NEBB_NOSLIP) || defined(TOP_NEBB_NOSLIP) || defined(BACK_NEBB_NOSLIP) || defined(FRONT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE) || defined(RIGHT_NEBB_PRESSURE) || defined(BOTTOM_NEBB_PRESSURE) || defined(TOP_NEBB_PRESSURE) || defined(BACK_NEBB_PRESSURE) || defined(FRONT_NEBB_PRESSURE)
+#if defined(LEFT_NEBB_NOSLIP) || defined(RIGHT_NEBB_NOSLIP) || defined(BOTTOM_NEBB_NOSLIP) || defined(TOP_NEBB_NOSLIP) || defined(BACK_NEBB_NOSLIP) || defined(FRONT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE) || defined(RIGHT_NEBB_PRESSURE) || defined(BOTTOM_NEBB_PRESSURE) || defined(TOP_NEBB_PRESSURE) || defined(BACK_NEBB_PRESSURE) || defined(FRONT_NEBB_PRESSURE) || defined(RIGHT_NEBB_OUTLET)
 #define WETNODE
 #endif
 

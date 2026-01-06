@@ -9,8 +9,8 @@ static inline void set_params(ParamBag *params)
     params->NTIME = 100000;
     params->NSTORE = 1000;
     params->NLOG = 100;
-    params->NX = 50;
-    params->NY = 200;
+    params->NX = 41;
+    params->NY = 100;
     params->NZ = 1;
 
     // Relaxation times
@@ -35,7 +35,7 @@ static inline void set_params(ParamBag *params)
 
     // Starting densities
     params->rho_0_RED = 1.0;
-    params->rho_0_BLUE = 1.0;
+    params->rho_0_BLUE = 0.01;
 
     params->sigma = 1e-3;
     params->beta = 0.7;

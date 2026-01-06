@@ -2,6 +2,7 @@
 #define STENCIL_H
 
 #include <string.h>
+#include <math.h>
 
 #include "datatypes.h"
 #include "memory.h"

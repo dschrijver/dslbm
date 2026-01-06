@@ -87,6 +87,11 @@ typedef struct ComponentFieldBag
     // Densities of components
     double *rho_comp;
 
+    // Component velocities
+    double *u_comp;
+    double *v_comp;
+    double *w_comp;
+
     // Forces on components
     double *Fx;
     double *Fy;
@@ -114,6 +119,7 @@ typedef struct Stencil
     double zeta;
     double *B;
     double *phi_eq[2];
+    double *wp_D3Q41;
 } Stencil;
 
 typedef struct SimulationBag
