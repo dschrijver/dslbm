@@ -35,7 +35,7 @@ static inline void set_params(ParamBag *params)
 
     // Starting densities
     params->rho_0_RED = 1.0;
-    params->rho_0_BLUE = 0.01;
+    params->rho_0_BLUE = 1.0;
 
     params->sigma = 1e-3;
     params->beta = 0.7;

@@ -193,7 +193,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             kc = mod(kc, NZ);
 #endif
 
-#if defined(LEFT_BOUNCEBACK) || defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
+#if defined(LEFT_BOUNCEBACK_NOSLIP) || defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
             if (ic < 0)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -201,7 +201,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#if defined(RIGHT_BOUNCEBACK) || defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
+#if defined(RIGHT_BOUNCEBACK_NOSLIP) || defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
             if (ic > params->NX - 1)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -209,7 +209,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#if defined(BOTTOM_BOUNCEBACK) || defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_NEBB_PRESSURE)
+#if defined(BOTTOM_BOUNCEBACK_NOSLIP) || defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_BOUNCEBACK_PRESSURE) || defined(BOTTOM_NEBB_PRESSURE)
             if (jc < 0)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -217,7 +217,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#if defined(TOP_BOUNCEBACK) || defined(TOP_NEBB_NOSLIP) || defined(TOP_NEBB_PRESSURE)
+#if defined(TOP_BOUNCEBACK_NOSLIP) || defined(TOP_NEBB_NOSLIP) || defined(TOP_BOUNCEBACK_PRESSURE) || defined(TOP_NEBB_PRESSURE)
             if (jc > NY - 1)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -225,7 +225,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#if defined(BACK_BOUNCEBACK) || defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
+#if defined(BACK_BOUNCEBACK_NOSLIP) || defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
             if (kc < 0)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -233,7 +233,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#if defined(FRONT_BOUNCEBACK) || defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
+#if defined(FRONT_BOUNCEBACK_NOSLIP) || defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
             if (kc > NZ - 1)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -266,42 +266,42 @@ void collide_distributions_CGM(SimulationBag *sim)
         Gy /= cs2;
         Gz /= cs2;
 
-#if defined(LEFT_BOUNCEBACK) || defined(LEFT_NEBB_NOSLIP)
+#if defined(LEFT_BOUNCEBACK_NOSLIP) || defined(LEFT_NEBB_NOSLIP)
         if (i == 0)
         {
             Gx = -tan(DS_PI / 2.0 - (180.0 - THETA_C_LEFT) / 360.0 * 2.0 * DS_PI) * sqrt(Gy * Gy + Gz * Gz);
         }
 #endif
 
-#if defined(RIGHT_BOUNCEBACK) || defined(RIGHT_NEBB_NOSLIP)
+#if defined(RIGHT_BOUNCEBACK_NOSLIP) || defined(RIGHT_NEBB_NOSLIP)
         if (i == params->NX - 1)
         {
             Gx = tan(DS_PI / 2.0 - (180.0 - THETA_C_RIGHT) / 360.0 * 2.0 * DS_PI) * sqrt(Gy * Gy + Gz * Gz);
         }
 #endif
 
-#if defined(BOTTOM_BOUNCEBACK) || defined(BOTTOM_NEBB_NOSLIP)
+#if defined(BOTTOM_BOUNCEBACK_NOSLIP) || defined(BOTTOM_NEBB_NOSLIP)
         if (j == 0)
         {
             Gy = -tan(DS_PI / 2.0 - (180.0 - THETA_C_BOTTOM) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gz * Gz);
         }
 #endif
 
-#if defined(TOP_BOUNCEBACK) || defined(TOP_NEBB_NOSLIP)
+#if defined(TOP_BOUNCEBACK_NOSLIP) || defined(TOP_NEBB_NOSLIP)
         if (j == NY - 1)
         {
             Gy = tan(DS_PI / 2.0 - (180.0 - THETA_C_TOP) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gz * Gz);
         }
 #endif
 
-#if defined(BACK_BOUNCEBACK) || defined(BACK_NEBB_NOSLIP)
+#if defined(BACK_BOUNCEBACK_NOSLIP) || defined(BACK_NEBB_NOSLIP)
         if (k == 0)
         {
             Gz = -tan(DS_PI / 2.0 - (180.0 - THETA_C_BACK) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gy * Gy);
         }
 #endif
 
-#if defined(FRONT_BOUNCEBACK) || defined(FRONT_NEBB_NOSLIP)
+#if defined(FRONT_BOUNCEBACK_NOSLIP) || defined(FRONT_NEBB_NOSLIP)
         if (k == NZ - 1)
         {
             Gy = tan(DS_PI / 2.0 - (180.0 - THETA_C_FRONT) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gy * Gy);
