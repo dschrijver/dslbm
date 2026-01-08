@@ -2,7 +2,7 @@
 DSLBM is an MPI parallelized binary fluid code based on the Lattice Boltzmann Method. It makes use of the Color-Gradient Method for phase separation and interface tension. 
 
 ## Local installation on Ubuntu
-Run the following command to install make, gcc, openmpi, hdf5 and zlib, 
+Run the following commands to install make, gcc, openmpi, hdf5 and zlib, 
 ```
 sudo apt install binutils openmpi-bin libopenmpi-dev zlib1g zlib1g-dev
 make install_hdf5
@@ -19,6 +19,8 @@ Parameters can be tuned in the file [params.h](params.h) before compilation. Bou
 - Corners between NEBB boundaries are not implemented.  
 - Custom initial conditions can be added to [definitions.h](definitions.h) and then to [initialize.c](src/initialize.c) using a newly defined flag. 
 - No logic checks are performed when multiple boundary condition methods are defined for the same boundary. 
+- You should not enable both the Color-Gradient Method and Shan-Chen Method in [definitions.h](definitions.h).
+- The flags ```THETA_C_[BOUNDARY]``` in [definitions.h](definitions.h) are used to set the contact angles when the Color-Gradient Method is enabled, and the flags ```XI_[BOUNDARY]``` are used to tune the contact angles when the Shan-Chen Method is enabled. 
 
 ## Local compilation and running
 Before compilation, copy [make.def.local](makedefs/make.def.local) to the root directory. Run the following command to compile the code,
