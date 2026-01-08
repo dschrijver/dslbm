@@ -3,11 +3,15 @@
 #include "../include/datatypes.h"
 #include "../definitions.h"
 #include "../include/forcing.h"
+#include "../include/fields.h"
+#include "../include/communicate.h"
 #include "../include/wetnode.h"
 
 void wetnode_boundary_conditions(SimulationBag *sim)
 {
-#ifdef WETNODE
+#ifndef WETNODE
+    (void)sim;
+#else
     ParamBag *params = sim->params;
 
     int NY = params->NY;
@@ -15,8 +19,6 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 
     int i_start = params->i_start;
     int i_end = params->i_end;
-#else
-    (void)sim;
 #endif
 
     // Mass conservation after streaming
@@ -83,6 +85,14 @@ void wetnode_boundary_conditions(SimulationBag *sim)
         {
             wetnode_mass_conservation_streaming(i, j, NZ - 1, 0, 0, -1, sim);
         }
+    }
+#endif
+
+    // Compute bulk densities
+#ifdef SHAN_CHEN
+    FOR_DOMAIN
+    {
+        evaluate_density(i, j, k, sim);
     }
 #endif
 
@@ -406,6 +416,10 @@ void wetnode_boundary_conditions(SimulationBag *sim)
             wetnode_compute_velocity(i, j, NZ - 1, 0, 0, -1, sim);
         }
     }
+#endif
+
+#ifdef SHAN_CHEN
+    communicate_fields(sim);
 #endif
 
     // Evaluate forces

@@ -102,3 +102,33 @@ void update_final_velocity(SimulationBag *sim)
         w[INDEX_GLOB(i, j, k)] += 1.0 / (2.0 * rho_i) * Fz_i;
     }
 }
+
+void evaluate_density(int i, int j, int k, SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    DistributionBag *dists = sim->dists;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+    Stencil *stencil = sim->stencil;
+
+    double rho_RED_i, rho_BLUE_i;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+    int NP = stencil->NP;
+
+    int i_start = params->i_start;
+
+    double *rho_comp = comp_fields->rho_comp;
+
+    double *f1 = dists->f1;
+
+    rho_RED_i = 0.0;
+    rho_BLUE_i = 0.0;
+    for (int p = 0; p < NP; p++)
+    {
+        rho_RED_i += f1[INDEX_F(i, j, k, p, RED)];
+        rho_BLUE_i += f1[INDEX_F(i, j, k, p, BLUE)];
+    }
+    rho_comp[INDEX(i, j, k, RED)] = rho_RED_i;
+    rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i;
+}

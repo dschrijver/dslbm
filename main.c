@@ -78,13 +78,17 @@ int main(int argc, char **argv)
             )
         }
 
+#ifdef COLOR_GRADIENT
         TIME("> Communicate fields...",
             communicate_fields(sim);
         )
+#endif
 
         TIME("> Collision...",
             collide_distributions_MRT(sim);
+#ifdef COLOR_GRADIENT
             collide_distributions_CGM(sim);
+#endif
         )
 
         TIME("> Communicate distributions...",
@@ -103,6 +107,9 @@ int main(int argc, char **argv)
 
         TIME("> Computing macroscopic fields...",
             extract_moments(sim);
+#ifdef SHAN_CHEN
+            communicate_fields(sim);
+#endif
             evaluate_forces(sim);
             update_final_velocity(sim);
         )

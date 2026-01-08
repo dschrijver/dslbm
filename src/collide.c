@@ -132,6 +132,9 @@ void collide_distributions_MRT(SimulationBag *sim)
 
 void collide_distributions_CGM(SimulationBag *sim)
 {
+#ifndef COLOR_GRADIENT
+    (void)sim;
+#else
     ParamBag *params = sim->params;
     DistributionBag *dists = sim->dists;
     GlobalFieldBag *glob_fields = sim->glob_fields;
@@ -193,7 +196,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             kc = mod(kc, NZ);
 #endif
 
-#if defined(LEFT_BOUNCEBACK_NOSLIP) || defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
+#if defined(LEFT_BOUNCEBACK_NOSLIP) || defined(LEFT_NEBB_NOSLIP) || defined(LEFT_BOUNCEBACK_PRESSURE) || defined(LEFT_NEBB_PRESSURE)
             if (ic < 0)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -201,7 +204,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#if defined(RIGHT_BOUNCEBACK_NOSLIP) || defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
+#if defined(RIGHT_BOUNCEBACK_NOSLIP) || defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_BOUNCEBACK_PRESSURE) || defined(RIGHT_NEBB_PRESSURE)
             if (ic > params->NX - 1)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -225,7 +228,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#if defined(BACK_BOUNCEBACK_NOSLIP) || defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
+#if defined(BACK_BOUNCEBACK_NOSLIP) || defined(BACK_NEBB_NOSLIP) || defined(BACK_BOUNCEBACK_PRESSURE) || defined(BACK_NEBB_PRESSURE)
             if (kc < 0)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -233,7 +236,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             }
 #endif
 
-#if defined(FRONT_BOUNCEBACK_NOSLIP) || defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
+#if defined(FRONT_BOUNCEBACK_NOSLIP) || defined(FRONT_NEBB_NOSLIP) || defined(FRONT_BOUNCEBACK_PRESSURE) || defined(FRONT_NEBB_PRESSURE)
             if (kc > NZ - 1)
             {
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
@@ -342,6 +345,7 @@ void collide_distributions_CGM(SimulationBag *sim)
             f2[INDEX_F(i, j, k, p, BLUE)] -= beta * rho_RED_i * rho_BLUE_i / (rho_i * rho_i) * cos_phi * feq;
         }
     }
+#endif
 }
 
 void extrapolate_wall_density(int i, int j, int k, double *rho_RED, double *rho_BLUE, SimulationBag *sim)

@@ -53,6 +53,8 @@ typedef struct ParamBag
     double gy;
     double gz;
 
+    double G_SC;
+
     // MPI
     int number_of_processes;  ///< Stores number of processes
     int process_rank;         ///< Process rank
