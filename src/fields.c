@@ -1,4 +1,5 @@
 #include "../include/datatypes.h"
+#include "../definitions.h"
 #include "../include/fields.h"
 
 void extract_moments(SimulationBag *sim)
@@ -59,6 +60,10 @@ void extract_moments(SimulationBag *sim)
         rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i;
 
         pressure[INDEX_GLOB(i, j, k)] = rho_comp[INDEX(i, j, k, RED)] * zeta * (1.0 - alpha_RED) + rho_comp[INDEX(i, j, k, BLUE)] * zeta * (1.0 - alpha_BLUE);
+
+#ifdef SHAN_CHEN
+        pressure[INDEX_GLOB(i, j, k)] += stencil->cs2 * params->G_SC * rho_comp[INDEX(i, j, k, RED)] * rho_comp[INDEX(i, j, k, BLUE)];
+#endif
 
         u[INDEX_GLOB(i, j, k)] = u_i / rho_i;
         v[INDEX_GLOB(i, j, k)] = v_i / rho_i;
