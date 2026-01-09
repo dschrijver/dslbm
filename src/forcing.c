@@ -58,7 +58,10 @@ void evaluate_force(int i, int j, int k, SimulationBag *sim)
 void evaluate_shan_chen_force(int i, int j, int k, SimulationBag *sim)
 {
 #ifndef SHAN_CHEN
-    (void)i; (void)j; (void)k; (void)sim;
+    (void)i;
+    (void)j;
+    (void)k;
+    (void)sim;
 #else
     ParamBag *params = sim->params;
     ComponentFieldBag *comp_fields = sim->comp_fields;

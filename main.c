@@ -85,7 +85,12 @@ int main(int argc, char **argv)
 #endif
 
         TIME("> Collision...",
+#ifdef BGK
+            collide_distributions_BGK(sim);
+#endif
+#ifdef MRT
             collide_distributions_MRT(sim);
+#endif
 #ifdef COLOR_GRADIENT
             collide_distributions_CGM(sim);
 #endif

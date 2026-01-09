@@ -4,8 +4,97 @@
 #include "../definitions.h"
 #include "../include/collide.h"
 
+void collide_distributions_BGK(SimulationBag *sim)
+{
+#ifndef BGK
+    (void)sim;
+#else
+    ParamBag *params = sim->params;
+    DistributionBag *dists = sim->dists;
+    GlobalFieldBag *glob_fields = sim->glob_fields;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+    Stencil *stencil = sim->stencil;
+
+    double rho_i, rho_RED_i, rho_BLUE_i;
+    double u_i, v_i, w_i, u2, uc;
+    double feq, S;
+    double Fx_RED_i, Fy_RED_i, Fz_RED_i;
+    double Fx_BLUE_i, Fy_BLUE_i, Fz_BLUE_i;
+    double rho_N, tau;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+    int NP = stencil->NP;
+
+    int i_start = params->i_start;
+    int i_end = params->i_end;
+
+    double tau_RED = params->tau_RED;
+    double tau_BLUE = params->tau_BLUE;
+
+    double cs2 = stencil->cs2;
+    int *cx = stencil->cx;
+    int *cy = stencil->cy;
+    int *cz = stencil->cz;
+    double *wp = stencil->wp;
+
+    double **phi_eq = stencil->phi_eq;
+
+    double *rho = glob_fields->rho;
+    double *u = glob_fields->u;
+    double *v = glob_fields->v;
+    double *w = glob_fields->w;
+
+    double *rho_comp = comp_fields->rho_comp;
+    double *Fx = comp_fields->Fx;
+    double *Fy = comp_fields->Fy;
+    double *Fz = comp_fields->Fz;
+
+    double *f1 = dists->f1;
+    double *f2 = dists->f2;
+
+    FOR_DOMAIN
+    {
+        rho_i = rho[INDEX_GLOB(i, j, k)];
+        u_i = u[INDEX_GLOB(i, j, k)];
+        v_i = v[INDEX_GLOB(i, j, k)];
+        w_i = w[INDEX_GLOB(i, j, k)];
+        u2 = u_i * u_i + v_i * v_i + w_i * w_i;
+
+        rho_RED_i = rho_comp[INDEX(i, j, k, RED)];
+        rho_BLUE_i = rho_comp[INDEX(i, j, k, BLUE)];
+        Fx_RED_i = Fx[INDEX(i, j, k, RED)];
+        Fx_BLUE_i = Fx[INDEX(i, j, k, BLUE)];
+        Fy_RED_i = Fy[INDEX(i, j, k, RED)];
+        Fy_BLUE_i = Fy[INDEX(i, j, k, BLUE)];
+        Fz_RED_i = Fz[INDEX(i, j, k, RED)];
+        Fz_BLUE_i = Fz[INDEX(i, j, k, BLUE)];
+
+        // Average viscosity
+        rho_N = (rho_RED_i - rho_BLUE_i) / rho_i;
+        tau = 0.5 * (1.0 + rho_N) * tau_RED + 0.5 * (1.0 - rho_N) * tau_BLUE;
+
+        for (int p = 0; p < NP; p++)
+        {
+            uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
+
+            feq = wp[p] * (uc / cs2 + (uc * uc) / (2.0 * cs2 * cs2) - u2 / (2.0 * cs2));
+            
+            S = wp[p] * ((((double)cx[p] - u_i) / cs2 + uc / (cs2 * cs2) * (double)cx[p]) * Fx_RED_i + (((double)cy[p] - v_i) / cs2 + uc / (cs2 * cs2) * (double)cy[p]) * Fy_RED_i + (((double)cz[p] - w_i) / cs2 + uc / (cs2 * cs2) * (double)cz[p]) * Fz_RED_i);
+            f2[INDEX_F(i, j, k, p, RED)] = f1[INDEX_F(i, j, k, p, RED)] - 1.0 / tau * (f1[INDEX_F(i, j, k, p, RED)] - rho_RED_i * (feq + phi_eq[RED][p])) + (1.0 - 1.0 / (2.0 * tau)) * S;
+
+            S = wp[p] * ((((double)cx[p] - u_i) / cs2 + uc / (cs2 * cs2) * (double)cx[p]) * Fx_BLUE_i + (((double)cy[p] - v_i) / cs2 + uc / (cs2 * cs2) * (double)cy[p]) * Fy_BLUE_i + (((double)cz[p] - w_i) / cs2 + uc / (cs2 * cs2) * (double)cz[p]) * Fz_BLUE_i);
+            f2[INDEX_F(i, j, k, p, BLUE)] = f1[INDEX_F(i, j, k, p, BLUE)] - 1.0 / tau * (f1[INDEX_F(i, j, k, p, BLUE)] - rho_BLUE_i * (feq + phi_eq[BLUE][p])) + (1.0 - 1.0 / (2.0 * tau)) * S;
+        }
+    }
+#endif
+}
+
 void collide_distributions_MRT(SimulationBag *sim)
 {
+#ifndef MRT
+    (void)sim;
+#else
     ParamBag *params = sim->params;
     DistributionBag *dists = sim->dists;
     GlobalFieldBag *glob_fields = sim->glob_fields;
@@ -128,6 +217,7 @@ void collide_distributions_MRT(SimulationBag *sim)
             f2[INDEX_F(i, j, k, p, BLUE)] = f1[INDEX_F(i, j, k, p, BLUE)];
         }
     }
+#endif
 }
 
 void collide_distributions_CGM(SimulationBag *sim)

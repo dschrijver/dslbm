@@ -4,6 +4,9 @@
 // ---------------
 //     Methods    
 // ---------------
+#define MRT
+// #define BGK
+
 #define COLOR_GRADIENT
 // #define SHAN_CHEN
 
@@ -25,13 +28,13 @@
 // #define THETA_C_RIGHT 120.0
 // #define XI_RIGHT 0.0
 
-#define BOTTOM_BOUNCEBACK_NOSLIP
-#define THETA_C_BOTTOM 120.0
-// #define XI_BOTTOM 0.0
+// #define BOTTOM_BOUNCEBACK_NOSLIP
+// #define THETA_C_BOTTOM 120.0
+// // #define XI_BOTTOM 0.0
 
-#define TOP_BOUNCEBACK_NOSLIP
-#define THETA_C_TOP 90.0
-// #define XI_TOP 0.0
+// #define TOP_BOUNCEBACK_NOSLIP
+// #define THETA_C_TOP 90.0
+// // #define XI_TOP 0.0
 
 // #define BACK_BOUNCEBACK_NOSLIP
 // #define THETA_C_BACK 90.0
@@ -75,13 +78,13 @@
 // #define THETA_C_RIGHT 120.0
 // #define XI_RIGHT 0.0
 
-// #define BOTTOM_NEBB_NOSLIP
-// #define THETA_C_BOTTOM 120.0
-// // #define XI_BOTTOM -0.4
+#define BOTTOM_NEBB_NOSLIP
+#define THETA_C_BOTTOM 90.0
+// #define XI_BOTTOM -0.4
 
-// #define TOP_NEBB_NOSLIP
-// #define THETA_C_TOP 90.0
-// // #define XI_TOP 0.0
+#define TOP_NEBB_NOSLIP
+#define THETA_C_TOP 90.0
+// #define XI_TOP 0.0
 
 // #define BACK_NEBB_NOSLIP
 // #define THETA_C_BACK 90.0
@@ -93,11 +96,11 @@
 
 // #define LEFT_NEBB_PRESSURE
 // #define LEFT_PRESSURE_RED 0.0
-// #define LEFT_PRESSURE_BLUE (0.4 + 3e-5)
+// #define LEFT_PRESSURE_BLUE (0.4 + 1e-5)
 
 // #define RIGHT_NEBB_PRESSURE
 // #define RIGHT_PRESSURE_RED 0.0
-// #define RIGHT_PRESSURE_BLUE (0.4 - 1e-5)
+// #define RIGHT_PRESSURE_BLUE 0.4
 
 // #define BOTTOM_NEBB_PRESSURE
 // #define BOTTOM_PRESSURE_RED 0.004
@@ -123,10 +126,10 @@
 // #define INI_FLOATING_DROPLET
 // #define R_DROPLET 15.0
 
-#define INI_CONTACT_ANGLE_DROPLET
-#define R_DROPLET 20.0
+// #define INI_CONTACT_ANGLE_DROPLET
+// #define R_DROPLET 20.0
 
-// #define INI_POISEUILLE
+#define INI_POISEUILLE
 
 // #define INI_WASHBURN
 // #define H_START 25.0

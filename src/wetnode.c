@@ -675,9 +675,9 @@ void wetnode_compute_velocity(int i, int j, int k, int nx, int ny, int nz, Simul
         w_comp[INDEX(i, j, k, n)] = un * (double)nz;
     }
     rho_i = rho_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)];
-    u[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] * u_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)] * u_comp[INDEX(i, j, k, BLUE)])/ rho_i;
-    v[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] * v_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)] * v_comp[INDEX(i, j, k, BLUE)])/ rho_i;
-    w[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] * w_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)] * w_comp[INDEX(i, j, k, BLUE)])/ rho_i;
+    u[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] * u_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)] * u_comp[INDEX(i, j, k, BLUE)]) / rho_i;
+    v[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] * v_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)] * v_comp[INDEX(i, j, k, BLUE)]) / rho_i;
+    w[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] * w_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)] * w_comp[INDEX(i, j, k, BLUE)]) / rho_i;
 }
 
 void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
