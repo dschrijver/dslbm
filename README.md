@@ -4,7 +4,7 @@ DSLBM is an MPI parallelized binary fluid code based on the Lattice Boltzmann Me
 ## Local installation on Ubuntu
 Run the following commands to install make, gcc, openmpi, hdf5 and zlib, 
 ```
-sudo apt install binutils openmpi-bin libopenmpi-dev zlib1g zlib1g-dev
+sudo apt install binutils openmpi-bin libopenmpi-dev zlib1g zlib1g-dev make g++
 make install_hdf5
 ```
 
