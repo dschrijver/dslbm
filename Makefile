@@ -1,4 +1,4 @@
-include make.def.*
+-include make.def.*
 
 COMPILER = mpicc
 GENERAL_OPT_FLAGS = -std=c11 -O3
