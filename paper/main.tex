@@ -1,0 +1,107 @@
+\documentclass[aps,physrev,twocolumn,10pt]{revtex4-2}
+
+% Added myself
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{bm}
+\usepackage{amsmath}
+
+\begin{document}
+
+\title{A Generalized Non-Equilibrium Bounce-Back Condition for Multi-Component DdQn Lattice Boltzmann Models with Wetting Applications.}
+
+\author{D. Schrijver}
+\affiliation{}
+
+\date{\today}
+
+\begin{abstract}
+Abstract will come here\dots
+\end{abstract}
+
+\maketitle
+
+\section{\label{sec:Introduction}Introduction}
+Introduction will come here\dots
+
+\section{Knudsen expansion}
+In diffusive scaling, we get the following for a Knudsen expansion,
+
+\begin{equation}
+\begin{split}
+    f_i^{(0)} &= f_i^{\text{eq}, (0)} = w_i \rho^{(0)},\\
+    f_i^{(1)} &= f_i^{\text{eq}, (1)} = w_i \rho^{(1)} + w_i \rho^{(0)} \frac{\bm{u}^{(1)} \cdot \bm{c}_i}{c_s^2},\\
+    f_i^{(2)} &= f_i^{\text{eq}, (2)} - \frac{\tau}{\textit{Sh}}\left(c_{i\alpha}\partial_\alpha f_i^{\text{eq},(1)}\right).\\
+\end{split}
+\end{equation}
+This gives the non-equilibrium part up to second order in Knudsen number,
+\begin{equation}
+\begin{split}
+    f_i^{\text{neq}} &= -\frac{\tau}{\textit{Sh}}\Biggl(\partial_\alpha \Bigl(w_i c_{i\alpha}\rho^{(1)}\Bigr) + \frac{\rho^{(0)}}{c_s^2}\partial_\alpha \Bigl(w_i c_{i\alpha} c_{i\beta}u_\beta\Bigr)\Biggr)\\
+    & \quad + \mathcal{O}\left(\textit{Kn}^3\right).
+\end{split}
+\end{equation}
+We now want to plug this into the equation for the NEBB boundary condition,
+\begin{equation}
+\begin{split}
+    f_i^{\text{neq}} &= f_q^\text{neq} - \sum_\alpha w_i c_{i\alpha}N_\alpha,\\
+    N_\alpha &= \frac{1}{\sum^\text{in}_i w_i c_{i\alpha}^2}\sum^\text{par}_i f_i c_{i\alpha} \equiv C_\alpha \sum^\text{par}_i f_i c_{i\alpha}. 
+\end{split}
+\end{equation}
+We now want to add stress corrections,
+\begin{equation}
+    f_i^{\text{neq}} = f_q^\text{neq} - \sum_\alpha w_i c_{i\alpha}N_\alpha - \sum_\mu \sum_\nu w_i c_{i\mu}c_{i\nu}M_{\mu\nu}
+\end{equation}
+The corrections can be found using the expected Navier-Stokes second moment,
+\begin{equation}
+    \Pi_{\alpha\beta}^{\text{NS}} = -\tau c_s^2 \rho \left(\partial_\alpha u_\beta + \partial_\beta u_\alpha\right) 
+\end{equation}
+The velocity gradients can be estimated using finite differences. We now want to ensure the following,
+\begin{equation}
+    \sum_i c_{i\alpha}c_{i\beta}f_i = \Pi_{\alpha\beta}^{\text{NS}}. 
+\end{equation}
+This gives the following tensor equation,
+\begin{equation}\label{eq:matrix equation}
+    \sum_\mu \sum_\nu Q_{\alpha\beta\mu\nu} M_{\mu\nu} = B_{\alpha\beta}
+\end{equation}
+With the following definitions,
+\begin{equation}
+\begin{split}
+    Q_{\alpha\beta\mu\nu} &\equiv -\sum_i^\text{in}w_i c_{i\alpha}c_{i\beta}c_{i\mu}c_{i\nu},\\
+    B_{\alpha\beta} &\equiv \Pi_{\alpha\beta}^{\text{NS}} - A_{\alpha\beta},\\
+    A_{\alpha\beta} &\equiv 2\sum^\text{out}_i c_{i\alpha}c_{i\beta}f_i + \sum^\text{par}_i c_{i\alpha}c_{i\beta}f_i \\
+    &\quad + \sum_i^\text{in}c_{i\alpha}c_{i\beta}\left(2w_i \rho \frac{\bm{u} \cdot \bm{c}_i}{c_s^2} - \sum_\gamma w_i c_{i\gamma}N_\gamma\right).
+\end{split}
+\end{equation}
+For a boundary in the $yz$, $xz$ and $xy$-planes, Eq.~(\ref{eq:matrix equation}) can be solved if we use the D3Q27 stencil,
+
+\onecolumngrid
+\begin{equation}
+    \underline{\underline{M}} = \begin{pmatrix}
+    -12 B_{00} + 9 B_{11} + 9 B_{22} & -18 B_{01} & -18 B_{02}\\
+    -18 B_{01} & 9 B_{00} - 27 B_{11} & -54 B_{12}\\
+    -18 B_{02} & -54 B_{12} & 9 B_{00} - 27 B_{22}
+    \end{pmatrix}
+\end{equation}
+
+\begin{equation}
+    \underline{\underline{M}} = \begin{pmatrix}
+    -27 B_{00} + 9 B_{11} & -18 B_{01} & -54 B_{02}\\
+    -18 B_{01} & 9 B_{00} - 12 B_{11} + 9 B_{22} & -18 B_{12}\\
+    -54 B_{02} & -18 B_{12} & 9 B_{11} - 27 B_{22}
+    \end{pmatrix}
+\end{equation}
+
+\begin{equation}
+    \underline{\underline{M}} = \begin{pmatrix}
+    -27 B_{00} + 9 B_{22} & -54 B_{01} & -18 B_{02} \\
+    -54 B_{01} & -27 B_{11} + 9 B_{22} & -18 B_{12} \\
+    -18 B_{02} & -18 B_{12} & 9 B_{00} + 9 B_{11} - 12 B_{22}
+    \end{pmatrix}
+\end{equation}
+\twocolumngrid
+
+
+
+\bibliography{references}
+
+\end{document}

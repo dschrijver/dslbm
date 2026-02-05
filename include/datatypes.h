@@ -122,6 +122,10 @@ typedef struct Stencil
     double *B;
     double *phi_eq[2];
     double *wp_D3Q41;
+
+    // NEBB
+    double C_norm;
+    double C_par;
 } Stencil;
 
 typedef struct SimulationBag
