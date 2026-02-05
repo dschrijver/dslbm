@@ -20,13 +20,24 @@ NP = len(cx)
 Q = np.zeros((3,3,3,3))
 Q_matrix = np.zeros((6,6))
 
+q = np.zeros((3,3,3))
+
 for a in range(3):
     for b in range(3):
         for mu in range(3):
             for nu in range(3):
                 for i in range(NP):
-                    if cz[i] > 0:
+                    if cy[i] > 0:
                         Q[a, b, mu, nu] += -wp[i]*c[a,i]*c[b,i]*c[mu,i]*c[nu,i]
+
+for a in range(3):
+    for mu in range(3):
+        for nu in range(3):
+            for i in range(NP):
+                if cy[i] > 0:
+                    q[a, mu, nu] += -wp[i]*c[a,i]*c[mu,i]*c[nu,i]
+
+print(q)
 
 indices = [(0,0), (1,1), (2,2), (0,1), (0,2), (1,2)]
 
@@ -54,7 +65,27 @@ mass_loss = 0
 for i in range(NP):
     for mu in range(3):
             for nu in range(3):
-                if cz[i] > 0:
+                if cy[i] > 0:
                     mass_loss += M[mu, nu]*c[mu,i]*c[nu,i]*wp[i]
 print(nsimplify(mass_loss, tolerance=1e-12))
 
+m = zeros(3,1)
+for a in range(3):
+    for mu in range(3):
+        for nu in range(3):
+            for i in range(NP):
+                if cy[i] > 0:
+                    m[a] += -wp[i]*c[a,i]*c[mu,i]*c[nu,i]*M[mu,nu]
+
+print(nsimplify(m, tolerance=1e-12))
+
+n = zeros(3,3)
+N_vec = Matrix(symbols('n0:3'))
+for a in range(3):
+    for b in range(3):
+        for mu in range(3):
+            for i in range(NP):
+                if cy[i] > 0:
+                    n[a,b] += -wp[i]*c[a,i]*c[b,i]*c[mu,i]*N_vec[mu]
+
+print(nsimplify(n, tolerance=1e-12))

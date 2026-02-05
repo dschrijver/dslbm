@@ -67,39 +67,56 @@ With the following definitions,
 \begin{equation}
 \begin{split}
     Q_{\alpha\beta\mu\nu} &\equiv -\sum_i^\text{in}w_i c_{i\alpha}c_{i\beta}c_{i\mu}c_{i\nu},\\
-    B_{\alpha\beta} &\equiv \Pi_{\alpha\beta}^{\text{NS}} - A_{\alpha\beta},\\
-    A_{\alpha\beta} &\equiv 2\sum^\text{out}_i c_{i\alpha}c_{i\beta}f_i + \sum^\text{par}_i c_{i\alpha}c_{i\beta}f_i \\
-    &\quad + \sum_i^\text{in}c_{i\alpha}c_{i\beta}\left(2w_i \rho \frac{\bm{u} \cdot \bm{c}_i}{c_s^2} - \sum_\gamma w_i c_{i\gamma}N_\gamma\right).
+    A_{\alpha\beta} &\equiv \Pi_{\alpha\beta}^{\text{NS}} - B_{\alpha\beta},\\
+    B_{\alpha\beta} &\equiv C_{\alpha\beta} + D_{\alpha\beta}\\
+    C_{\alpha\beta} &\equiv 2\sum^\text{out}_i c_{i\alpha}c_{i\beta}f_i + \sum^\text{par}_i c_{i\alpha}c_{i\beta}f_i \\
+    &\quad + 2\rho\sum_i^\text{in}w_ic_{i\alpha}c_{i\beta} \frac{\bm{u} \cdot \bm{c}_i}{c_s^2}\\
+    D_{\alpha\beta} &\equiv  - \sum_\gamma\sum_i^\text{in}w_ic_{i\alpha}c_{i\beta} c_{i\gamma}N_\gamma.
 \end{split}
 \end{equation}
-For a boundary in the $yz$, $xz$ and $xy$-planes, Eq.~(\ref{eq:matrix equation}) can be solved if we use the D3Q27 stencil,
+For a boundary in the $yz$, $xz$ and $xy$-planes, Eq.~(\ref{eq:matrix equation}) can be solved if we use the D3Q27 stencil. The results are given in Eqns.~(\ref{eq:M_x}),~(\ref{eq:M_y}) and~(\ref{eq:M_z}). Now that we have $M_{\mu\nu}$, we can compute $N_\alpha$, 
+\begin{equation}
+\begin{split}
+    \rho u_\alpha &= \sum_i c_{i\alpha}f_i\\
+    &= \sum_i^\text{in}c_{i\alpha}\left(2 w_i \rho \frac{\bm{u}\cdot \bm{c}_i}{c_s^2}- \sum_\beta w_i c_{i\beta}N_\beta + m_\alpha\right)\\
+    &\quad + \sum^\text{par}_i c_{i\alpha}f_i + \frac{1}{2}F_{\alpha},\\
+    m_\alpha &= \delta_{n\alpha}B_{\alpha\alpha} + (1 - \delta_{n\alpha})2B_{n\alpha},
+\end{split}
+\end{equation}
+where the index $n$ indicates the component normal to the boundary. We can now define the following,
+\begin{equation}
+\begin{split}
+    D_{nn} &= -N_n / 6,\\
+    D_{n\alpha} &= -N_\alpha/18
+\end{split}
+\end{equation}
 
 \onecolumngrid
-\begin{equation}
-    \underline{\underline{M}} = \begin{pmatrix}
-    -12 B_{00} + 9 B_{11} + 9 B_{22} & -18 B_{01} & -18 B_{02}\\
-    -18 B_{01} & 9 B_{00} - 27 B_{11} & -54 B_{12}\\
-    -18 B_{02} & -54 B_{12} & 9 B_{00} - 27 B_{22}
+\newpage
+\begin{equation}\label{eq:M_x}
+    \underline{\underline{M}}^{yz} = \begin{pmatrix}
+    -12 A_{00} + 9 A_{11} + 9 A_{22} & -18 A_{01} & -18 A_{02}\\
+    -18 A_{01} & 9 A_{00} - 27 A_{11} & -54 A_{12}\\
+    -18 A_{02} & -54 A_{12} & 9 A_{00} - 27 A_{22}
     \end{pmatrix}
 \end{equation}
 
-\begin{equation}
-    \underline{\underline{M}} = \begin{pmatrix}
-    -27 B_{00} + 9 B_{11} & -18 B_{01} & -54 B_{02}\\
-    -18 B_{01} & 9 B_{00} - 12 B_{11} + 9 B_{22} & -18 B_{12}\\
-    -54 B_{02} & -18 B_{12} & 9 B_{11} - 27 B_{22}
+\begin{equation}\label{eq:M_y}
+    \underline{\underline{M}}^{xz} = \begin{pmatrix}
+    -27 A_{00} + 9 A_{11} & -18 A_{01} & -54 A_{02}\\
+    -18 A_{01} & 9 A_{00} - 12 A_{11} + 9 A_{22} & -18 A_{12}\\
+    -54 A_{02} & -18 A_{12} & 9 A_{11} - 27 A_{22}
     \end{pmatrix}
 \end{equation}
 
-\begin{equation}
-    \underline{\underline{M}} = \begin{pmatrix}
-    -27 B_{00} + 9 B_{22} & -54 B_{01} & -18 B_{02} \\
-    -54 B_{01} & -27 B_{11} + 9 B_{22} & -18 B_{12} \\
-    -18 B_{02} & -18 B_{12} & 9 B_{00} + 9 B_{11} - 12 B_{22}
+\begin{equation}\label{eq:M_z}
+    \underline{\underline{M}}^{xy} = \begin{pmatrix}
+    -27 A_{00} + 9 A_{22} & -54 A_{01} & -18 A_{02} \\
+    -54 A_{01} & -27 A_{11} + 9 A_{22} & -18 A_{12} \\
+    -18 A_{02} & -18 A_{12} & 9 A_{00} + 9 A_{11} - 12 A_{22}
     \end{pmatrix}
 \end{equation}
 \twocolumngrid
-
 
 
 \bibliography{references}
