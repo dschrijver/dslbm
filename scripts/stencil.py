@@ -21,12 +21,34 @@ c = np.array([cx, cy, cz])
 
 NP = len(wp)
 
-result = 0
+N = np.zeros(3)
 for i in range(NP):
-    if cy[i] > 0:
-        result += wp[i]*c[0,i]*c[1,i]
-print(result)
+    for alpha in range(3):
+        if cy[i] < 0:
+            N[alpha] += wp[i]*c[alpha,i]
+print(N)
 
+M = np.zeros((3,3))
+for i in range(NP):
+    for alpha in range(3):
+        for beta in range(3):
+            if (cx[i] + cy[i] > 0):
+                M[alpha,beta] += 2*wp[i]*c[alpha,i]*c[beta,i]
+            elif (cx[i] + cy[i] == 0):
+                M[alpha,beta] += wp[i]*c[alpha,i]*c[beta,i]
+print(M)
+
+Q = np.zeros((3,3,3))
+for i in range(NP):
+    for alpha in range(3):
+        for beta in range(3):
+            for gamma in range(3):
+                if cy[i] == 0:
+                    Q[alpha,beta,gamma] += wp[i]*c[alpha,i]*c[beta,i]*c[gamma,i]
+
+print(Q)
+
+# print(Q)
 # # NP = 19
 
 

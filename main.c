@@ -54,6 +54,7 @@ int main(int argc, char **argv)
     double start_timestep, duration_timestep;
     double start_substep, duration_substep;
     char output_info[128];
+    double M_total;
 
     while (params->t < params->NTIME)
     {
@@ -117,6 +118,7 @@ int main(int argc, char **argv)
 #endif
             evaluate_forces(sim);
             update_final_velocity(sim);
+            M_total = evaluate_total_mass(sim);
         )
 
         duration_timestep = MPI_Wtime() - start_timestep;
@@ -126,6 +128,7 @@ int main(int argc, char **argv)
         {
             printf("--------------------------------------------------------------------------------\n");
             printf("Step completed!\n");
+            printf("    Total mass: %.15e\n", M_total);
             printf("    Duration of time step: %.4fs\n", duration_timestep);
             printf("    Total simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0);
             printf("    Expected remaining simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0 / (double)(params->t + 1) * (double)(params->NTIME - params->t - 1));

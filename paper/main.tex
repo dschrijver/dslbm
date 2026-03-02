@@ -38,18 +38,82 @@ In diffusive scaling, we get the following for a Knudsen expansion,
 where repeated Greek indices are implicitly summed over. At the boundary, the outgoing and parallel populations are governed by the LBE, which means that they are given by the equation above. The incoming populations are given by the NEBB,
 \begin{equation}
 \begin{split}
-    f_i &= f_q + 2w_i \rho \frac{\bm{u}\cdot \bm{c}_i}{c_s^2} - \sum_\alpha w_i c_{i\alpha} N_\alpha,\\
-    N_\alpha &= \frac{1}{\sum^\text{in}_i w_i c_{i\alpha}^2}\left[\sum_j^{\text{par}}f_j c_{j\alpha} + \left(\frac{2}{c_s^2}\sum^\text{in}_j w_j c_{j\alpha}^2 - 1\right)\rho u_\alpha\right]
+    f_i^\text{neq} &= f^\text{neq}_q - N_i,\\
+    f_i &= f_q + 2w_i \rho \frac{\bm{u}\cdot \bm{c}_i}{c_s^2} - N_i,\\
+    N_i &= \frac{2 w_i c_{i\alpha}}{c_s^2A_\alpha}\left[\sum_j^{\text{par}}c_{j\alpha}f_j + \left(A_\alpha - 1\right)\rho u_\alpha\right],
 \end{split}
 \end{equation}
-After defining $C_\alpha = \sum^\text{in}_i w_i c_{i\alpha}^2$ and $D_\alpha = \left(\frac{2}{c_s^2}C_\alpha - 1\right)$, we can write the incoming populations in orders of Knudsen,
+where $A_\alpha = \frac{2}{c_s^2}\sum^\text{in}_j w_j c_{j\alpha}^2 = \delta_{\alpha n} + \frac{1}{3}\left(1 - \delta_{\alpha n}\right)$. We give the moments of $N_i$,
 \begin{equation}
 \begin{split}
-    f_i^{(0)} &= f_i^{\text{eq},(0)} - \sum_\alpha \frac{w_i c_{i\alpha}}{C_\alpha} \sum_j^{\text{par}}f_j^{\text{eq},(0)} c_{j\alpha}\\
-    f_i^{(1)} &= f_i^{\text{eq},(1)} - \sum_\alpha \frac{w_i c_{i\alpha}}{C_\alpha} \left(\sum_j^{\text{par}}f_j^{\text{eq},(1)} c_{j\alpha} + D_\alpha \rho^{(0)}u^{(1)}\right)\\
-    f_i^{(2)} &= f_i^{\text{eq},(2)} + \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_q^{\text{eq},(1)} + (\text{momentum corrections})^{(2)}\\
-    f_i^{(3)} &= f_i^{\text{eq},(3)} + \tau \partial_t f_i^{\text{eq}, (1)} - \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_i^{\text{eq},(2)}\\
-    - \sum_\alpha &\frac{w_i c_{i\alpha}}{C_\alpha} \Biggl(\sum_j^{\text{par}}f_j^{(3)} c_{j\alpha} + D_\alpha\Bigl(\rho^{(0)}u^{(3)} + \rho^{(1)}u^{(2)} + \rho^{(2)}u^{(1)}\Bigr)\Biggr)\\
+    \sum_i^\text{in}N_i &= 0,\\
+    \sum_i^\text{in}c_{i\alpha}N_i &= \sum_i^{\text{par}}c_{i\alpha}f_i  + \left(A_\alpha - 1\right)\rho u_\alpha
+\end{split}
+\end{equation}
+Rewritten bulk:
+\begin{equation}
+\begin{split}
+    f_i^{\text{neq},(0)} &= 0,\\
+    f_i^{\text{neq},(1)} &= 0,\\
+    f_i^{\text{neq},(2)} &= -\frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_i^{\text{eq},(1)},\\
+    f_i^{\text{neq},(3)} &= - \tau \partial_t f_i^{\text{eq}, (1)} - \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_i^{\text{eq},(2)}\\
+    &\quad - \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha\Biggl(\Bigl(1 - \frac{\Delta t}{2\tau}\Bigr)f_i^{\text{neq},(2)}\Biggr)
+\end{split}
+\end{equation}
+Rewritten boundary:
+\begin{equation}
+\begin{split}
+    f_i^{\text{neq},(0)} &=  - N_i^{(0)}\\
+    f_i^{\text{neq},(1)} &=  - N_i^{(1)},\\
+    f_i^{\text{neq},(2)} &= \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_q^{\text{eq},(1)} - N_i^{(2)},\\
+    f_i^{\text{neq},(3)} &= - \tau \partial_t f_q^{\text{eq}, (1)} + \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_q^{\text{eq},(2)}\\
+    &\quad + \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha\Biggl(\Bigl(1 - \frac{\Delta t}{2\tau}\Bigr)f_q^{\text{neq},(2)}\Biggr)- N_i^{(3)}
+\end{split}
+\end{equation}
+The bounced-back equilibrium is given as follows,
+\begin{equation}
+\begin{split}
+    f_q^{\text{eq},(1)} &= f_i^{\text{eq},(1)} - 2w_i c_{i\alpha}\rho^{(0)}\frac{u^{(1)}_\alpha}{c_s^2}\\
+    f_q^{\text{eq},(2)} &= f_i^{\text{eq},(2)} - 2w_i c_{i\alpha} \left(\rho^{(0)}\frac{u^{(2)}_\alpha}{c_s^2} +\rho^{(1)}\frac{u^{(1)}_\alpha}{c_s^2}\right)
+\end{split}
+\end{equation}
+The bounced-back negative equilibrium is given as follows,
+\begin{equation}
+\begin{split}
+    -f_q^{\text{eq},(1)} &= f_i^{\text{eq},(1)} - 2w_i \rho^{(1)}\\
+    -f_q^{\text{eq},(2)} &= f_i^{\text{eq},(2)} - 2w_i \left(\rho^{(2)} + \frac{\left(u^{(1)}_\alpha c_{i\alpha}\right)^2}{4c_s^2} - \frac{u^{(1)}_\alpha u^{(1)}_\alpha}{2c_s^2}\right)
+\end{split}
+\end{equation}
+Using the following equations along with the previous,
+\begin{equation}
+\begin{split}
+    \sum_i^\text{in}c_{i\alpha}N_i^{(0)} &= 0\\
+    \sum_i^\text{in}c_{i\alpha}N_i^{(1)} &= 0\\
+    \sum_i^\text{in}c_{i\alpha}N_i^{(2)} &= \sum_i^\text{par} c_{i\alpha}f_i^{\text{neq},(2)}\\
+    \sum_i^\text{in}c_{i\alpha}N_i^{(3)} &= \sum_i^\text{par} c_{i\alpha}f_i^{\text{neq},(3)}
+\end{split}
+\end{equation}
+
+
+Spurious effect for zeroth moment of order 2 in Knudsen,
+\begin{equation}
+    -2\frac{\tau}{\textit{Sh}}\sum_i^\text{in}w_ic_{i\alpha}\partial_\alpha\rho^{(1)} = -\frac{\tau}{\textit{Sh}}\partial_n\left(c_s^2\rho^{(1)}\right)
+\end{equation}
+
+Spurious effect for zeroth moment of order 3 in Knudsen,
+\begin{equation}
+    \bm{\nabla} = \tau\rho^{(0)}\partial_t u_n^{(1)}
+\end{equation}
+
+Mass loss:
+\begin{equation}
+\begin{split}
+    \Delta m(t+\Delta t) &= \sum_i^\text{out}\Bigl(f_i^*(t) - f_i(t+\Delta t)\Bigr)\\
+    f_i^*(\bm{x}, t) &= f_i(\bm{x} + \bm{c}_i\Delta x, t+\Delta t)\\
+    &\approx f_i + \frac{\Delta t}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_i + \frac{\Delta t^2}{2\textit{Sh}^2}c_{i\alpha}c_{i\beta}\partial_\alpha \partial_\beta f_i\\
+    \Delta m^{(2)} &= \frac{\Delta t}{\textit{Sh}}\sum_i^\text{out}c_{i\alpha}\partial_\alpha f_i^{\text{eq},(1)}\\
+    &= \frac{\Delta t}{\textit{Sh}}\Biggl(-\frac{1}{2}\partial_n\left(c_s^2\rho^{(1)}\right)+ \frac{1}{2}\rho^{(0)}\partial_n u_n^{(1)}\\
+    &\quad\quad\quad\, + \frac{1}{6}\rho^{(0)}(1 - \delta_{\alpha n})\partial_\alpha u_\alpha^{(1)}\Biggr)
 \end{split}
 \end{equation}
 

@@ -137,3 +137,29 @@ void evaluate_density(int i, int j, int k, SimulationBag *sim)
     rho_comp[INDEX(i, j, k, RED)] = rho_RED_i;
     rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i;
 }
+
+double evaluate_total_mass(SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+
+    double M_local, M_total;
+
+    int i_start = params->i_start;
+    int i_end = params->i_end;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+
+    double *rho_comp = comp_fields->rho_comp;
+
+    M_local = 0.0;
+    FOR_DOMAIN
+    {
+        M_local += rho_comp[INDEX(i, j, k, RED)];
+    }
+
+    MPI_Allreduce(&M_local, &M_total, 1, MPI_DOUBLE, MPI_SUM, params->comm_xslices);
+
+    return M_total;
+}

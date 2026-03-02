@@ -120,6 +120,19 @@ void initialize_fields(SimulationBag *sim)
     }
 #endif
 
+#ifdef INI_SINGLECOMPONENT_POISEUILLE_PERIODIC
+    (void)rho_0_BLUE;
+    FOR_DOMAIN
+    {
+        u[INDEX_GLOB(i, j, k)] = 0.0;
+        v[INDEX_GLOB(i, j, k)] = 0.0;
+        w[INDEX_GLOB(i, j, k)] = 0.0;
+
+        rho_comp[INDEX(i, j, k, RED)] = rho_0_RED;
+        rho_comp[INDEX(i, j, k, BLUE)] = 0.0;
+    }
+#endif
+
 #ifdef INI_POISEUILLE
     double r;
     FOR_DOMAIN

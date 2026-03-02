@@ -143,8 +143,8 @@ static inline void initialize_stencil(SimulationBag *sim)
     memcpy(stencil->phi_eq[RED], phi_eq_RED, stencil->NP * sizeof(double));
     memcpy(stencil->phi_eq[BLUE], phi_eq_BLUE, stencil->NP * sizeof(double));
 
-    stencil->C_norm = 3.0 / 18.0;
-    stencil->C_par = 1.0 / 18.0;
+    stencil->C_norm = stencil->cs2 / 2.0;
+    stencil->C_par = stencil->cs2 / 6.0;
 }
 
 #endif

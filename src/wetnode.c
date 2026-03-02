@@ -22,7 +22,8 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 #endif
 
     // Mass conservation after streaming
-#if defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
+#ifdef WETNODE_MASS_CONSERVATION
+#if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
     if (i_start == 0)
     {
         for (int j = 0; j < NY; j++)
@@ -35,7 +36,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
+#if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
     if (i_end == params->NX)
     {
         for (int j = 0; j < NY; j++)
@@ -48,7 +49,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_NEBB_PRESSURE)
+#if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -58,7 +59,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(TOP_NEBB_NOSLIP) || defined(TOP_NEBB_PRESSURE)
+#if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -68,7 +69,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
+#if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -78,7 +79,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
+#if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -86,6 +87,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
             wetnode_mass_conservation_streaming(i, j, NZ - 1, 0, 0, -1, sim);
         }
     }
+#endif
 #endif
 
     // Compute bulk densities
@@ -97,116 +99,116 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 #endif
 
     // Set velocities
-#ifdef LEFT_NEBB_NOSLIP
+#ifdef LEFT_NEBB_VELOCITY
     if (i_start == 0)
     {
         for (int j = 0; j < NY; j++)
         {
             for (int k = 0; k < NZ; k++)
             {
-                sim->glob_fields->u[INDEX_GLOB(0, j, k)] = 0.0;
-                sim->glob_fields->v[INDEX_GLOB(0, j, k)] = 0.0;
-                sim->glob_fields->w[INDEX_GLOB(0, j, k)] = 0.0;
-                sim->comp_fields->u_comp[INDEX(0, j, k, RED)] = 0.0;
-                sim->comp_fields->v_comp[INDEX(0, j, k, RED)] = 0.0;
-                sim->comp_fields->w_comp[INDEX(0, j, k, RED)] = 0.0;
-                sim->comp_fields->u_comp[INDEX(0, j, k, BLUE)] = 0.0;
-                sim->comp_fields->v_comp[INDEX(0, j, k, BLUE)] = 0.0;
-                sim->comp_fields->w_comp[INDEX(0, j, k, BLUE)] = 0.0;
+                sim->glob_fields->u[INDEX_GLOB(0, j, k)] = LEFT_U_VELOCITY;
+                sim->glob_fields->v[INDEX_GLOB(0, j, k)] = LEFT_V_VELOCITY;
+                sim->glob_fields->w[INDEX_GLOB(0, j, k)] = LEFT_W_VELOCITY;
+                sim->comp_fields->u_comp[INDEX(0, j, k, RED)] = LEFT_U_VELOCITY;
+                sim->comp_fields->v_comp[INDEX(0, j, k, RED)] = LEFT_V_VELOCITY;
+                sim->comp_fields->w_comp[INDEX(0, j, k, RED)] = LEFT_W_VELOCITY;
+                sim->comp_fields->u_comp[INDEX(0, j, k, BLUE)] = LEFT_U_VELOCITY;
+                sim->comp_fields->v_comp[INDEX(0, j, k, BLUE)] = LEFT_V_VELOCITY;
+                sim->comp_fields->w_comp[INDEX(0, j, k, BLUE)] = LEFT_W_VELOCITY;
             }
         }
     }
 #endif
 
-#ifdef RIGHT_NEBB_NOSLIP
+#ifdef RIGHT_NEBB_VELOCITY
     if (i_end == params->NX)
     {
         for (int j = 0; j < NY; j++)
         {
             for (int k = 0; k < NZ; k++)
             {
-                sim->glob_fields->u[INDEX_GLOB(params->NX - 1, j, k)] = 0.0;
-                sim->glob_fields->v[INDEX_GLOB(params->NX - 1, j, k)] = 0.0;
-                sim->glob_fields->w[INDEX_GLOB(params->NX - 1, j, k)] = 0.0;
-                sim->comp_fields->u_comp[INDEX(params->NX - 1, j, k, RED)] = 0.0;
-                sim->comp_fields->v_comp[INDEX(params->NX - 1, j, k, RED)] = 0.0;
-                sim->comp_fields->w_comp[INDEX(params->NX - 1, j, k, RED)] = 0.0;
-                sim->comp_fields->u_comp[INDEX(params->NX - 1, j, k, BLUE)] = 0.0;
-                sim->comp_fields->v_comp[INDEX(params->NX - 1, j, k, BLUE)] = 0.0;
-                sim->comp_fields->w_comp[INDEX(params->NX - 1, j, k, BLUE)] = 0.0;
+                sim->glob_fields->u[INDEX_GLOB(params->NX - 1, j, k)] = RIGHT_U_VELOCITY;
+                sim->glob_fields->v[INDEX_GLOB(params->NX - 1, j, k)] = RIGHT_V_VELOCITY;
+                sim->glob_fields->w[INDEX_GLOB(params->NX - 1, j, k)] = RIGHT_W_VELOCITY;
+                sim->comp_fields->u_comp[INDEX(params->NX - 1, j, k, RED)] = RIGHT_U_VELOCITY;
+                sim->comp_fields->v_comp[INDEX(params->NX - 1, j, k, RED)] = RIGHT_V_VELOCITY;
+                sim->comp_fields->w_comp[INDEX(params->NX - 1, j, k, RED)] = RIGHT_W_VELOCITY;
+                sim->comp_fields->u_comp[INDEX(params->NX - 1, j, k, BLUE)] = RIGHT_U_VELOCITY;
+                sim->comp_fields->v_comp[INDEX(params->NX - 1, j, k, BLUE)] = RIGHT_V_VELOCITY;
+                sim->comp_fields->w_comp[INDEX(params->NX - 1, j, k, BLUE)] = RIGHT_W_VELOCITY;
             }
         }
     }
 #endif
 
-#ifdef BOTTOM_NEBB_NOSLIP
+#ifdef BOTTOM_NEBB_VELOCITY
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
         {
-            sim->glob_fields->u[INDEX_GLOB(i, 0, k)] = 0.0;
-            sim->glob_fields->v[INDEX_GLOB(i, 0, k)] = 0.0;
-            sim->glob_fields->w[INDEX_GLOB(i, 0, k)] = 0.0;
-            sim->comp_fields->u_comp[INDEX(i, 0, k, RED)] = 0.0;
-            sim->comp_fields->v_comp[INDEX(i, 0, k, RED)] = 0.0;
-            sim->comp_fields->w_comp[INDEX(i, 0, k, RED)] = 0.0;
-            sim->comp_fields->u_comp[INDEX(i, 0, k, BLUE)] = 0.0;
-            sim->comp_fields->v_comp[INDEX(i, 0, k, BLUE)] = 0.0;
-            sim->comp_fields->w_comp[INDEX(i, 0, k, BLUE)] = 0.0;
+            sim->glob_fields->u[INDEX_GLOB(i, 0, k)] = BOTTOM_U_VELOCITY;
+            sim->glob_fields->v[INDEX_GLOB(i, 0, k)] = BOTTOM_V_VELOCITY;
+            sim->glob_fields->w[INDEX_GLOB(i, 0, k)] = BOTTOM_W_VELOCITY;
+            sim->comp_fields->u_comp[INDEX(i, 0, k, RED)] = BOTTOM_U_VELOCITY;
+            sim->comp_fields->v_comp[INDEX(i, 0, k, RED)] = BOTTOM_V_VELOCITY;
+            sim->comp_fields->w_comp[INDEX(i, 0, k, RED)] = BOTTOM_W_VELOCITY;
+            sim->comp_fields->u_comp[INDEX(i, 0, k, BLUE)] = BOTTOM_U_VELOCITY;
+            sim->comp_fields->v_comp[INDEX(i, 0, k, BLUE)] = BOTTOM_V_VELOCITY;
+            sim->comp_fields->w_comp[INDEX(i, 0, k, BLUE)] = BOTTOM_W_VELOCITY;
         }
     }
 #endif
 
-#ifdef TOP_NEBB_NOSLIP
+#ifdef TOP_NEBB_VELOCITY
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
         {
-            sim->glob_fields->u[INDEX_GLOB(i, NY - 1, k)] = 0.0;
-            sim->glob_fields->v[INDEX_GLOB(i, NY - 1, k)] = 0.0;
-            sim->glob_fields->w[INDEX_GLOB(i, NY - 1, k)] = 0.0;
-            sim->comp_fields->u_comp[INDEX(i, NY - 1, k, RED)] = 0.0;
-            sim->comp_fields->v_comp[INDEX(i, NY - 1, k, RED)] = 0.0;
-            sim->comp_fields->w_comp[INDEX(i, NY - 1, k, RED)] = 0.0;
-            sim->comp_fields->u_comp[INDEX(i, NY - 1, k, BLUE)] = 0.0;
-            sim->comp_fields->v_comp[INDEX(i, NY - 1, k, BLUE)] = 0.0;
-            sim->comp_fields->w_comp[INDEX(i, NY - 1, k, BLUE)] = 0.0;
+            sim->glob_fields->u[INDEX_GLOB(i, NY - 1, k)] = TOP_U_VELOCITY;
+            sim->glob_fields->v[INDEX_GLOB(i, NY - 1, k)] = TOP_V_VELOCITY;
+            sim->glob_fields->w[INDEX_GLOB(i, NY - 1, k)] = TOP_W_VELOCITY;
+            sim->comp_fields->u_comp[INDEX(i, NY - 1, k, RED)] = TOP_U_VELOCITY;
+            sim->comp_fields->v_comp[INDEX(i, NY - 1, k, RED)] = TOP_V_VELOCITY;
+            sim->comp_fields->w_comp[INDEX(i, NY - 1, k, RED)] = TOP_W_VELOCITY;
+            sim->comp_fields->u_comp[INDEX(i, NY - 1, k, BLUE)] = TOP_U_VELOCITY;
+            sim->comp_fields->v_comp[INDEX(i, NY - 1, k, BLUE)] = TOP_V_VELOCITY;
+            sim->comp_fields->w_comp[INDEX(i, NY - 1, k, BLUE)] = TOP_W_VELOCITY;
         }
     }
 #endif
 
-#ifdef BACK_NEBB_NOSLIP
+#ifdef BACK_NEBB_VELOCITY
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
         {
-            sim->glob_fields->u[INDEX_GLOB(i, j, 0)] = 0.0;
-            sim->glob_fields->v[INDEX_GLOB(i, j, 0)] = 0.0;
-            sim->glob_fields->w[INDEX_GLOB(i, j, 0)] = 0.0;
-            sim->comp_fields->u_comp[INDEX(i, j, 0, RED)] = 0.0;
-            sim->comp_fields->v_comp[INDEX(i, j, 0, RED)] = 0.0;
-            sim->comp_fields->w_comp[INDEX(i, j, 0, RED)] = 0.0;
-            sim->comp_fields->u_comp[INDEX(i, j, 0, BLUE)] = 0.0;
-            sim->comp_fields->v_comp[INDEX(i, j, 0, BLUE)] = 0.0;
-            sim->comp_fields->w_comp[INDEX(i, j, 0, BLUE)] = 0.0;
+            sim->glob_fields->u[INDEX_GLOB(i, j, 0)] = BACK_U_VELOCITY;
+            sim->glob_fields->v[INDEX_GLOB(i, j, 0)] = BACK_V_VELOCITY;
+            sim->glob_fields->w[INDEX_GLOB(i, j, 0)] = BACK_W_VELOCITY;
+            sim->comp_fields->u_comp[INDEX(i, j, 0, RED)] = BACK_U_VELOCITY;
+            sim->comp_fields->v_comp[INDEX(i, j, 0, RED)] = BACK_V_VELOCITY;
+            sim->comp_fields->w_comp[INDEX(i, j, 0, RED)] = BACK_W_VELOCITY;
+            sim->comp_fields->u_comp[INDEX(i, j, 0, BLUE)] = BACK_U_VELOCITY;
+            sim->comp_fields->v_comp[INDEX(i, j, 0, BLUE)] = BACK_V_VELOCITY;
+            sim->comp_fields->w_comp[INDEX(i, j, 0, BLUE)] = BACK_W_VELOCITY;
         }
     }
 #endif
 
-#ifdef FRONT_NEBB_NOSLIP
+#ifdef FRONT_NEBB_VELOCITY
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
         {
-            sim->glob_fields->u[INDEX_GLOB(i, j, NZ - 1)] = 0.0;
-            sim->glob_fields->v[INDEX_GLOB(i, j, NZ - 1)] = 0.0;
-            sim->glob_fields->w[INDEX_GLOB(i, j, NZ - 1)] = 0.0;
-            sim->comp_fields->u_comp[INDEX(i, j, NZ - 1, RED)] = 0.0;
-            sim->comp_fields->v_comp[INDEX(i, j, NZ - 1, RED)] = 0.0;
-            sim->comp_fields->w_comp[INDEX(i, j, NZ - 1, RED)] = 0.0;
-            sim->comp_fields->u_comp[INDEX(i, j, NZ - 1, BLUE)] = 0.0;
-            sim->comp_fields->v_comp[INDEX(i, j, NZ - 1, BLUE)] = 0.0;
-            sim->comp_fields->w_comp[INDEX(i, j, NZ - 1, BLUE)] = 0.0;
+            sim->glob_fields->u[INDEX_GLOB(i, j, NZ - 1)] = FRONT_U_VELOCITY;
+            sim->glob_fields->v[INDEX_GLOB(i, j, NZ - 1)] = FRONT_V_VELOCITY;
+            sim->glob_fields->w[INDEX_GLOB(i, j, NZ - 1)] = FRONT_W_VELOCITY;
+            sim->comp_fields->u_comp[INDEX(i, j, NZ - 1, RED)] = FRONT_U_VELOCITY;
+            sim->comp_fields->v_comp[INDEX(i, j, NZ - 1, RED)] = FRONT_V_VELOCITY;
+            sim->comp_fields->w_comp[INDEX(i, j, NZ - 1, RED)] = FRONT_W_VELOCITY;
+            sim->comp_fields->u_comp[INDEX(i, j, NZ - 1, BLUE)] = FRONT_U_VELOCITY;
+            sim->comp_fields->v_comp[INDEX(i, j, NZ - 1, BLUE)] = FRONT_V_VELOCITY;
+            sim->comp_fields->w_comp[INDEX(i, j, NZ - 1, BLUE)] = FRONT_W_VELOCITY;
         }
     }
 #endif
@@ -285,7 +287,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 #endif
 
     // Compute densities
-#ifdef LEFT_NEBB_NOSLIP
+#ifdef LEFT_NEBB_VELOCITY
     if (i_start == 0)
     {
         for (int j = 0; j < NY; j++)
@@ -298,7 +300,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef RIGHT_NEBB_NOSLIP
+#ifdef RIGHT_NEBB_VELOCITY
     if (i_end == params->NX)
     {
         for (int j = 0; j < NY; j++)
@@ -311,7 +313,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef BOTTOM_NEBB_NOSLIP
+#ifdef BOTTOM_NEBB_VELOCITY
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -321,7 +323,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef TOP_NEBB_NOSLIP
+#ifdef TOP_NEBB_VELOCITY
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -331,7 +333,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef BACK_NEBB_NOSLIP
+#ifdef BACK_NEBB_VELOCITY
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -341,7 +343,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef FRONT_NEBB_NOSLIP
+#ifdef FRONT_NEBB_VELOCITY
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -423,7 +425,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 #endif
 
     // Evaluate forces
-#if defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
+#if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
     if (i_start == 0)
     {
         for (int j = 0; j < NY; j++)
@@ -436,7 +438,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
+#if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
     if (i_end == params->NX)
     {
         for (int j = 0; j < NY; j++)
@@ -449,7 +451,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_NEBB_PRESSURE)
+#if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -459,7 +461,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(TOP_NEBB_NOSLIP) || defined(TOP_NEBB_PRESSURE)
+#if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int k = 0; k < NZ; k++)
@@ -469,7 +471,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
+#if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -479,7 +481,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#if defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
+#if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
     for (int i = i_start; i < i_end; i++)
     {
         for (int j = 0; j < NY; j++)
@@ -490,33 +492,33 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 #endif
 
     // Non-equilibrium bounce-back
-#if defined(LEFT_NEBB_NOSLIP) || defined(LEFT_NEBB_PRESSURE)
+#if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
     if (i_start == 0)
     {
         non_equilibrium_bounce_back_x(0, 1, sim);
     }
 #endif
 
-#if defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_NEBB_PRESSURE)
+#if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
     if (i_end == params->NX)
     {
         non_equilibrium_bounce_back_x(params->NX - 1, -1, sim);
     }
 #endif
 
-#if defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_NEBB_PRESSURE)
+#if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
     non_equilibrium_bounce_back_y(0, 1, sim);
 #endif
 
-#if defined(TOP_NEBB_NOSLIP) || defined(TOP_NEBB_PRESSURE)
+#if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
     non_equilibrium_bounce_back_y(NY - 1, -1, sim);
 #endif
 
-#if defined(BACK_NEBB_NOSLIP) || defined(BACK_NEBB_PRESSURE)
+#if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
     non_equilibrium_bounce_back_z(0, 1, sim);
 #endif
 
-#if defined(FRONT_NEBB_NOSLIP) || defined(FRONT_NEBB_PRESSURE)
+#if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
     non_equilibrium_bounce_back_z(NZ - 1, -1, sim);
 #endif
 }
@@ -553,7 +555,7 @@ void wetnode_mass_conservation_streaming(int i, int j, int k, int nx, int ny, in
     }
 }
 
-void wetnode_compute_density(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
+void wetnode_compute_density_mass_conservation(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
 {
     ParamBag *params = sim->params;
     GlobalFieldBag *glob_fields = sim->glob_fields;
@@ -595,6 +597,62 @@ void wetnode_compute_density(int i, int j, int k, int nx, int ny, int nz, Simula
         {
             rho_RED_i += f1[INDEX_F(i, j, k, p, RED)] + f2[INDEX_F(i, j, k, p, RED)];
             rho_BLUE_i += f1[INDEX_F(i, j, k, p, BLUE)] + f2[INDEX_F(i, j, k, p, BLUE)];
+        }
+        else if (cn == 0)
+        {
+            rho_RED_i += f1[INDEX_F(i, j, k, p, RED)];
+            rho_BLUE_i += f1[INDEX_F(i, j, k, p, BLUE)];
+        }
+    }
+
+    un = u[INDEX_GLOB(i, j, k)] * (double)nx + v[INDEX_GLOB(i, j, k)] * (double)ny + w[INDEX_GLOB(i, j, k)] * (double)nz;
+
+    rho_comp[INDEX(i, j, k, RED)] = rho_RED_i / (1.0 - un);
+    rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i / (1.0 - un);
+}
+
+void wetnode_compute_density_no_mass_conservation(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    GlobalFieldBag *glob_fields = sim->glob_fields;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+    DistributionBag *dists = sim->dists;
+    Stencil *stencil = sim->stencil;
+
+    double rho_RED_i, rho_BLUE_i;
+    double un;
+    int cn;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+    int NP = stencil->NP;
+
+    int *cx = stencil->cx;
+    int *cy = stencil->cy;
+    int *cz = stencil->cz;
+
+    int i_start = params->i_start;
+
+    double *rho_comp = comp_fields->rho_comp;
+
+    double *u = glob_fields->u;
+    double *v = glob_fields->v;
+    double *w = glob_fields->w;
+
+    double *f1 = dists->f1;
+    double *f2 = dists->f2;
+
+    rho_RED_i = f2[INDEX_F(i, j, k, 0, RED)];
+    rho_BLUE_i = f2[INDEX_F(i, j, k, 0, BLUE)];
+
+    for (int p = 1; p < NP; p++)
+    {
+        cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
+
+        if (cn < 0)
+        {
+            rho_RED_i += 2.0 * f1[INDEX_F(i, j, k, p, RED)];
+            rho_BLUE_i += 2.0 * f1[INDEX_F(i, j, k, p, BLUE)];
         }
         else if (cn == 0)
         {
@@ -783,7 +841,9 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
                     }
                 }
 
+#ifdef WETNODE_MASS_CONSERVATION
                 f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fx_i * nx;
+#endif
             }
         }
     }
@@ -893,7 +953,9 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
                     }
                 }
 
+#ifdef WETNODE_MASS_CONSERVATION
                 f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fy_i * ny;
+#endif
             }
         }
     }
@@ -1003,7 +1065,9 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
                     }
                 }
 
+#ifdef WETNODE_MASS_CONSERVATION
                 f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fz_i * nz;
+#endif
             }
         }
     }
