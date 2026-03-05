@@ -82,6 +82,9 @@ typedef struct GlobalFieldBag
     double *u;
     double *v;
     double *w;
+
+    // Color-Gradient
+    double *rho_N;
 } GlobalFieldBag;
 
 typedef struct ComponentFieldBag

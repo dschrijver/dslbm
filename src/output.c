@@ -18,6 +18,7 @@ void output_data(SimulationBag *sim)
     double *u = glob_fields->u;
     double *v = glob_fields->v;
     double *w = glob_fields->w;
+    double *rho_N = glob_fields->rho_N;
 
     double *rho_comp = comp_fields->rho_comp;
     double *Fx = comp_fields->Fx;
@@ -43,6 +44,7 @@ void output_data(SimulationBag *sim)
     output_global_field(u, "u", file_id, sim);
     output_global_field(v, "v", file_id, sim);
     output_global_field(w, "w", file_id, sim);
+    output_global_field(rho_N, "rho_N", file_id, sim);
 
     output_comp_field(rho_comp, "rho", file_id, sim);
     output_comp_field(Fx, "Fx", file_id, sim);

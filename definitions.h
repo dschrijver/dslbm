@@ -15,26 +15,26 @@
 // ---------------------------
 //     Boundary conditions        
 // ---------------------------
-// #define XPERIODIC
+#define XPERIODIC
 // #define YPERIODIC
 #define ZPERIODIC
 
 // #define YPERIODIC_FLIP // For Washburn specifically
 
 // --- Half-way Bounce-Back ---
-#define LEFT_BOUNCEBACK_VELOCITY
-#define LEFT_U_VELOCITY 0.0
-#define LEFT_V_VELOCITY 0.0
-#define LEFT_W_VELOCITY 0.0
-#define THETA_C_LEFT 120.0
-#define XI_LEFT 0.0
+// #define LEFT_BOUNCEBACK_VELOCITY
+// #define LEFT_U_VELOCITY 0.0
+// #define LEFT_V_VELOCITY 0.0
+// #define LEFT_W_VELOCITY 0.0
+// #define THETA_C_LEFT 120.0
+// #define XI_LEFT 0.0
 
-#define RIGHT_BOUNCEBACK_VELOCITY
-#define RIGHT_U_VELOCITY 0.0
-#define RIGHT_V_VELOCITY 0.0
-#define RIGHT_W_VELOCITY 0.0
-#define THETA_C_RIGHT 120.0
-#define XI_RIGHT 0.0
+// #define RIGHT_BOUNCEBACK_VELOCITY
+// #define RIGHT_U_VELOCITY 0.0
+// #define RIGHT_V_VELOCITY 0.0
+// #define RIGHT_W_VELOCITY 0.0
+// #define THETA_C_RIGHT 120.0
+// #define XI_RIGHT 0.0
 
 // #define BOTTOM_BOUNCEBACK_VELOCITY
 // #define BOTTOM_U_VELOCITY 0.0
@@ -108,11 +108,11 @@
 #define BOTTOM_U_VELOCITY 0.0
 #define BOTTOM_V_VELOCITY 0.0
 #define BOTTOM_W_VELOCITY 0.0
-#define THETA_C_BOTTOM 90.0
+#define THETA_C_BOTTOM 170.0
 // #define XI_BOTTOM -0.4
 
 #define TOP_NEBB_VELOCITY
-#define TOP_U_VELOCITY 10.0/201.0
+#define TOP_U_VELOCITY 0.0
 #define TOP_V_VELOCITY 0.0
 #define TOP_W_VELOCITY 0.0
 #define THETA_C_TOP 90.0
@@ -164,12 +164,12 @@
 // #define INI_FLOATING_DROPLET
 // #define R_DROPLET 15.0
 
-// #define INI_CONTACT_ANGLE_DROPLET
-// #define R_DROPLET 40.0
+#define INI_CONTACT_ANGLE_DROPLET
+#define R_DROPLET 40.0
 
 // #define INI_POISEUILLE
 
-#define INI_SINGLECOMPONENT_POISEUILLE_PERIODIC
+// #define INI_SINGLECOMPONENT_POISEUILLE_PERIODIC
 
 // #define INI_WASHBURN
 // #define H_START 25.0

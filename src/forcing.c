@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "../include/datatypes.h"
 #include "../definitions.h"
 #include "../include/collide.h"
@@ -115,11 +117,11 @@ void evaluate_shan_chen_force(int i, int j, int k, SimulationBag *sim)
         kc = mod(kc, NZ);
 #endif
 
-#if defined(LEFT_BOUNCEBACK_NOSLIP) || defined(LEFT_NEBB_NOSLIP) || defined(LEFT_BOUNCEBACK_PRESSURE) || defined(LEFT_NEBB_PRESSURE)
+#if defined(LEFT_BOUNCEBACK_VELOCITY) || defined(LEFT_NEBB_VELOCITY) || defined(LEFT_BOUNCEBACK_PRESSURE) || defined(LEFT_NEBB_PRESSURE)
         if (ic < 0)
         {
             extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
-#if defined(LEFT_BOUNCEBACK_NOSLIP) || defined(LEFT_NEBB_NOSLIP)
+#if defined(LEFT_BOUNCEBACK_VELOCITY) || defined(LEFT_NEBB_VELOCITY)
             rho_RED_local *= (1.0 - XI_LEFT);
             rho_BLUE_local *= (1.0 + XI_LEFT);
 #endif
@@ -127,11 +129,11 @@ void evaluate_shan_chen_force(int i, int j, int k, SimulationBag *sim)
         }
 #endif
 
-#if defined(RIGHT_BOUNCEBACK_NOSLIP) || defined(RIGHT_NEBB_NOSLIP) || defined(RIGHT_BOUNCEBACK_PRESSURE) || defined(RIGHT_NEBB_PRESSURE)
+#if defined(RIGHT_BOUNCEBACK_VELOCITY) || defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_BOUNCEBACK_PRESSURE) || defined(RIGHT_NEBB_PRESSURE)
         if (ic > params->NX - 1)
         {
             extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
-#if defined(RIGHT_BOUNCEBACK_NOSLIP) || defined(RIGHT_NEBB_NOSLIP)
+#if defined(RIGHT_BOUNCEBACK_VELOCITY) || defined(RIGHT_NEBB_VELOCITY)
             rho_RED_local *= (1.0 - XI_RIGHT);
             rho_BLUE_local *= (1.0 + XI_RIGHT);
 #endif
@@ -139,35 +141,43 @@ void evaluate_shan_chen_force(int i, int j, int k, SimulationBag *sim)
         }
 #endif
 
-#if defined(BOTTOM_BOUNCEBACK_NOSLIP) || defined(BOTTOM_NEBB_NOSLIP) || defined(BOTTOM_BOUNCEBACK_PRESSURE) || defined(BOTTOM_NEBB_PRESSURE)
+#if defined(BOTTOM_BOUNCEBACK_VELOCITY) || defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_BOUNCEBACK_PRESSURE) || defined(BOTTOM_NEBB_PRESSURE)
         if (jc < 0)
         {
+#ifdef THETA_C_BOTTOM
+            set_wall_densities_angle_y(ic, jc, kc, 1, THETA_C_BOTTOM, &rho_RED_local, &rho_BLUE_local, sim);
+#else
             extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
-#if defined(BOTTOM_BOUNCEBACK_NOSLIP) || defined(BOTTOM_NEBB_NOSLIP)
+    #if defined(BOTTOM_BOUNCEBACK_VELOCITY) || defined(BOTTOM_NEBB_VELOCITY)
             rho_RED_local *= (1.0 - XI_BOTTOM);
             rho_BLUE_local *= (1.0 + XI_BOTTOM);
+    #endif
 #endif
             goto skip;
         }
 #endif
 
-#if defined(TOP_BOUNCEBACK_NOSLIP) || defined(TOP_NEBB_NOSLIP) || defined(TOP_BOUNCEBACK_PRESSURE) || defined(TOP_NEBB_PRESSURE)
+#if defined(TOP_BOUNCEBACK_VELOCITY) || defined(TOP_NEBB_VELOCITY) || defined(TOP_BOUNCEBACK_PRESSURE) || defined(TOP_NEBB_PRESSURE)
         if (jc > NY - 1)
         {
+#ifdef THETA_C_TOP
+            set_wall_densities_angle_y(ic, jc, kc, -1, THETA_C_TOP, &rho_RED_local, &rho_BLUE_local, sim);
+#else
             extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
-#if defined(TOP_BOUNCEBACK_NOSLIP) || defined(TOP_NEBB_NOSLIP)
+    #if defined(TOP_BOUNCEBACK_VELOCITY) || defined(TOP_NEBB_VELOCITY)
             rho_RED_local *= (1.0 - XI_TOP);
             rho_BLUE_local *= (1.0 + XI_TOP);
+    #endif
 #endif
             goto skip;
         }
 #endif
 
-#if defined(BACK_BOUNCEBACK_NOSLIP) || defined(BACK_NEBB_NOSLIP) || defined(BACK_BOUNCEBACK_PRESSURE) || defined(BACK_NEBB_PRESSURE)
+#if defined(BACK_BOUNCEBACK_VELOCITY) || defined(BACK_NEBB_VELOCITY) || defined(BACK_BOUNCEBACK_PRESSURE) || defined(BACK_NEBB_PRESSURE)
         if (kc < 0)
         {
             extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
-#if defined(BACK_BOUNCEBACK_NOSLIP) || defined(BACK_NEBB_NOSLIP)
+#if defined(BACK_BOUNCEBACK_VELOCITY) || defined(BACK_NEBB_VELOCITY)
             rho_RED_local *= (1.0 - BACK);
             rho_BLUE_local *= (1.0 + BACK);
 #endif
@@ -175,11 +185,11 @@ void evaluate_shan_chen_force(int i, int j, int k, SimulationBag *sim)
         }
 #endif
 
-#if defined(FRONT_BOUNCEBACK_NOSLIP) || defined(FRONT_NEBB_NOSLIP) || defined(FRONT_BOUNCEBACK_PRESSURE) || defined(FRONT_NEBB_PRESSURE)
+#if defined(FRONT_BOUNCEBACK_VELOCITY) || defined(FRONT_NEBB_VELOCITY) || defined(FRONT_BOUNCEBACK_PRESSURE) || defined(FRONT_NEBB_PRESSURE)
         if (kc > NZ - 1)
         {
             extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
-#if defined(FRONT_BOUNCEBACK_NOSLIP) || defined(FRONT_NEBB_NOSLIP)
+#if defined(FRONT_BOUNCEBACK_VELOCITY) || defined(FRONT_NEBB_VELOCITY)
             rho_RED_local *= (1.0 - FRONT);
             rho_BLUE_local *= (1.0 + FRONT);
 #endif
@@ -219,4 +229,85 @@ void evaluate_shan_chen_force(int i, int j, int k, SimulationBag *sim)
     Fy[INDEX(i, j, k, BLUE)] += -G_SC * rho_BLUE_i * Fy_BLUE_i;
     Fz[INDEX(i, j, k, BLUE)] += -G_SC * rho_BLUE_i * Fz_BLUE_i;
 #endif
+}
+
+void set_wall_densities_angle_y(int i, int j, int k, int ny, double theta_c, double *rho_RED, double *rho_BLUE, SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+
+    double grad_x_RED, grad_x_BLUE, grad_z_RED, grad_z_BLUE, grad_par_RED, grad_par_BLUE;
+
+    int i_start = params->i_start;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+
+    double *rho_comp = comp_fields->rho_comp;
+
+#ifndef XPERIODIC
+    if ((i < 0) || (i > params->NX - 1))
+    {
+        &rho_RED = 0.0;
+        &rho_BLUE = 0.0;
+        return;
+    }
+#endif
+
+#ifndef ZPERIODIC
+    if ((z < 0) || (z > NZ - 1))
+    {
+        &rho_RED = 0.0;
+        &rho_BLUE = 0.0;
+        return;
+    }
+#endif
+
+#ifdef XPERIODIC
+    grad_x_RED = 0.5 * (rho_comp[INDEX(i + 1, j + ny, k, RED)] - rho_comp[INDEX(i - 1, j + ny, k, RED)]);
+    grad_x_BLUE = 0.5 * (rho_comp[INDEX(i + 1, j + ny, k, BLUE)] - rho_comp[INDEX(i - 1, j + ny, k, BLUE)]);
+#else
+    if (i == 0)
+    {
+        grad_x_RED = rho_comp[INDEX(i + 1, j + ny, k, RED)] - rho_comp[INDEX(i, j + ny, k, RED)];
+        grad_x_BLUE = rho_comp[INDEX(i + 1, j + ny, k, BLUE)] - rho_comp[INDEX(i, j + ny, k, BLUE)];
+    }
+    else if (i == params->NX - 1)
+    {
+        grad_x_RED = rho_comp[INDEX(i, j + ny, k, RED)] - rho_comp[INDEX(i - 1, j + ny, k, RED)];
+        grad_x_BLUE = rho_comp[INDEX(i, j + ny, k, BLUE)] - rho_comp[INDEX(i - 1, j + ny, k, BLUE)];
+    }
+    else 
+    {
+        grad_x_RED = 0.5 * (rho_comp[INDEX(i + 1, j + ny, k, RED)] - rho_comp[INDEX(i - 1, j + ny, k, RED)]);
+        grad_x_BLUE = 0.5 * (rho_comp[INDEX(i + 1, j + ny, k, BLUE)] - rho_comp[INDEX(i - 1, j + ny, k, BLUE)]);
+    }
+#endif
+
+#ifdef ZPERIODIC
+    grad_z_RED = 0.5 * (rho_comp[INDEX(i, j + ny, mod(k + 1, NZ), RED)] - rho_comp[INDEX(i, j + ny, mod(k - 1, NZ), RED)]);
+    grad_z_BLUE = 0.5 * (rho_comp[INDEX(i, j + ny, mod(k + 1, NZ), BLUE)] - rho_comp[INDEX(i, j + ny, mod(k - 1, NZ), BLUE)]);
+#else
+    if (k == 0)
+    {
+        grad_z_RED = rho_comp[INDEX(i, j + ny, k + 1, RED)] - rho_comp[INDEX(i, j + ny, k, RED)];
+        grad_z_BLUE = rho_comp[INDEX(i, j + ny, k + 1, BLUE)] - rho_comp[INDEX(i, j + ny, k, BLUE)];
+    }
+    else if (k == NZ - 1)
+    {
+        grad_z_RED = rho_comp[INDEX(i, j + ny, k, RED)] - rho_comp[INDEX(i, j + ny, k - 1, RED)];
+        grad_z_BLUE = rho_comp[INDEX(i, j + ny, k, BLUE)] - rho_comp[INDEX(i, j + ny, k - 1, BLUE)];
+    }
+    else 
+    {
+        grad_z_RED = 0.5 * (rho_comp[INDEX(i, j + ny, k + 1, RED)] - rho_comp[INDEX(i, j + ny, k - 1, RED)]);
+        grad_z_BLUE = 0.5 * (rho_comp[INDEX(i, j + ny, k + 1, BLUE)] - rho_comp[INDEX(i, j + ny, k - 1, BLUE)]);
+    }
+#endif
+
+    grad_par_RED = sqrt(grad_x_RED*grad_x_RED + grad_z_RED*grad_z_RED);
+    grad_par_BLUE = sqrt(grad_x_BLUE*grad_x_BLUE + grad_z_BLUE*grad_z_BLUE);
+
+    *rho_RED = 2.0*rho_comp[INDEX(i, j + 2*ny, k, RED)] - 2.0*tan(DS_PI / 2.0 - (180.0 - theta_c / 360.0 * 2.0 * DS_PI))*grad_par_RED;
+    *rho_BLUE = 2.0*rho_comp[INDEX(i, j + 2*ny, k, BLUE)] + 2.0*tan(DS_PI / 2.0 - (180.0 - theta_c / 360.0 * 2.0 * DS_PI))*grad_par_BLUE;
 }

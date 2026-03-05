@@ -305,16 +305,24 @@ void collide_distributions_CGM(SimulationBag *sim)
 #if defined(BOTTOM_BOUNCEBACK_VELOCITY) || defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_BOUNCEBACK_PRESSURE) || defined(BOTTOM_NEBB_PRESSURE)
             if (jc < 0)
             {
+#ifdef WETTING_HALFSPACE
+                continue;
+#else
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
                 goto skip;
+#endif
             }
 #endif
 
 #if defined(TOP_BOUNCEBACK_VELOCITY) || defined(TOP_NEBB_VELOCITY) || defined(TOP_BOUNCEBACK_PRESSURE) || defined(TOP_NEBB_PRESSURE)
             if (jc > NY - 1)
             {
+#ifdef WETTING_HALFSPACE
+                continue;
+#else
                 extrapolate_wall_density(ic, jc, kc, &rho_RED_local, &rho_BLUE_local, sim);
                 goto skip;
+#endif
             }
 #endif
 
@@ -376,6 +384,44 @@ void collide_distributions_CGM(SimulationBag *sim)
 #if defined(BOTTOM_BOUNCEBACK_VELOCITY) || defined(BOTTOM_NEBB_VELOCITY)
         if (j == 0)
         {
+#ifdef WETTING_FD
+            if (params->NX > 1)
+            {
+                if (i == 0)
+                {
+                    Gx = glob_fields->rho_N[INDEX_GLOB(1, j, k)] - glob_fields->rho_N[INDEX_GLOB(0, j, k)];
+                }
+                else if (i == params->NX - 1)
+                {
+                    Gx = glob_fields->rho_N[INDEX_GLOB(params->NX - 1, j, k)] - glob_fields->rho_N[INDEX_GLOB(params->NX - 2, j, k)];
+                }
+                else 
+                {
+                    Gx = 0.5 * (glob_fields->rho_N[INDEX_GLOB(i + 1, j, k)] - glob_fields->rho_N[INDEX_GLOB(i - 1, j, k)]);
+                }
+            }
+
+            if (NZ > 1)
+            {
+                if (k == 0)
+                {
+                    Gz = glob_fields->rho_N[INDEX_GLOB(i, j, 1)] - glob_fields->rho_N[INDEX_GLOB(i, j, 0)];
+                }
+                else if (k == NZ - 1)
+                {
+                    Gz = glob_fields->rho_N[INDEX_GLOB(i, j, NZ - 1)] - glob_fields->rho_N[INDEX_GLOB(i, j, NZ - 2)];
+                }
+                else 
+                {
+                    Gz = 0.5 * (glob_fields->rho_N[INDEX_GLOB(i, j, k + 1)] - glob_fields->rho_N[INDEX_GLOB(i, j, k - 1)]);
+                }
+            }
+#endif
+#ifdef WETTING_HALFSPACE
+            Gx *= 6.0 / 5.0;
+            Gz *= 6.0 / 5.0;
+#endif
+
             Gy = -tan(DS_PI / 2.0 - (180.0 - THETA_C_BOTTOM) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gz * Gz);
         }
 #endif
@@ -383,6 +429,44 @@ void collide_distributions_CGM(SimulationBag *sim)
 #if defined(TOP_BOUNCEBACK_VELOCITY) || defined(TOP_NEBB_VELOCITY)
         if (j == NY - 1)
         {
+#ifdef WETTING_FD
+            if (params->NX > 1)
+            {
+                if (i == 0)
+                {
+                    Gx = glob_fields->rho_N[INDEX_GLOB(1, j, k)] - glob_fields->rho_N[INDEX_GLOB(0, j, k)];
+                }
+                else if (i == params->NX - 1)
+                {
+                    Gx = glob_fields->rho_N[INDEX_GLOB(params->NX - 1, j, k)] - glob_fields->rho_N[INDEX_GLOB(params->NX - 2, j, k)];
+                }
+                else 
+                {
+                    Gx = 0.5 * (glob_fields->rho_N[INDEX_GLOB(i + 1, j, k)] - glob_fields->rho_N[INDEX_GLOB(i - 1, j, k)]);
+                }
+            }
+
+            if (NZ > 1)
+            {
+                if (k == 0)
+                {
+                    Gz = glob_fields->rho_N[INDEX_GLOB(i, j, 1)] - glob_fields->rho_N[INDEX_GLOB(i, j, 0)];
+                }
+                else if (k == NZ - 1)
+                {
+                    Gz = glob_fields->rho_N[INDEX_GLOB(i, j, NZ - 1)] - glob_fields->rho_N[INDEX_GLOB(i, j, NZ - 2)];
+                }
+                else 
+                {
+                    Gz = 0.5 * (glob_fields->rho_N[INDEX_GLOB(i, j, k + 1)] - glob_fields->rho_N[INDEX_GLOB(i, j, k - 1)]);
+                }
+            }
+#endif
+#ifdef WETTING_HALFSPACE
+            Gx *= 2.0;
+            Gz *= 2.0;
+#endif
+
             Gy = tan(DS_PI / 2.0 - (180.0 - THETA_C_TOP) / 360.0 * 2.0 * DS_PI) * sqrt(Gx * Gx + Gz * Gz);
         }
 #endif

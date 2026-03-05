@@ -63,6 +63,7 @@ void initialize_fields(SimulationBag *sim)
     double *u = glob_fields->u;
     double *v = glob_fields->v;
     double *w = glob_fields->w;
+    double *rho_N = glob_fields->rho_N;
 
     double *rho_comp = comp_fields->rho_comp;
 
@@ -182,6 +183,7 @@ void initialize_fields(SimulationBag *sim)
     FOR_DOMAIN
     {
         rho[INDEX_GLOB(i, j, k)] = rho_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)];
+        rho_N[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] - rho_comp[INDEX(i, j, k, BLUE)]) / rho[INDEX_GLOB(i, j, k)];
         pressure[INDEX_GLOB(i, j, k)] = rho_comp[INDEX(i, j, k, RED)] * zeta * (1.0 - alpha_RED) + rho_comp[INDEX(i, j, k, BLUE)] * zeta * (1.0 - alpha_BLUE);
 #ifdef SHAN_CHEN
         pressure[INDEX_GLOB(i, j, k)] += stencil->cs2 * params->G_SC * rho_comp[INDEX(i, j, k, RED)] * rho_comp[INDEX(i, j, k, BLUE)];

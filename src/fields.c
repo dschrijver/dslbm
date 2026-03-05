@@ -32,6 +32,7 @@ void extract_moments(SimulationBag *sim)
     double *u = glob_fields->u;
     double *v = glob_fields->v;
     double *w = glob_fields->w;
+    double *rho_N = glob_fields->rho_N;
 
     double *rho_comp = comp_fields->rho_comp;
 
@@ -58,6 +59,7 @@ void extract_moments(SimulationBag *sim)
         rho[INDEX_GLOB(i, j, k)] = rho_i;
         rho_comp[INDEX(i, j, k, RED)] = rho_RED_i;
         rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i;
+        rho_N[INDEX_GLOB(i, j, k)] = (rho_RED_i - rho_BLUE_i) / rho_i;
 
         pressure[INDEX_GLOB(i, j, k)] = rho_comp[INDEX(i, j, k, RED)] * zeta * (1.0 - alpha_RED) + rho_comp[INDEX(i, j, k, BLUE)] * zeta * (1.0 - alpha_BLUE);
 

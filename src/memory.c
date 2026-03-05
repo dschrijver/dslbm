@@ -74,6 +74,7 @@ void allocate_fields(SimulationBag *sim)
     glob_fields->u = (double *)malloc(global_malloc_size);
     glob_fields->v = (double *)malloc(global_malloc_size);
     glob_fields->w = (double *)malloc(global_malloc_size);
+    glob_fields->rho_N = (double *)malloc(global_malloc_size);
 
     comp_fields->rho_comp = (double *)malloc(component_malloc_size);
     comp_fields->u_comp = (double *)malloc(component_malloc_size);

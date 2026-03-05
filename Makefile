@@ -2,7 +2,7 @@
 
 COMPILER = mpicc
 GENERAL_OPT_FLAGS = -std=c11 -O3
-DEBUG_FLAGS = -Wall -Wextra
+DEBUG_FLAGS = -Wall -Wextra -Wno-unused-label
 LIB_FLAGS = -lhdf5 -lz -lm
 
 SRC = $(wildcard main.c src/*.c)
