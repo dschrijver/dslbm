@@ -158,7 +158,7 @@ double evaluate_total_mass(SimulationBag *sim)
     M_local = 0.0;
     FOR_DOMAIN
     {
-        M_local += rho_comp[INDEX(i, j, k, RED)];
+        M_local += rho_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)];
     }
 
     MPI_Allreduce(&M_local, &M_total, 1, MPI_DOUBLE, MPI_SUM, params->comm_xslices);

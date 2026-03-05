@@ -248,8 +248,8 @@ void set_wall_densities_angle_y(int i, int j, int k, int ny, double theta_c, dou
 #ifndef XPERIODIC
     if ((i < 0) || (i > params->NX - 1))
     {
-        &rho_RED = 0.0;
-        &rho_BLUE = 0.0;
+        *rho_RED = 0.0;
+        *rho_BLUE = 0.0;
         return;
     }
 #endif
@@ -257,8 +257,8 @@ void set_wall_densities_angle_y(int i, int j, int k, int ny, double theta_c, dou
 #ifndef ZPERIODIC
     if ((z < 0) || (z > NZ - 1))
     {
-        &rho_RED = 0.0;
-        &rho_BLUE = 0.0;
+        *rho_RED = 0.0;
+        *rho_BLUE = 0.0;
         return;
     }
 #endif
