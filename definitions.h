@@ -10,7 +10,7 @@
 #define COLOR_GRADIENT
 // #define SHAN_CHEN
 
-#define WETNODE_MASS_CONSERVATION
+// #define WETNODE_MASS_CONSERVATION
 
 // ---------------------------
 //     Boundary conditions        
@@ -22,18 +22,18 @@
 #define YPERIODIC_FLIP // For Washburn specifically
 
 // --- Half-way Bounce-Back ---
-// #define LEFT_BOUNCEBACK_VELOCITY
-// #define LEFT_U_VELOCITY 0.0
-// #define LEFT_V_VELOCITY 0.0
-// #define LEFT_W_VELOCITY 0.0
-// #define THETA_C_LEFT 120.0
+#define LEFT_BOUNCEBACK_VELOCITY
+#define LEFT_U_VELOCITY 0.0
+#define LEFT_V_VELOCITY 0.0
+#define LEFT_W_VELOCITY 0.0
+#define THETA_C_LEFT 100.0
 // #define XI_LEFT 0.0
 
-// #define RIGHT_BOUNCEBACK_VELOCITY
-// #define RIGHT_U_VELOCITY 0.0
-// #define RIGHT_V_VELOCITY 0.0
-// #define RIGHT_W_VELOCITY 0.0
-// #define THETA_C_RIGHT 120.0
+#define RIGHT_BOUNCEBACK_VELOCITY
+#define RIGHT_U_VELOCITY 0.0
+#define RIGHT_V_VELOCITY 0.0
+#define RIGHT_W_VELOCITY 0.0
+#define THETA_C_RIGHT 100.0
 // #define XI_RIGHT 0.0
 
 // #define BOTTOM_BOUNCEBACK_VELOCITY
@@ -90,19 +90,19 @@
 // ----------------------------
 
 // --- Non-Equilibrium Bounce-Back ---
-#define LEFT_NEBB_VELOCITY
-#define LEFT_U_VELOCITY 0.0
-#define LEFT_V_VELOCITY 0.0
-#define LEFT_W_VELOCITY 0.0
-#define THETA_C_LEFT 100.0
-// #define XI_LEFT 0.0
+// #define LEFT_NEBB_VELOCITY
+// #define LEFT_U_VELOCITY 0.0
+// #define LEFT_V_VELOCITY 0.0
+// #define LEFT_W_VELOCITY 0.0
+// #define THETA_C_LEFT 100.0
+// // #define XI_LEFT 0.0
 
-#define RIGHT_NEBB_VELOCITY
-#define RIGHT_U_VELOCITY 0.0
-#define RIGHT_V_VELOCITY 0.0
-#define RIGHT_W_VELOCITY 0.0
-#define THETA_C_RIGHT 100.0
-// #define XI_RIGHT 0.0
+// #define RIGHT_NEBB_VELOCITY
+// #define RIGHT_U_VELOCITY 0.0
+// #define RIGHT_V_VELOCITY 0.0
+// #define RIGHT_W_VELOCITY 0.0
+// #define THETA_C_RIGHT 100.0
+// // #define XI_RIGHT 0.0
 
 // #define BOTTOM_NEBB_VELOCITY
 // #define BOTTOM_U_VELOCITY 0.0

@@ -14,8 +14,8 @@ static inline void set_params(ParamBag *params)
     params->NZ = 1;
 
     // Relaxation times
-    params->tau_RED = 0.8;
-    params->tau_BLUE = 0.8;
+    params->tau_RED = 0.55;
+    params->tau_BLUE = 0.55;
 
     // MRT parameters
     params->s_rho_RED = 1.0;

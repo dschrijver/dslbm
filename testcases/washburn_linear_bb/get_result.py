@@ -12,7 +12,7 @@ import os
 def analytical_solution(t, theta, L, W):
     sigma = 1e-2
     rho = 1
-    tau = 0.8
+    tau = 0.6
     theta = theta / 360 * (2*np.pi)
     nu = 1/3*(tau - 0.5)
     mu = nu*rho

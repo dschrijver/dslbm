@@ -7,10 +7,10 @@
 
 \begin{document}
 
-\title{A Generalized Non-Equilibrium Bounce-Back Condition for Multi-Component DdQn Lattice Boltzmann Models with Wetting Applications.}
+\title{Title...}
 
 \author{D. Schrijver}
-\affiliation{}
+\affiliation{Affiliation...}
 
 \date{\today}
 
@@ -21,101 +21,373 @@ Abstract will come here\dots
 \maketitle
 
 \section{\label{sec:Introduction}Introduction}
-Introduction will come here\dots
+Wet-node boundary conditions, where the boundary is defined to be infinitesimally close to the fluid nodes, have been shown in various test cases to be able to achieve higher accuracy at straight boundaries than link-wise boundary conditions, where the boundary is defined to be half a grid-point away from the fluid nodes. This has been shown for velocity boundaries~\cite{latt_straight_2008} and pressure boundaries~\cite{zou_pressure_1997}. Especially methods that conserve the known particle populations, which stream in from the bulk of the domain, are very accurate at moderate Reynolds number~\cite{latt_straight_2008}. For instance, the Non-Equilibrium Bounce-Back (NEBB) method~\cite{zou_pressure_1997} has been shown to be third-order accurate for prescribing the no-slip condition on straight boundaries for single-component fluids in the absence of external forcing~\cite{kruger_lattice_2017}. 
 
-\section{Knudsen expansion}
-In diffusive scaling, we get the following for a Knudsen expansion,
+In this paper, we aim to expand upon the NEBB method to enable its use in more complex flow problems with straight boundaries and moderate Reynolds numbers. For this, we define a stencil-independent formulation of the force-corrected and mass-corrected multi-component NEBB method. 
 
-\begin{equation}
-\begin{split}
-    f_i^{(0)} &= f_i^{\text{eq}, (0)} = w_i \rho^{(0)},\\
-    f_i^{(1)} &= f_i^{\text{eq}, (1)} = w_i \rho^{(1)} + w_i c_{i\alpha} \rho^{(0)} \frac{ u^{(1)}_\alpha }{c_s^2},\\
-    f_i^{(2)} &= f_i^{\text{eq}, (2)} - \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_i^{\text{eq},(1)},\\
-    f_i^{(3)} &= f_i^{\text{eq}, (3)} - \tau \partial_t f_i^{\text{eq}, (1)} - \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_i^{\text{eq},(2)}\\
-    &\quad + \frac{\tau}{\textit{Sh}^2}c_{i\alpha}\partial_\alpha\Biggl(\Bigl(\tau - \frac{\Delta t}{2}\Bigr)c_{i\beta}\partial_\beta f_i^{\text{eq},(1)}\Biggr)
-\end{split}
+Stencil-independent formulations for single-component fluids have been posed in previous research~\cite{kruger_lattice_2017}\cite{klass_non-equilibrium_2021}, but not in the presence of external forces. Force-corrections have been introduced in previous research too, in the context of single-component pseudopotential wetting simulations at a no-slip boundary~\cite{khajepor_study_2019}, and two-component pseudopotential simulations at an outlet~\cite{wang_two_2022}. However, both of these are formulated specifically for the D2Q9. 
+
+Furthermore, mass corrections have also been defined in previous research for single-component fluids in the absence of external forces~\cite{klass_non-equilibrium_2021}. Finally, a multi-component formulation of the NEBB has been derived two-component pseudopotential simulations~\cite{wang_two_2022}, but again specifically for the D2Q9. This method also does not take mass corrections into account and simplifications made in the derivation can lead to deviations of the density and velocity from the imposed values. 
+
+After the derivation of the expanded NEBB method, we will use an asymptotic analysis in Knudsen number~\cite{junk_asymptotic_2005} to assess its accuracy and the validity of the mass correction. Next, we will perform various numerical test cases for the expanded NEBB against the widely-used Halfway Bouce-Back (HWBB) method, both for single-component fluids and immiscible multi-component fluids.  The multi-component simulations will be performed with both the Shan-Chen method~\cite{shan_lattice_1993} and the Color-Gradient method~\cite{leclaire_generalized_2017}. These simulations include static contact-angle wetting simulations~\cite{yu_color-gradient_2018} and capillary rise simulations~\cite{chibbaro_capillary_2009}\cite{akai_wetting_2018} and results will be compared to state-of-the-art research on wetting, which use common Halfway Bounce-Back scheme for the no-slip boundaries. 
+
+\section{\label{sec:}Multi-component Lattice Boltzmann Method}
+The Lattice Boltzmann Equation using the BGK collision operator~\cite{bhatnagar_model_1954} for a two-component system is given as follows,
+\begin{equation}\label{eq:Lattice Boltzmann Equation Two-component BGK}
+    f_i^{\sigma}(\bm{x} + \bm{c}_i, t + 1) - f_i^{\sigma} =  -\frac{1}{\tau^\sigma}\left(f_i^{\sigma} - f_i^{\text{eq}, \sigma}\right),
 \end{equation}
-where repeated Greek indices are implicitly summed over. At the boundary, the outgoing and parallel populations are governed by the LBE, which means that they are given by the equation above. The incoming populations are given by the NEBB,
-\begin{equation}
-\begin{split}
-    f_i^\text{neq} &= f^\text{neq}_q - N_i,\\
-    f_i &= f_q + 2w_i \rho \frac{\bm{u}\cdot \bm{c}_i}{c_s^2} - N_i,\\
-    N_i &= \frac{2 w_i c_{i\alpha}}{c_s^2A_\alpha}\left[\sum_j^{\text{par}}c_{j\alpha}f_j + \left(A_\alpha - 1\right)\rho u_\alpha\right],
-\end{split}
+where $\sigma$ indicates the fluid component and $\tau^\sigma$ gives the corresponding relaxation time. As is common for the Lattice Boltzmann method, the time step and grid spacing are set to unity. Lastly, the discrete velocity directions are indicated by $\bm{c}_i$. The macroscopic quantities can be derived from the distribution functions,
+\begin{equation}\label{eq:Macroscopic quantities}
+    \rho^\sigma = \sum_i f_i^\sigma,\quad \rho \bm{u} = \sum_\sigma\sum_i f_i^\sigma \bm{c}_i,
 \end{equation}
-where $A_\alpha = \frac{2}{c_s^2}\sum^\text{in}_j w_j c_{j\alpha}^2 = \delta_{\alpha n} + \frac{1}{3}\left(1 - \delta_{\alpha n}\right)$. We give the moments of $N_i$,
-\begin{equation}
-\begin{split}
-    \sum_i^\text{in}N_i &= 0,\\
-    \sum_i^\text{in}c_{i\alpha}N_i &= \sum_i^{\text{par}}c_{i\alpha}f_i  + \left(A_\alpha - 1\right)\rho u_\alpha
-\end{split}
+where $\rho = \sum_\sigma \rho^\sigma$. Two different methods will be used separate the two fluids and create surface tension. The Shan-Chen method uses a repulsion force between the two fluids~\cite{shan_lattice_1993} and the Color-Gradient method adds surface tension and repulsion using two extra collision operators~\cite{leclaire_generalized_2017}.
+
+\subsection{\label{sec:The Shan-Chen Method}The Shan-Chen Method}
+The Shan-Chen force is given as follows~\cite{shan_lattice_1993},
+\begin{equation}\label{eq:Shan-Chen force}
+    \bm{F}_{\text{SC}}^\sigma(\bm{x}) = -G \rho^\sigma(\bm{x})\sum_i w_i\rho^{\tilde{\sigma}}\left(\bm{x}+\bm{c}_i\right)\bm{c}_i,
 \end{equation}
-Rewritten bulk:
+where $\tilde{\sigma}$ indicates the other fluid component and $G$ is the interaction strength. Furthermore, $w_i$ indicates the weight attributed to the velocity component $\bm{c}_i$. A source term $S^\sigma_i$ is introduced on the right-hand-side of Eq.~(\ref{eq:Lattice Boltzmann Equation Two-component BGK}) to incorporate this force~\cite{guo_discrete_2002},
 \begin{equation}
-\begin{split}
-    f_i^{\text{neq},(0)} &= 0,\\
-    f_i^{\text{neq},(1)} &= 0,\\
-    f_i^{\text{neq},(2)} &= -\frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_i^{\text{eq},(1)},\\
-    f_i^{\text{neq},(3)} &= - \tau \partial_t f_i^{\text{eq}, (1)} - \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_i^{\text{eq},(2)}\\
-    &\quad - \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha\Biggl(\Bigl(1 - \frac{\Delta t}{2\tau}\Bigr)f_i^{\text{neq},(2)}\Biggr)
-\end{split}
+    S_i^\sigma = \left(1 - \frac{1}{2\tau^\sigma}\right)w_i \left(\frac{\bm{c}_i - \bm{u}}{c_s^2} + \frac{\bm{c}_i \cdot \bm{u}}{c_s^4}\bm{c}_i\right) \cdot \bm{F}^\sigma,
 \end{equation}
-Rewritten boundary:
+where $c_s = \sqrt{1/3}$. Furthermore, the velocity given in Eq.~(\ref{eq:Macroscopic quantities}) is shifted by the external forcing,
 \begin{equation}
-\begin{split}
-    f_i^{\text{neq},(0)} &=  - N_i^{(0)}\\
-    f_i^{\text{neq},(1)} &=  - N_i^{(1)},\\
-    f_i^{\text{neq},(2)} &= \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_q^{\text{eq},(1)} - N_i^{(2)},\\
-    f_i^{\text{neq},(3)} &= - \tau \partial_t f_q^{\text{eq}, (1)} + \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_q^{\text{eq},(2)}\\
-    &\quad + \frac{\tau}{\textit{Sh}}c_{i\alpha}\partial_\alpha\Biggl(\Bigl(1 - \frac{\Delta t}{2\tau}\Bigr)f_q^{\text{neq},(2)}\Biggr)- N_i^{(3)}
-\end{split}
+    \rho \bm{u} = \sum_\sigma\sum_i f_i^\sigma \bm{c}_i + \frac{1}{2} \sum_\sigma\bm{F}^\sigma.
 \end{equation}
-The bounced-back equilibrium is given as follows,
-\begin{equation}
-\begin{split}
-    f_q^{\text{eq},(1)} &= f_i^{\text{eq},(1)} - 2w_i c_{i\alpha}\rho^{(0)}\frac{u^{(1)}_\alpha}{c_s^2}\\
-    f_q^{\text{eq},(2)} &= f_i^{\text{eq},(2)} - 2w_i c_{i\alpha} \left(\rho^{(0)}\frac{u^{(2)}_\alpha}{c_s^2} +\rho^{(1)}\frac{u^{(1)}_\alpha}{c_s^2}\right)
-\end{split}
-\end{equation}
-The bounced-back negative equilibrium is given as follows,
-\begin{equation}
-\begin{split}
-    -f_q^{\text{eq},(1)} &= f_i^{\text{eq},(1)} - 2w_i \rho^{(1)}\\
-    -f_q^{\text{eq},(2)} &= f_i^{\text{eq},(2)} - 2w_i \left(\rho^{(2)} + \frac{\left(u^{(1)}_\alpha c_{i\alpha}\right)^2}{4c_s^2} - \frac{u^{(1)}_\alpha u^{(1)}_\alpha}{2c_s^2}\right)
-\end{split}
-\end{equation}
-Using the following equations along with the previous,
-\begin{equation}
-\begin{split}
-    \sum_i^\text{in}c_{i\alpha}N_i^{(0)} &= 0\\
-    \sum_i^\text{in}c_{i\alpha}N_i^{(1)} &= 0\\
-    \sum_i^\text{in}c_{i\alpha}N_i^{(2)} &= \sum_i^\text{par} c_{i\alpha}f_i^{\text{neq},(2)}\\
-    \sum_i^\text{in}c_{i\alpha}N_i^{(3)} &= \sum_i^\text{par} c_{i\alpha}f_i^{\text{neq},(3)}
-\end{split}
+Finally, the equilibrium distribution is computed as follows,
+\begin{equation}\label{eq:Equilibrium distribution Shan-Chen}
+    f^{\text{eq},\sigma}_i = w_i \rho^\sigma \left(1 + \frac{\bm{u} \cdot \bm{c}_i}{c_s^2} + \frac{{\left(\bm{u} \cdot \bm{c}_i\right)}^2}{2c_s^4} - \frac{|\bm{u}|^2}{2c_s^2}\right).
 \end{equation}
 
-
-Spurious effect for zeroth moment of order 2 in Knudsen,
-\begin{equation}
-    -2\frac{\tau}{\textit{Sh}}\sum_i^\text{in}w_ic_{i\alpha}\partial_\alpha\rho^{(1)} = -\frac{\tau}{\textit{Sh}}\partial_n\left(c_s^2\rho^{(1)}\right)
-\end{equation}
-
-Spurious effect for zeroth moment of order 3 in Knudsen,
-\begin{equation}
-    \bm{\nabla} = \tau\rho^{(0)}\partial_t u_n^{(1)}
-\end{equation}
-
-Mass loss:
-\begin{equation}
+\subsection{\label{sec:The Color-Gradient Method}The Color-Gradient Method}
+The Lattice Boltzmann Equation is usually split in a collision and streaming step,
+\begin{equation}\label{eq:Collision and streaming color gradient}
 \begin{split}
-    \Delta m(t+\Delta t) &= \sum_i^\text{out}\Bigl(f_i^*(t) - f_i(t+\Delta t)\Bigr)\\
-    f_i^*(\bm{x}, t) &= f_i(\bm{x} + \bm{c}_i\Delta x, t+\Delta t)\\
-    &\approx f_i + \frac{\Delta t}{\textit{Sh}}c_{i\alpha}\partial_\alpha f_i + \frac{\Delta t^2}{2\textit{Sh}^2}c_{i\alpha}c_{i\beta}\partial_\alpha \partial_\beta f_i\\
-    \Delta m^{(2)} &= \frac{\Delta t}{\textit{Sh}}\sum_i^\text{out}c_{i\alpha}\partial_\alpha f_i^{\text{eq},(1)}\\
-    &= \frac{\Delta t}{\textit{Sh}}\Biggl(-\frac{1}{2}\partial_n\left(c_s^2\rho^{(1)}\right)+ \frac{1}{2}\rho^{(0)}\partial_n u_n^{(1)}\\
-    &\quad\quad\quad\, + \frac{1}{6}\rho^{(0)}(1 - \delta_{\alpha n})\partial_\alpha u_\alpha^{(1)}\Biggr)
+    f_i^{*,\sigma}(\bm{x}, t) &= f_i^{\sigma}(\bm{x}, t)- \frac{1}{\tau^\sigma}\left(f_i^{\sigma} - f_i^{\text{eq}, \sigma}\right),\\
+    f_i^\sigma\left(\bm{x}, t+1\right) &= f_i^{*,\sigma}\left(\bm{x} - \bm{c}_i, t\right).
 \end{split}
 \end{equation}
+The Color-Gradient method introduces two additional steps after the collision step to introduce interface tension and phase separation. The equilibrium distribution is adapted to support separate speeds of sound in the fluids~\cite{leclaire_generalized_2017},
+\begin{equation}\label{eq:cgeq}
+    f_i^{\text{eq}, \sigma} = \rho^\sigma_w \left[\phi_i^\sigma + w_i\left(\frac{\bm{u}\cdot \bm{c}_i}{c_s^2} + \frac{{\left(\bm{u}\cdot \bm{c}_i\right)}^2}{2c_s^4} - \frac{|\bm{u}|^2}{2c_s^2}\right)\right] + \Phi_i^\sigma,
+\end{equation}
+where the values for $\phi_i^\sigma$ are given in Tab.~(\ref{tab:phi}).
+\begin{table}[htbp]
+\centering
+\begin{tabular}{| c | c c c c|} 
+    \hline
+    $|\bm{c}_i|^2$& 0 & 1 & 2 & 3 \\ 
+    \hline
+    D2Q9 & $\alpha^\sigma$ & $\left(1-\alpha^\sigma\right)/5$ & $\left(1-\alpha^\sigma\right)/20$ & -\\
+    D3Q19 & $\alpha^\sigma$ & $\left(1-\alpha^\sigma\right)/12$ & $\left(1-\alpha^\sigma\right)/24$& - \\
+    D3Q27 & $\alpha^\sigma$ & $2\left(1-\alpha^\sigma\right)/19$ & $\left(1-\alpha^\sigma\right)/38$ & $\left(1-\alpha^\sigma\right)/152$\\
+    \hline
+\end{tabular}
+\caption{Values for $\phi_i^\sigma$ for different lattices~\cite{leclaire_generalized_2017}.}\label{tab:phi}
+\end{table}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{| c | c c c c|} 
+    \hline
+    $|\bm{c}_i|^2$& 0 & 1 & 2 & 3 \\ 
+    \hline
+    D2Q9 & $-8/3$ & $-1/6$ & $1/12$ & -\\
+    D3Q19 & $-5/2$ & $-1/6$ & $1/24$ & - \\
+    D3Q27 & $-20/9$ & $-2/9$ & $1/36$ & $1/36$ \\
+    \hline
+\end{tabular}
+\caption{Values for $\psi_i$ for different lattices~\cite{leclaire_generalized_2017}.}\label{tab:psi}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{| c | c c c c|} 
+    \hline
+    $|\bm{c}_i|^2$& 0 & 1 & 2 & 3 \\ 
+    \hline
+    D2Q9 & $0$ & $1/2$ & $1/8$ & -\\
+    D3Q19 & $0$ & $1/4$ & $1/8$ & - \\
+    D3Q27 & $0$ & $1/3$ & $1/12$ & $1/48$ \\
+    \hline
+\end{tabular}
+\caption{Values for $\xi_i$ for different lattices~\cite{leclaire_generalized_2017}.}\label{tab:xi}
+\end{table}
+
+\noindent The values for $\alpha^\sigma$ depend on the initial density ratio between the fluids,
+\begin{equation}
+    \gamma = \frac{\rho_0^\sigma}{\rho_0^{\tilde{\sigma}}} = \frac{1 - \alpha^{\tilde{\sigma}}}{1 - \alpha^\sigma}.
+\end{equation}
+We choose $\alpha^{\tilde{\sigma}} = 0.2$~\cite{datadien_directional_2024}, where ${\tilde{\sigma}}$ corresponds to the low-density component. This gives $\alpha^\sigma = 1 - \left(1 - \alpha^{\tilde{\sigma}}\right)/\gamma$. The pressure is now computed as follows,
+\begin{equation}
+    p = \sum_\sigma p^\sigma = \sum_\sigma \rho^\sigma_w\zeta \left(1 - \alpha^\sigma\right),
+\end{equation}
+where $\zeta$ is a parameter depending on the lattice. For the D2Q9, D3Q19 and D3Q27, we have $\zeta = 3/5$, $\zeta = 1/2$ and $\zeta = 9/19$, respectively~\cite{leclaire_generalized_2017}. Finally, the Equilibrium enhancement $\Phi_i^\sigma$ is defined as follows,
+\begin{equation}
+    \Phi_i^\sigma = \bar{\nu}\Biggl[\psi_i u_\alpha \partial_\alpha \rho^\sigma + \xi_i c_{i\alpha}c_{i\beta}\Bigl(u_\alpha \partial_\beta \rho^\sigma + u_\beta \partial_\alpha \rho^\sigma\Bigr)\Biggr],
+\end{equation}
+where we sum over repeated Greek indices. The stencil-dependent constants $\psi_i$ and $\xi_i$ are given in Tabs.~(\ref{tab:psi}) and~(\ref{tab:xi}), respectively. 
+
+We will also need the effective relaxation parameter on the interface. This is computed as follows~\cite{leclaire_generalized_2017},
+\begin{equation}
+\begin{split}
+    \frac{1}{\bar{\nu}} &= \frac{\rho^\sigma}{\rho}\frac{1}{\nu^\sigma} + \frac{\rho^{\tilde{\sigma}}}{\rho}\frac{1}{\nu^{\tilde{\sigma}}},\\
+    \omega^\text{eff} &= \frac{2}{6\bar{\nu} + 1}.
+\end{split}
+\end{equation}
+Note that this effective collision frequency $\omega^\text{eff}$ will also be used in place of $1/\tau^\sigma$ in the BGK collision operator for both components~\cite{coveney_lattice_2002}.
+
+The distribution after the original collision step in Eq.~(\ref{eq:Collision and streaming color gradient}) is relabeled as $f_i^{\text{coll},\sigma}$. Next, we perform the perturbation step~\cite{leclaire_generalized_2017},
+\begin{equation}
+    f_i^{\text{pert}, \sigma} = f_i^{\text{coll},\sigma} + A|\bm{G}|\left(w_i\frac{{\left(\bm{G}\cdot\bm{c}_i\right)}^2}{|\bm{G}|^2} - B_i\right),
+\end{equation}
+where $A = \frac{9}{8}\omega^\text{eff}\sigma$, with $\sigma$ as the surface tension. The factors $B_i$ are stencil dependent and are given in Tab.~(\ref{tab:B_i}).
+\begin{table}[htp]
+\centering
+% chktex-file 44
+\begin{tabular}{| c | c c c c |} 
+    \hline
+    $|\bm{c}_i|^2$& 0 & 1 & 2 & 3 \\ 
+    \hline
+    D2Q9 & -4/27 & 2/27 & 5/108& - \\
+    D3Q19 & -2/9 & 1/54 & 1/27& - \\
+    D3Q27 & -16/81 & 2/81 & 2/81 & 7/648\\
+    \hline
+\end{tabular}
+\caption{Values for $B_i$ for different lattices~\cite{leclaire_generalized_2017}.}\label{tab:B_i}
+\end{table}
+
+\noindent Lastly, we introduce the color gradient $\bm{G}$~\cite{leclaire_generalized_2017},
+\begin{equation}\label{eq:Color-Gradient}
+    \bm{G} = \bm{\nabla}\rho^N \approx \frac{1}{c_s^2}\sum_i w_i \rho^N(\bm{x} + \bm{c}_i) \bm{c}_i,
+\end{equation}
+with $\rho^N = \left(\rho^\sigma - \rho^{\tilde{\sigma}}\right)/{\rho}$. Note that the density gradients in the equilibrium distribution are computed in the same way. Finally, we will perform the recoloring step~\cite{leclaire_numerical_2012},
+\begin{equation}
+\begin{split}
+    f_i^{*,\sigma} &= \frac{\rho^\sigma}{\rho}\sum_\sigma f^{\text{pert},\sigma}_i + \beta \frac{\rho^\sigma \rho^{\tilde{\sigma}}}{\rho^2}\frac{\bm{G}\cdot \bm{c}_i}{|\bm{G}||\bm{c}_i|}\sum_\sigma f^{\text{eq},\sigma}_i|_{\bm{u}=\bm{0}},\\
+    f_i^{*,\tilde{\sigma}} &= \frac{\rho^{\tilde{\sigma}}}{\rho}\sum_\sigma f^{\text{pert},\sigma}_i - \beta \frac{\rho^\sigma \rho^{\tilde{\sigma}}}{\rho^2}\frac{\bm{G}\cdot \bm{c}_i}{|\bm{G}||\bm{c}_i|}\sum_\sigma f^{\text{eq},\sigma}_i|_{\bm{u}=\bm{0}},
+\end{split}
+\end{equation}
+where $\tilde{\sigma}$ is again the low density component. Additionally, the parameter $\beta$ tunes the interface thickness, for which $\beta = 0.7$~\cite{datadien_directional_2024} is chosen. 
+
+\section{Multi-component Boundary Condition}
+The Non-Equilibrium Bounce-Back scheme~\cite{zou_pressure_1997} is a boundary condition based on the wet-node approach. Instead of the more common Half-way Bounce-Back scheme where the boundary fluid nodes are half a node away from the physical wall, the boundary fluid nodes are infinitesimally close to the physical wall in the wet-node approach. The NEBB scheme leaves the populations streaming out of the domain unchanged after streaming. The unknown populations streaming into the domain can be found using the non-equilibrium parts of the populations streaming out of the domain. Additionally, momentum corrections $N_\alpha$, where $\alpha$ is the spatial component, are introduced~\cite{kruger_lattice_2017}. This gives the following boundary condition for the unknown incoming populations $i$,
+\begin{equation}\label{eq:NEBB}
+\begin{split}
+    f_i^{\text{neq},\sigma} &= f_q^{\text{neq},\sigma} - w_i c_{i\alpha} N_\alpha^\sigma,\\
+    f_i^\sigma &= f_q^\sigma + 2w_i \rho^\sigma \frac{\bm{u}\cdot \bm{c}_i}{c_s^2} - w_i c_{i\alpha} N_\alpha^\sigma.
+\end{split}
+\end{equation}
+where the index $q$ is given by $\bm{c}_i = -\bm{c}_q$. Furthermore, repeated Greek indices indicate sums. Note that the incoming populations are defined by $\bm{c}_i \cdot \hat{\bm{n}}_w > 0$, where $\hat{\bm{n}}_w$ is the normal vector to the boundary pointing into the domain. The density $\rho$ and the velocity $\bm{u}$ are the imposed boundary density and velocity. To conserve mass, we will satisfy the condition that the amount of mass being removed from the domain is equal to the mass added to the domain at every grid point. During the streaming step, the values of the outgoing populations $f_q$ will be overwritten by populations from the bulk, leading to mass loss. The mass gain is given by Eq.~(\ref{eq:NEBB}). This gives the net mass loss at the boundary due to the NEBB method,
+\begin{equation}\label{eq:NEBB mass loss}
+\begin{split}
+    \Delta m^\sigma &= \sum_i^\text{out}\left(f_i^{*,\sigma} - f_i^\sigma\right) + \sum_i^\text{in} w_i c_{i\alpha}N_\alpha^\sigma\\
+    &= \sum_i^{\text{out}}\left(f_i^{*,\sigma} - f_i^\sigma\right) - \rho^\sigma u_n + \frac{1}{2}c_s^2 N_{n}^\sigma,
+\end{split}
+\end{equation}
+where outgoing populations are defined by $\bm{c}_i \cdot \hat{\bm{n}}_w < 0$. Furthermore, the index $n$ indicates the component normal to the boundary. For a set velocity boundary condition, the densities can be found using the bare velocity components, 
+\begin{equation}
+\begin{split}
+    \rho^\sigma u_n^\sigma &= \sum_i^\text{in} f_i^\sigma - \sum_i^\text{out} f_i^\sigma + \frac{1}{2}F_n^\sigma\\
+    &= \rho^\sigma - f_0^\sigma - 2\sum_i^\text{out}f_i^\sigma - \sum_i^\text{par}f_i^\sigma + \frac{1}{2}F_n^\sigma\\\
+    \rho^\sigma &= \frac{f_0^\sigma + 2\sum_i^\text{out}f_i^\sigma + \sum_i^\text{par}f_i^\sigma - \frac{1}{2}F_n^\sigma}{1 - u_n^\sigma},
+\end{split}
+\end{equation}
+where parallel populations are defined as $\bm{c}_i \cdot \hat{\bm{n}}_w = 0$ with $i\neq0$. Furthermore, we assume that $|\hat{\bm{c}}_i\cdot\hat{\bm{n}}_w| = 1$ for $i \neq 0$. The momentum corrections $N_\alpha^\sigma$ can be computed by plugging the incoming populations from Eq.~(\ref{eq:NEBB}) back into the bare velocity components,
+\begin{equation}
+\begin{split}
+    \rho^\sigma u^\sigma_{\alpha} &= \sum_i^\text{in} f_i^\sigma c_{i\alpha} + \sum_i^\text{out} f_i^\sigma c_{i\alpha} + \sum_i^\text{par} f_i^\sigma c_{i\alpha} + \frac{1}{2}F^\sigma_{\alpha}\\
+    &= \sum_i^\text{in} \left(2w_i \rho^\sigma \frac{\bm{u} \cdot \bm{c}_i}{c_s^2} -  w_i c_{i\beta} N_\beta^\sigma\right)c_{i\alpha} \\
+    &\quad+ \sum_i^\text{par}f_i^\sigma c_{i\alpha} + \frac{1}{2}F^\sigma_\alpha.
+\end{split}
+\end{equation}
+The normal and parallel components of the momentum corrections can be found,
+\begin{equation}
+    N_\alpha^\sigma = \frac{2}{c_s^2 A_\alpha}\left[\sum_j^\text{par}c_{j\alpha}f_j^\sigma + A_\alpha\rho^\sigma u_\alpha - \rho^\sigma u^\sigma_\alpha+ \frac{1}{2}F_\alpha^\sigma\right],
+\end{equation}
+with $A_\alpha = \frac{2}{c_s^2}\sum_i^\text{in} w_i c_{i\alpha}^2$. For the D2Q9, D3Q19 and D3Q27 lattices we have $A_\alpha = \delta_{\alpha n} + \frac{1}{3}(1 - \delta_{\alpha n})$. To correct for the mass loss given in Eq.~(\ref{eq:NEBB mass loss}), we add this back to the zero-velocity component before computing the density,
+\begin{equation}
+\begin{split}
+    f_0^\sigma &= f_0^{*,\sigma} + \Delta m^\sigma + \rho^\sigma u_n\\
+    &= f_0^{*,\sigma} + \sum_i^{\text{out}}\left(f_i^{*,\sigma} - f_i^\sigma\right) + \frac{1}{2}F^\sigma_n.
+\end{split}
+\end{equation}
+Note that we have a mass loss given by $-\rho^\sigma u_n$. As this is the expected mass flux at the boundary, we do not correct for it. This simplifies the computation of the densities,
+\begin{equation}
+    \rho^\sigma_w = \frac{f_0^{*,\sigma} + \sum_i^\text{out}\left(f_i^{*,\sigma} + f_i^\sigma\right) + \sum_i^\text{par}f_i^\sigma}{1 - u_n^\sigma}.
+\end{equation}
+\subsection{Corner Nodes}
+Corners between two perpendicular NEBB boundaries have to be handled separately. It is not possible to implement the corner node between two velocity boundaries without extrapolating the density. The corner node between a velocity and density boundary can be implemented. Both the incoming and buried populations are now governed by Eq.~(\ref{eq:NEBB}). The incoming populations are given by $\left(\hat{\bm{n}}_1 + \hat{\bm{n}}_2\right) \cdot \bm{c}_i > 0$ and the buried populations are given by $\left(\hat{\bm{n}}_1 + \hat{\bm{n}}_2\right) \cdot \bm{c}_i = 0$, where the normal vectors of the two intersecting walls are given by $\hat{\bm{n}}_1$ and $\hat{\bm{n}}_2$. The following equations are obtained after plugging Eq.~(\ref{eq:NEBB}) into the bare velocity components again,
+\begin{equation}
+\begin{split}
+    \rho^\sigma u_{\alpha}^\sigma &= \sum_i^\text{in} f_i^\sigma c_{i\alpha} + \sum_i^\text{out} f_i^\sigma c_{i\alpha} + \sum_i^\text{buried} f_i^\sigma c_{i\alpha} + \frac{1}{2}F_{\alpha}^\sigma\\
+    &= \rho^\sigma u_\alpha - \frac{1}{2}c_s^2 N_\alpha^\sigma + \frac{1}{2}F_{\alpha}^\sigma
+\end{split}
+\end{equation}
+The momentum corrections are given as follows,
+\begin{equation}
+    N_\alpha^\sigma = \frac{2}{c_s^2}\left[\rho^\sigma \left(u_\alpha-u_{\alpha}^\sigma\right) + \frac{1}{2}F_{\alpha}^\sigma\right]
+\end{equation}
+The buried populations will be used to set the desired wall density,
+\begin{equation}
+\begin{split}
+    \rho^{\text{buried},\sigma} &= \rho^\sigma - \left(f_0^\sigma + \sum_i^\text{in}f_i^\sigma + \sum_i^\text{out}f_i^\sigma\right),\\
+    f_i^\sigma&= \frac{w_i}{\sum_j^\text{buried}w_j}\rho^{\text{buried},\sigma} + w_i\rho^\sigma \frac{\bm{u}\cdot \bm{c}_i}{c_s^2}\\
+    &\quad- \frac{1}{2} w_i c_{i\alpha}N^\sigma_\alpha. 
+\end{split}
+\end{equation}
+
+\section{Prescribed Contact Angle Models}
+To test the new multi-component boundary condition, we will perform a test case of a static droplet on a flat surface. This will test the momentum corrections taking care of external forcing on the surface and the mass corrections are examined. 
+\subsection{Virtual Density Scheme for Shan-Chen}
+The Shan-Chen force given in Eq.~(\ref{eq:Shan-Chen force}) reaches out of the domain at the boundary nodes. The virtual densities in the solid can be computed using an averaging over the nearby fluid nodes and the contact angle is then controlled using the parameter $\chi^\sigma$,~\cite{coelho_wetting_2021},
+\begin{equation}
+    \rho^{\text{solid}, \sigma} = \chi^\sigma\frac{\sum_i^\text{in} w_i \rho^\sigma\left(\bm{x} + \bm{c}G_i\right)}{\sum_i^{\text{in}} w_i},
+\end{equation}
+where the incoming directions are defined by $\bm{c}_i \cdot \hat{\bm{n}}_w > 0$, with the wall normal vector pointing inside the domain. The wetting parameter is given as $\chi^\sigma = 1 - \xi$ and $\chi^{\tilde{\sigma}} = 1 + \xi$, where $\sigma$ is the fluid making up the droplet. The surface will be hydrophilic for negative $\xi$ and hydrophobic for positive $\xi$.
+\subsection{Geometric Schemes for Color-Gradient}
+Like for the Shan-Chen method, the computation of the Color-Gradient in Eq.~(\ref{eq:Color-Gradient}) reaches outside of the domain. The densities inside the solid are again averaged from the nearby fluid nodes~\cite{zhang_simplified_2023},
+\begin{equation}
+    \rho^{\text{solid}, \sigma} = \frac{\sum_i^\text{in} w_i \rho^\sigma\left(\bm{x} + \bm{c}_i\right)}{\sum_i^{\text{in}} w_i}.
+\end{equation}
+These solid densities are used to compute a preliminary Color Gradient $\bm{G}^*$. To impose a given contact angle $\theta_c$ at the boundary, we need to change the angle of this vector with respect to the boundary. This can by either changing only the angle of the color gradient while keeping the norm of $\bm{G}$ unchanged~\cite{yu_color-gradient_2018}, or by only changing the component of $\bm{G}$ normal to the wall~\cite{ding_wetting_2007}\cite{zhang_wetting_2022},
+\begin{equation}
+\begin{split}
+    \bm{G} &= |\bm{G}^*|\hat{\bm{n}}(\theta_c),\\
+    G_\text{norm} &= -\tan\left(\theta_c - \frac{1}{2}\phi\right)\sqrt{\sum_\alpha G^2_{\text{par},\alpha}}.
+\end{split}
+\end{equation}
+
+\section{Asymptotic expansion of LBE}
+To test the validity of the mass corrected NEBB method, we will need to apply an asymptotic expansion in Knudsen number~\cite{inamuro_accuracy_1997}. The Knudsen number is given as $\textit{Kn} = \lambda / L$, where $\lambda$ is the mean free path that decreases with relaxation time $\tau$, and $L$ is the characteristic length scale of the system. For simplicity, we apply the expansion to the single-component Lattice Boltzmann Equation, but now in explicitly dimensional form,
+\begin{equation}
+\begin{split}
+    &\quad\tilde{f}_i\left(\tilde{\bm{x}} + \tilde{\bm{c}}_i \Delta \tilde{t}, \tilde{t} + \Delta \tilde{t}\right) - \tilde{f}_i\left(\tilde{\bm{x}}, \tilde{t}\right)\\
+    &= -\frac{\Delta \tilde{t}}{\tilde{\tau}}\left(\tilde{f}_i\left(\tilde{\bm{x}}, \tilde{t}\right)  - \tilde{f}^\text{eq}_i\left(\tilde{\rho}, \tilde{\bm{u}}\right)\right) + \Delta \tilde{t} \tilde{S}_i,\\
+\end{split}
+\end{equation}
+where the dimensional source term is given as follows,
+\begin{equation}
+    \tilde{S}_i =  \left(1 - \frac{\Delta \tilde{t}}{2\tilde{\tau}}\right)w_i \left(\frac{\tilde{\bm{c}}_i - \tilde{\bm{u}}}{\tilde{c}_s^2} + \frac{\tilde{\bm{c}}_i \cdot \tilde{\bm{u}}}{\tilde{c}_s^4}\tilde{\bm{c}}_i\right) \cdot \tilde{\bm{F}}.
+\end{equation}
+We will now nondimensionalize this equation the length scale $\tilde{L}$, the velocity scale $\tilde{c}$, the time scale $\tilde{t}_0$ and the density scale $\tilde{\rho}_0$. Note that $\tilde{c} = \Delta \tilde{x} / \Delta \tilde{t}$. Furthermore, we introduce the Strouhal number $\textit{Sh} = \tilde{L} / (\tilde{t}_0 \tilde{c}) = \Delta t / \Delta x$. This gives the nondimensional version of the previous equations,
+\begin{equation}
+\begin{split}
+    &\quad f_i\left(\bm{x} + \bm{c}_i \Delta x, t + \Delta t\right) - f_i\left(\bm{x}, t\right)\\
+    &= -\frac{\Delta t}{\tau}\left(f_i\left(\bm{x}, t\right)  - f^\text{eq}_i\left(\rho, \bm{u}\right)\right) + \frac{\Delta t}{\textit{Sh}} S_i,\\
+    S_i &=  \left(1 - \frac{\Delta t}{2\tau}\right)w_i \left(\frac{\bm{c}_i - \bm{u}}{c_s^2} + \frac{\bm{c}_i \cdot \bm{u}}{c_s^4}\bm{c}_i\right) \cdot \bm{F},
+\end{split}
+\end{equation}
+where we defined $\tilde{\bm{F}} = \tilde{\rho}_0 \tilde{c}^2 / \tilde{L} \bm{F}$. We will now introduce diffusive scaling, such that $\Delta t = \mathcal{O}\left(\textit{Kn}^2\right)$ and $\Delta x = \mathcal{O}\left(\textit{Kn}\right)$, implying $\textit{Sh} = \mathcal{O}\left(\textit{Kn}\right)$. Furthermore, if we choose a finite Reynolds number $\tilde{Re} = \tilde{U} \tilde{L} / \tilde{\nu} = \mathcal{O}\left(1\right)$, we get the Mach number $\textit{Ma} = \tilde{U} / \tilde{c}_s = \mathcal{O}\left(\textit{Kn}\right)$ from the equation $\textit{Ma} \propto \textit{Kn}\cdot \textit{Re}$. Lastly, $\tau = \mathcal{O}\left(\textit{Kn}^2\right)$, which we will show is required to recover the equilibrium at leading order in Knudsen number. We will now perform a Taylor expansion on the dimensionless LBE,
+\begin{equation}\label{eq:Taylor expansion LBE}
+\begin{split}
+    &\sum_{n=1}^\infty \frac{1}{n!}\Bigl(\Delta x c_{i\alpha} \partial_\alpha + \Delta t \partial t\Bigr)^n f_i=-\frac{\Delta t}{\tau}\Bigl(f_i  - f^\text{eq}_i\Bigr) + \Delta xS_i,
+\end{split}
+\end{equation}
+We will continue by expanding this equation in order of Knudsen number. We will expand the distribution function, the equilibrium distribution, the density, and the velocity in orders of Knudsen. Note that from the Mach number, we can state that $\bm{u}^{(0)} = \bm{0}$. Sorted by order in Knudsen, we recover the following equations,
+\begin{equation}\label{eq:asymptotic expansion lbe}
+\begin{split}
+    &f_i^{(0)} = f_i^{\text{eq},(0)},\\
+    &f_i^{(1)} = f^{\text{eq},(1)} - \frac{\tau}{\Delta t}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(0)}-\Delta xS_i^{(0)}\Biggr),\\
+    &f_i^{(2)} = f^{\text{eq},(2)}_i - \frac{\tau}{\Delta t}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(1)} + \frac{1}{2}\Delta x^2 c_{i\alpha}c_{i\beta}\partial_\alpha\partial_\beta f_i^{(0)}\\
+    &\qquad\ \ + \Delta t \partial_t f_i^{(0)} - \Delta xS_i^{(1)}\Biggr),\\
+    &f_i^{(3)} = f^{\text{eq},(3)}_i -\frac{\Delta t}{\tau}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(2)} + \frac{1}{2}\Delta x^2 c_{i\alpha}c_{i\beta}\partial_\alpha\partial_\beta f_i^{(1)}\\
+    &\qquad\ \ + \Delta t \partial_t f_i^{(1)} + \Delta x  c_{i\alpha}\partial_\alpha \Delta t\partial_t f_i^{(0)}\\
+    &\qquad\ \  + \frac{1}{6}\Delta x^3 c_{i\alpha}c_{i\beta}c_{i\mu}\partial_\alpha\partial_\beta\partial_\mu f_i^{(0)}-\Delta xS_i^{(2)}\Biggr).\\
+\end{split}
+\end{equation}
+Here, we expanded the source term and the equations for density and velocity,
+\begin{equation}
+\begin{split}
+    \rho^{(n)} &= \sum_i f^{(n)},\\
+    \left(\rho \bm{u}\right)^{(n)} &= \sum_i \bm{c}_i f_i^{(n)} +  \frac{\Delta x}{2}\bm{F}^{(n-1)}
+\end{split}
+\end{equation}
+The macroscopic equations can be obtained by taking the zeroth and first moments of the expansion in Eq.~(\ref{eq:asymptotic expansion lbe}). For simplicity, we will derive these macroscopic equations for $\rho^{(0)} = \text{const}$ and $\bm{F}^{(0)} = \bm{0}$. We can now compute the zeroth and first moments of the equation for $f^{(2)}$, 
+\begin{equation}
+\begin{split}
+    & \rho^{(0)}\bm{\nabla}\cdot \bm{u}^{(1)} = 0,\\
+    & \bm{0} =-\bm{\nabla} \left(c_s^2 \rho^{(1)}\right)+ \bm{F}^{(1)}
+\end{split}
+\end{equation}
+We can do the same for $f^{(3)}$,
+\begin{equation}
+\begin{split}
+    &\textit{Sh}\partial_t \rho^{(1)} + \bm{\nabla} \cdot \left(\rho^{(0)} \bm{u}^{(2)} + \rho^{(1)} \bm{u}^{(1)}\right) = 0,\\
+    &\textit{Sh}\rho^{(0)}\partial_t \bm{u}^{(1)} + \rho^{(0)}\bm{\nabla}\cdot\left(\bm{u}^{(1)}\bm{u}^{(1)}\right) =\\
+    &-\bm{\nabla} \left(c_s^2 \rho^{(2)}\right)  + \frac{\rho^{(0)}}{\textit{Sh}}\left[\nu \left(\bm{\nabla} \bm{u}^{(1)} + \left(\bm{\nabla} \bm{u}^{(1)}\right)^T\right)\right]+ \bm{F}^{(2)}
+\end{split}
+\end{equation}
+with $\nu = c_s^2 (\tau - 1/2)$. 
+
+\section{Analysis of NEBB}
+To analyze the accuracy of the force-corrected and mass-corrected NEBB method, previous literature usually assumes the lack of a Knudsen layer~\cite{junk_asymptotic_2005}. This means that this method is used to find out up until which order in Knudsen number the bulk equations for the distribution function fulfill the boundary condition.
+
+However, this method can be shown to be insufficient to assess the accuracy of this boundary condition. To show this, we can for instance show this by inserting the zero-order Knudsen part of the distribution function in Eq.~(\ref{eq:NEBB}), where we now switch to a single-component formulation for simplicity,
+\begin{equation}
+    f_i^{(0)} = f_q^{(0)} - w_i c_{i\alpha}N_i^{(0)}. 
+\end{equation}
+We can fill in the bulk equation that we got from the asymptotic expansion of the bulk LBE in Eq.~(\ref{eq:asymptotic expansion lbe}),  
+\begin{equation}
+    0 = -w_i c_{i\alpha} \frac{1}{c_s^2 A_\alpha} F_\alpha^{(0)}.
+\end{equation}
+This equation does not hold for arbitrary forcing, meaning that this method shows that we already have a Knudsen layer at order zero in Knudsen number. However, it is possible that this Knudsen layer only adds to the higher non-hydrodynamic moments. This can be analyzed using a full Knudsen layer analysis. This entails adding a Knudsen layer correction to the total distribution function~\cite{inamuro_accuracy_1997},
+\begin{equation}\label{eq:knudsen layer expansion}
+    f_i = f_i^\text{bulk} + f_i^\textit{Kn}.
+\end{equation}
+We also define the following stretched coordinate,
+\begin{equation}
+    \eta \equiv \frac{\bm{x}\cdot \hat{\bm{n}}}{\textit{Kn}},
+\end{equation}
+which is defined to be zero at the boundary. We now impose the matching condition, which states that the Knudsen correction $f_i^\textit{Kn}$ and its moments go to zero faster than any negative power of $\eta$~\cite{sone_kinetic_2002}. This is done because we expect $f_i$ to approach $f_i^\text{bulk}$ far away from the boundary. To find the equations for this Knudsen correction to the distribution function close to the boundary, we insert Eq.~(\ref{eq:knudsen layer expansion}) into Eq~(\ref{eq:Taylor expansion LBE}). We know that $f_i^\text{bulk}$ satisfies this equation, so we are left with the following equation,
+\begin{equation}\label{eq:Taylor expansion knudsen}
+\begin{split}
+    &\sum_{n=1}^\infty \frac{1}{n!}\Bigl(\Delta x c_{i\alpha} \partial_\alpha + \Delta t \partial t\Bigr)^n f_i^\textit{Kn}=-\frac{\Delta t}{\tau}\Bigl(f_i^\textit{Kn}  - g^\text{eq}_i\Bigr),\\
+    &g^\text{eq}_i \equiv f^\text{eq}_i\left(\rho, \bm{u}\right) - f^\text{eq}_i\left(\rho^\text{bulk}, \bm{u}^\text{bulk}\right). 
+\end{split}
+\end{equation}
+We defined the densities as follows,
+\begin{equation}
+\begin{split}
+    &\rho^\text{bulk} \equiv \sum_i f_i^\text{bulk},\\
+    &\rho^\textit{Kn} \equiv \sum_i f_i^\textit{Kn},\\
+    &\rho = \rho^\text{bulk} + \rho^\textit{Kn}.
+\end{split}
+\end{equation}
+Furthermore, the velocities are defined as follows,
+\begin{equation}
+\begin{split}
+    &\rho^\text{bulk}\bm{u}^\text{bulk} \equiv \sum_i \bm{c}_if_i^\text{bulk} + \frac{1}{2}\bm{F},\\
+    &\rho^\textit{Kn}\bm{u}^\textit{Kn} \equiv \sum_i \bm{c}_if_i^\textit{Kn},\\
+    &\rho\bm{u} = \sum_i \bm{c}_if_i^\text{bulk} + \sum_i \bm{c}_if_i^\textit{Kn}.
+\end{split}
+\end{equation}
+For the expansion in Eq.~(\ref{eq:Taylor expansion knudsen}), we have to take into account that the spatial derivatives along the boundary normal scale differently and have to be rewritten,
+\begin{equation}
+\begin{split}
+    &\sum_{n=1}^\infty \frac{1}{n!}\left(\frac{\Delta x}{\textit{Kn}} c_{in}\partial_\eta + \Delta x c_{ip} \partial_p + \Delta t \partial t\right)^n f_i^\textit{Kn} = \\
+    &-\frac{\Delta t}{\tau}\Bigl(f_i^\textit{Kn}  - g_i^\text{eq}\Bigr).
+\end{split}
+\end{equation}
+Like for the bulk distribution function, we can find the zero-order equation,
+\begin{equation}
+\begin{split}
+    \sum_{n=1}^\infty \frac{1}{n!}\left(\frac{\Delta x}{\textit{Kn}} c_{in}\partial_\eta\right)^n f_i^{\textit{Kn},(0)}= -\frac{\Delta t}{\tau}\Bigl(f_i^{\textit{Kn},(0)}  - g_i^{\text{eq},(0)}\Bigr)
+\end{split}
+\end{equation}
+Note that the infinite sum in this equation is now exactly equal to a discrete step in space,
+\begin{equation}
+    f_i^{\textit{Kn},(0)}\left(\eta + c_{in}\frac{\Delta x}{\textit{Kn}}\right) - f_i^{\textit{Kn},(0)} =-\frac{\Delta t}{\tau}\Bigl(f_i^{\textit{Kn},(0)}  - g_i^{\text{eq},(0)}\Bigr)
+\end{equation}
+We can split this equation up in an equation for the incoming populations ($c_{in} > 0$), outgoing populations ($c_{in} < 0$), and the zero-velocity and parallel populations ($c_{in} = 0$). This gives the following equations,
+\begin{equation}
+\begin{split}
+    &f_{i,j+1}^{\textit{Kn},(0)} - f_{i,j}^{\textit{Kn},(0)} =-\frac{\Delta t}{\tau}\Bigl(f_{i,j}^{\textit{Kn},(0)}  - g_{i,j}^{\text{eq},(0)}\Bigr),\ c_{in} > 0,\\
+    &f_{i,j-1}^{\textit{Kn},(0)} - f_{i,j}^{\textit{Kn},(0)} =-\frac{\Delta t}{\tau}\Bigl(f_{i,j}^{\textit{Kn},(0)}  - g_{i,j}^{\text{eq},(0)}\Bigr),\ c_{in} < 0,\\
+    &f_{i,j}^{\textit{Kn},(0)} = g_{i,j}^{\text{eq},(0)},\ c_{in} = 0,
+\end{split}
+\end{equation}
+where we defined $f_{ij} \equiv f_i\Bigl(j|c_{in}|\frac{\Delta x}{\textit{Kn}}\Bigr)$.
 
 \bibliography{references}
 

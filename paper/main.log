@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.1.30)  25 FEB 2026 10:19
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.1.30)  19 MAR 2026 19:59
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -329,33 +329,73 @@ LaTeX Info: Redefining \nameref on input line 8.
 Class revtex4-2 Info: Taking \maketitle back from hyperref on input line 8.
 \openout3 = `mainNotes.bib'.
 
- [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./main.bbl
 
-LaTeX Warning: Reference `LastBibItem' on page 2 undefined on input line 9.
+Underfull \hbox (badness 1163) in paragraph at lines 30--31
+\OT1/cmr/m/n/10 fined in pre-vi-ous re-search for single-component flu-
+ []
+
+[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4]
+Overfull \hbox (1.33525pt too wide) detected at line 286
+[]
+ []
 
 
-Package natbib Warning: Empty `thebibliography' environment on input line 53.
+Overfull \hbox (1.96864pt too wide) detected at line 298
+[]
+ []
 
-) [2] (./main.aux)
+[5] (./main.bbl [6]
+Underfull \hbox (badness 1688) in paragraph at lines 275--284
+ []\OT1/cmr/m/n/9 R. C. V. Coelho, C. B. Moura, M. M. Telo da
+ []
 
-LaTeX Warning: There were undefined references.
 
+Underfull \hbox (badness 6332) in paragraph at lines 275--284
+ \OT1/cmr/m/n/9 Gama, and N. A. M. Ara^^Sujo, Wet-ting bound-
+ []
+
+
+Underfull \hbox (badness 3724) in paragraph at lines 275--284
+ \OT1/cmr/m/n/9 ary con-di-tions for mul-ti-com-po-nent pseu-dopo-ten-tial
+ []
+
+
+Underfull \hbox (badness 6641) in paragraph at lines 275--284
+ \OT1/cmr/m/n/9 lat-tice Boltz-mann, [][]In-ter-na-tional Jour-nal for Nu-
+ []
+
+
+Overfull \hbox (5.53584pt too wide) in paragraph at lines 275--284
+ \OT1/cmr/m/n/9 https://onlinelibrary.wiley.com/doi/pdf/10.1002/fld.4988. 
+ []
+
+
+Underfull \hbox (badness 2181) in paragraph at lines 310--319
+ []\OT1/cmr/m/n/9 S. Zhang, J. Tang, and H. Wu, Wet-ting bound-
+ []
+
+
+Underfull \hbox (badness 1264) in paragraph at lines 310--319
+ \OT1/cmr/m/n/9 method for bi-nary flu-ids with large den-sity ra-tios,
+ []
+
+) [7] (./main.aux)
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: FB78783A6E50880F3BABA825C57BD5EC;1177.
+(rerunfilecheck)             Checksum: F783108F431327A9560ACE18B7175983;2406.
  ) 
 Here is how much of TeX's memory you used:
- 10561 strings out of 478287
- 159591 string characters out of 5849289
- 509973 words of memory out of 5000000
- 28635 multiletter control sequences out of 15000+600000
- 475071 words of font info for 47 fonts, out of 8000000 for 9000
+ 10791 strings out of 478287
+ 163869 string characters out of 5849289
+ 507552 words of memory out of 5000000
+ 28777 multiletter control sequences out of 15000+600000
+ 478585 words of font info for 59 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,19n,63p,786b,405s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on main.pdf (2 pages, 168008 bytes).
+ 60i,19n,63p,961b,531s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
+Output written on main.pdf (7 pages, 327830 bytes).
 PDF statistics:
- 126 PDF objects out of 1000 (max. 8388607)
- 91 compressed objects within 1 object stream
- 18 named destinations out of 1000 (max. 500000)
- 41 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 424 PDF objects out of 1000 (max. 8388607)
+ 360 compressed objects within 4 object streams
+ 95 named destinations out of 1000 (max. 500000)
+ 113 words of extra memory for PDF output out of 10000 (max. 10000000)
 

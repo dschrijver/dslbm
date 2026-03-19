@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{0}%
+\begin{thebibliography}{23}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -50,4 +50,289 @@
 \providecommand \BibitemShut  [1]{\csname bibitem#1\endcsname}%
 \let\auto@bib@innerbib\@empty
 %</preamble>
+\bibitem [{\citenamefont {Latt}\ \emph {et~al.}(2008)\citenamefont {Latt},
+  \citenamefont {Chopard}, \citenamefont {Malaspinas}, \citenamefont
+  {Deville},\ and\ \citenamefont {Michler}}]{latt_straight_2008}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.}~\bibnamefont
+  {Latt}}, \bibinfo {author} {\bibfnamefont {B.}~\bibnamefont {Chopard}},
+  \bibinfo {author} {\bibfnamefont {O.}~\bibnamefont {Malaspinas}}, \bibinfo
+  {author} {\bibfnamefont {M.}~\bibnamefont {Deville}},\ and\ \bibinfo {author}
+  {\bibfnamefont {A.}~\bibnamefont {Michler}},\ }\bibfield  {title} {\bibinfo
+  {title} {Straight velocity boundaries in the lattice {Boltzmann} method},\
+  }\href {https://doi.org/10.1103/PhysRevE.77.056703} {\bibfield  {journal}
+  {\bibinfo  {journal} {Physical Review E}\ }\textbf {\bibinfo {volume} {77}},\
+  \bibinfo {pages} {056703} (\bibinfo {year} {2008})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Zou}\ and\ \citenamefont
+  {He}(1997)}]{zou_pressure_1997}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Q.}~\bibnamefont
+  {Zou}}\ and\ \bibinfo {author} {\bibfnamefont {X.}~\bibnamefont {He}},\
+  }\bibfield  {title} {\bibinfo {title} {On pressure and velocity boundary
+  conditions for the lattice {Boltzmann} {BGK} model},\ }\href
+  {https://doi.org/10.1063/1.869307} {\bibfield  {journal} {\bibinfo  {journal}
+  {Physics of Fluids}\ }\textbf {\bibinfo {volume} {9}},\ \bibinfo {pages}
+  {1591} (\bibinfo {year} {1997})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Krüger}\ \emph {et~al.}(2017)\citenamefont
+  {Krüger}, \citenamefont {Kusumaatmaja}, \citenamefont {Kuzmin},
+  \citenamefont {Shardt}, \citenamefont {Silva},\ and\ \citenamefont
+  {Viggen}}]{kruger_lattice_2017}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
+  {Krüger}}, \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Kusumaatmaja}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Kuzmin}}, \bibinfo {author} {\bibfnamefont {O.}~\bibnamefont {Shardt}},
+  \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Silva}},\ and\ \bibinfo
+  {author} {\bibfnamefont {E.~M.}\ \bibnamefont {Viggen}},\ }\href
+  {https://doi.org/10.1007/978-3-319-44649-3} {\emph {\bibinfo {title} {The
+  {Lattice} {Boltzmann} {Method}: {Principles} and {Practice}}}},\ Graduate
+  {Texts} in {Physics}\ (\bibinfo  {publisher} {Springer International
+  Publishing},\ \bibinfo {address} {Cham},\ \bibinfo {year} {2017})\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Klass}\ \emph {et~al.}(2021)\citenamefont {Klass},
+  \citenamefont {Gabbana},\ and\ \citenamefont
+  {Bartel}}]{klass_non-equilibrium_2021}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {F.}~\bibnamefont
+  {Klass}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Gabbana}},\
+  and\ \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Bartel}},\
+  }\bibfield  {title} {\bibinfo {title} {A non-equilibrium bounce-back boundary
+  condition for thermal multispeed {LBM}},\ }\href
+  {https://doi.org/10.1016/j.jocs.2021.101364} {\bibfield  {journal} {\bibinfo
+  {journal} {Journal of Computational Science}\ }\textbf {\bibinfo {volume}
+  {53}},\ \bibinfo {pages} {101364} (\bibinfo {year} {2021})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Khajepor}\ \emph {et~al.}(2019)\citenamefont
+  {Khajepor}, \citenamefont {Cui}, \citenamefont {Dewar},\ and\ \citenamefont
+  {Chen}}]{khajepor_study_2019}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Khajepor}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Cui}},
+  \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Dewar}},\ and\ \bibinfo
+  {author} {\bibfnamefont {B.}~\bibnamefont {Chen}},\ }\bibfield  {title}
+  {\bibinfo {title} {A study of wall boundary conditions in pseudopotential
+  lattice {Boltzmann} models},\ }\href
+  {https://doi.org/10.1016/j.compfluid.2018.05.011} {\bibfield  {journal}
+  {\bibinfo  {journal} {Computers \& Fluids}\ }\textbf {\bibinfo {volume}
+  {193}},\ \bibinfo {pages} {103896} (\bibinfo {year} {2019})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Wang}\ \emph {et~al.}(2022)\citenamefont {Wang},
+  \citenamefont {Soomro}, \citenamefont {Peng}, \citenamefont {Ayala},\ and\
+  \citenamefont {Ayala}}]{wang_two_2022}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Z.}~\bibnamefont
+  {Wang}}, \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Soomro}},
+  \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Peng}}, \bibinfo {author}
+  {\bibfnamefont {L.~F.}\ \bibnamefont {Ayala}},\ and\ \bibinfo {author}
+  {\bibfnamefont {O.~M.}\ \bibnamefont {Ayala}},\ }\bibfield  {title} {\bibinfo
+  {title} {Two pressure boundary conditions for multi-component multiphase flow
+  simulations using the pseudo-potential lattice {Boltzmann} model},\ }\href
+  {https://doi.org/10.1016/j.compfluid.2022.105672} {\bibfield  {journal}
+  {\bibinfo  {journal} {Computers \& Fluids}\ }\textbf {\bibinfo {volume}
+  {248}},\ \bibinfo {pages} {105672} (\bibinfo {year} {2022})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Junk}\ and\ \citenamefont
+  {Yang}(2005)}]{junk_asymptotic_2005}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.}~\bibnamefont
+  {Junk}}\ and\ \bibinfo {author} {\bibfnamefont {Z.}~\bibnamefont {Yang}},\
+  }\bibfield  {title} {\bibinfo {title} {Asymptotic {Analysis} of {Lattice}
+  {Boltzmann} {Boundary} {Conditions}},\ }\href
+  {https://doi.org/10.1007/s10955-005-8321-2} {\bibfield  {journal} {\bibinfo
+  {journal} {Journal of Statistical Physics}\ }\textbf {\bibinfo {volume}
+  {121}},\ \bibinfo {pages} {3} (\bibinfo {year} {2005})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Shan}\ and\ \citenamefont
+  {Chen}(1993)}]{shan_lattice_1993}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {X.}~\bibnamefont
+  {Shan}}\ and\ \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont {Chen}},\
+  }\bibfield  {title} {\bibinfo {title} {Lattice {Boltzmann} model for
+  simulating flows with multiple phases and components},\ }\href
+  {https://doi.org/10.1103/PhysRevE.47.1815} {\bibfield  {journal} {\bibinfo
+  {journal} {Physical Review E}\ }\textbf {\bibinfo {volume} {47}},\ \bibinfo
+  {pages} {1815} (\bibinfo {year} {1993})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Leclaire}\ \emph {et~al.}(2017)\citenamefont
+  {Leclaire}, \citenamefont {Parmigiani}, \citenamefont {Malaspinas},
+  \citenamefont {Chopard},\ and\ \citenamefont
+  {Latt}}]{leclaire_generalized_2017}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Leclaire}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Parmigiani}}, \bibinfo {author} {\bibfnamefont {O.}~\bibnamefont
+  {Malaspinas}}, \bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
+  {Chopard}},\ and\ \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont
+  {Latt}},\ }\bibfield  {title} {\bibinfo {title} {Generalized
+  three-dimensional lattice {Boltzmann} color-gradient method for immiscible
+  two-phase pore-scale imbibition and drainage in porous media},\ }\href
+  {https://doi.org/10.1103/PhysRevE.95.033306} {\bibfield  {journal} {\bibinfo
+  {journal} {Physical Review E}\ }\textbf {\bibinfo {volume} {95}},\ \bibinfo
+  {pages} {033306} (\bibinfo {year} {2017})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Yu}\ \emph {et~al.}(2018)\citenamefont {Yu},
+  \citenamefont {Liu}, \citenamefont {Zhang},\ and\ \citenamefont
+  {Liang}}]{yu_color-gradient_2018}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Y.}~\bibnamefont
+  {Yu}}, \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont {Liu}}, \bibinfo
+  {author} {\bibfnamefont {Y.}~\bibnamefont {Zhang}},\ and\ \bibinfo {author}
+  {\bibfnamefont {D.}~\bibnamefont {Liang}},\ }\bibfield  {title} {\bibinfo
+  {title} {Color-gradient lattice {Boltzmann} modeling of immiscible two-phase
+  flows on partially wetting surfaces},\ }\href
+  {https://doi.org/10.1177/0954406217749616} {\bibfield  {journal} {\bibinfo
+  {journal} {Proceedings of the Institution of Mechanical Engineers, Part C:
+  Journal of Mechanical Engineering Science}\ }\textbf {\bibinfo {volume}
+  {232}},\ \bibinfo {pages} {416} (\bibinfo {year} {2018})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Chibbaro}\ \emph {et~al.}(2009)\citenamefont
+  {Chibbaro}, \citenamefont {Biferale}, \citenamefont {Diotallevi},\ and\
+  \citenamefont {Succi}}]{chibbaro_capillary_2009}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Chibbaro}}, \bibinfo {author} {\bibfnamefont {L.}~\bibnamefont {Biferale}},
+  \bibinfo {author} {\bibfnamefont {F.}~\bibnamefont {Diotallevi}},\ and\
+  \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Succi}},\ }\bibfield
+  {title} {\bibinfo {title} {Capillary filling for multicomponent fluid using
+  the pseudo-potential {Lattice} {Boltzmann} method},\ }\href
+  {https://doi.org/10.1140/epjst/e2009-01032-8} {\bibfield  {journal} {\bibinfo
+   {journal} {The European Physical Journal Special Topics}\ }\textbf {\bibinfo
+  {volume} {171}},\ \bibinfo {pages} {223} (\bibinfo {year}
+  {2009})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Akai}\ \emph {et~al.}(2018)\citenamefont {Akai},
+  \citenamefont {Bijeljic},\ and\ \citenamefont {Blunt}}]{akai_wetting_2018}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
+  {Akai}}, \bibinfo {author} {\bibfnamefont {B.}~\bibnamefont {Bijeljic}},\
+  and\ \bibinfo {author} {\bibfnamefont {M.~J.}\ \bibnamefont {Blunt}},\
+  }\bibfield  {title} {\bibinfo {title} {Wetting boundary condition for the
+  color-gradient lattice {Boltzmann} method: {Validation} with analytical and
+  experimental data},\ }\href {https://doi.org/10.1016/j.advwatres.2018.03.014}
+  {\bibfield  {journal} {\bibinfo  {journal} {Advances in Water Resources}\
+  }\textbf {\bibinfo {volume} {116}},\ \bibinfo {pages} {56} (\bibinfo {year}
+  {2018})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Bhatnagar}\ \emph {et~al.}(1954)\citenamefont
+  {Bhatnagar}, \citenamefont {Gross},\ and\ \citenamefont
+  {Krook}}]{bhatnagar_model_1954}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.~L.}\ \bibnamefont
+  {Bhatnagar}}, \bibinfo {author} {\bibfnamefont {E.~P.}\ \bibnamefont
+  {Gross}},\ and\ \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Krook}},\
+  }\bibfield  {title} {\bibinfo {title} {A {Model} for {Collision} {Processes}
+  in {Gases}. {I}. {Small} {Amplitude} {Processes} in {Charged} and {Neutral}
+  {One}-{Component} {Systems}},\ }\href
+  {https://doi.org/10.1103/PhysRev.94.511} {\bibfield  {journal} {\bibinfo
+  {journal} {Physical Review}\ }\textbf {\bibinfo {volume} {94}},\ \bibinfo
+  {pages} {511} (\bibinfo {year} {1954})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Guo}\ \emph {et~al.}(2002)\citenamefont {Guo},
+  \citenamefont {Zheng},\ and\ \citenamefont {Shi}}]{guo_discrete_2002}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Z.}~\bibnamefont
+  {Guo}}, \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Zheng}},\ and\
+  \bibinfo {author} {\bibfnamefont {B.}~\bibnamefont {Shi}},\ }\bibfield
+  {title} {\bibinfo {title} {Discrete lattice effects on the forcing term in
+  the lattice {Boltzmann} method},\ }\href
+  {https://doi.org/10.1103/PhysRevE.65.046308} {\bibfield  {journal} {\bibinfo
+  {journal} {Physical Review E}\ }\textbf {\bibinfo {volume} {65}},\ \bibinfo
+  {pages} {046308} (\bibinfo {year} {2002})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Datadien}(2024)}]{datadien_directional_2024}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {K.~P.~N.}\
+  \bibnamefont {Datadien}},\ }\emph {\bibinfo {title} {Directional
+  instabilities in microdroplet jetting: a numerical approach}},\ \href@noop {}
+  {\bibinfo {type} {Phd {Thesis} 1 ({Research} {TU}/e / {Graduation}
+  {TU}/e)}},\ \bibinfo  {school} {Eindhoven University of Technology}, \bibinfo
+  {address} {Eindhoven} (\bibinfo {year} {2024}),\ \bibinfo {note} {iSBN:
+  9789038659213}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Tölke}(2002)}]{coveney_lattice_2002}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.}~\bibnamefont
+  {Tölke}},\ }\bibfield  {title} {\bibinfo {title} {Lattice {Boltzmann}
+  simulations of binary fluid flow through porous media},\ }\href
+  {https://doi.org/10.1098/rsta.2001.0944} {\bibfield  {journal} {\bibinfo
+  {journal} {Philosophical Transactions of the Royal Society of London. Series
+  A: Mathematical, Physical and Engineering Sciences}\ }\textbf {\bibinfo
+  {volume} {360}},\ \bibinfo {pages} {535} (\bibinfo {year}
+  {2002})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Leclaire}\ \emph {et~al.}(2012)\citenamefont
+  {Leclaire}, \citenamefont {Reggio},\ and\ \citenamefont
+  {Trépanier}}]{leclaire_numerical_2012}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Leclaire}}, \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Reggio}},\
+  and\ \bibinfo {author} {\bibfnamefont {J.-Y.}\ \bibnamefont {Trépanier}},\
+  }\bibfield  {title} {\bibinfo {title} {Numerical evaluation of two recoloring
+  operators for an immiscible two-phase flow lattice {Boltzmann} model},\
+  }\href {https://doi.org/10.1016/j.apm.2011.08.027} {\bibfield  {journal}
+  {\bibinfo  {journal} {Applied Mathematical Modelling}\ }\textbf {\bibinfo
+  {volume} {36}},\ \bibinfo {pages} {2237} (\bibinfo {year}
+  {2012})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Coelho}\ \emph {et~al.}(2021)\citenamefont {Coelho},
+  \citenamefont {Moura}, \citenamefont {Telo~da Gama},\ and\ \citenamefont
+  {Araújo}}]{coelho_wetting_2021}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {R.~C.~V.}\
+  \bibnamefont {Coelho}}, \bibinfo {author} {\bibfnamefont {C.~B.}\
+  \bibnamefont {Moura}}, \bibinfo {author} {\bibfnamefont {M.~M.}\ \bibnamefont
+  {Telo~da Gama}},\ and\ \bibinfo {author} {\bibfnamefont {N.~A.~M.}\
+  \bibnamefont {Araújo}},\ }\bibfield  {title} {\bibinfo {title} {Wetting
+  boundary conditions for multicomponent pseudopotential lattice {Boltzmann}},\
+  }\href {https://doi.org/10.1002/fld.4988} {\bibfield  {journal} {\bibinfo
+  {journal} {International Journal for Numerical Methods in Fluids}\ }\textbf
+  {\bibinfo {volume} {93}},\ \bibinfo {pages} {2570} (\bibinfo {year}
+  {2021})},\ \bibinfo {note} {\_eprint:
+  https://onlinelibrary.wiley.com/doi/pdf/10.1002/fld.4988}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Zhang}\ \emph {et~al.}(2023)\citenamefont {Zhang},
+  \citenamefont {Tang},\ and\ \citenamefont {Wu}}]{zhang_simplified_2023}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Zhang}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Tang}},\ and\
+  \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont {Wu}},\ }\bibfield
+  {title} {\bibinfo {title} {Simplified wetting boundary scheme in phase-field
+  lattice {Boltzmann} model for wetting phenomena on curved boundaries},\
+  }\href {https://doi.org/10.1103/PhysRevE.108.025303} {\bibfield  {journal}
+  {\bibinfo  {journal} {Physical Review E}\ }\textbf {\bibinfo {volume}
+  {108}},\ \bibinfo {pages} {025303} (\bibinfo {year} {2023})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Ding}\ and\ \citenamefont
+  {Spelt}(2007)}]{ding_wetting_2007}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Ding}}\ and\ \bibinfo {author} {\bibfnamefont {P.~D.~M.}\ \bibnamefont
+  {Spelt}},\ }\bibfield  {title} {\bibinfo {title} {Wetting condition in
+  diffuse interface simulations of contact line motion},\ }\href
+  {https://doi.org/10.1103/PhysRevE.75.046708} {\bibfield  {journal} {\bibinfo
+  {journal} {Physical Review E}\ }\textbf {\bibinfo {volume} {75}},\ \bibinfo
+  {pages} {046708} (\bibinfo {year} {2007})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Zhang}\ \emph {et~al.}(2022)\citenamefont {Zhang},
+  \citenamefont {Tang},\ and\ \citenamefont {Wu}}]{zhang_wetting_2022}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Zhang}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Tang}},\ and\
+  \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont {Wu}},\ }\bibfield
+  {title} {\bibinfo {title} {Wetting boundary schemes in modified phase-field
+  lattice {Boltzmann} method for binary fluids with large density ratios},\
+  }\href {https://doi.org/10.1016/j.camwa.2022.03.023} {\bibfield  {journal}
+  {\bibinfo  {journal} {Computers \& Mathematics with Applications}\ }\textbf
+  {\bibinfo {volume} {113}},\ \bibinfo {pages} {243} (\bibinfo {year}
+  {2022})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Inamuro}\ \emph {et~al.}(1997)\citenamefont
+  {Inamuro}, \citenamefont {Yoshino},\ and\ \citenamefont
+  {Ogino}}]{inamuro_accuracy_1997}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
+  {Inamuro}}, \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Yoshino}},\
+  and\ \bibinfo {author} {\bibfnamefont {F.}~\bibnamefont {Ogino}},\ }\bibfield
+   {title} {\bibinfo {title} {Accuracy of the lattice {Boltzmann} method for
+  small {Knudsen} number with finite {Reynolds} number},\ }\href
+  {https://doi.org/10.1063/1.869426} {\bibfield  {journal} {\bibinfo  {journal}
+  {Physics of Fluids}\ }\textbf {\bibinfo {volume} {9}},\ \bibinfo {pages}
+  {3535} (\bibinfo {year} {1997})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Sone}(2002)}]{sone_kinetic_2002}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Y.}~\bibnamefont
+  {Sone}},\ }\href {https://doi.org/10.1007/978-1-4612-0061-1} {\emph {\bibinfo
+  {title} {Kinetic {Theory} and {Fluid} {Dynamics}}}},\ edited by\ \bibinfo
+  {editor} {\bibfnamefont {N.}~\bibnamefont {Bellomo}},\ Modeling and
+  {Simulation} in {Science}, {Engineering} and {Technology}\ (\bibinfo
+  {publisher} {Birkhäuser},\ \bibinfo {address} {Boston, MA},\ \bibinfo {year}
+  {2002})\BibitemShut {NoStop}%
 \end{thebibliography}%
