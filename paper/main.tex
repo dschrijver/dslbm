@@ -175,7 +175,7 @@ The Non-Equilibrium Bounce-Back scheme~\cite{zou_pressure_1997} is a boundary co
 \begin{equation}\label{eq:NEBB}
 \begin{split}
     f_i^{\text{neq},\sigma} &= f_q^{\text{neq},\sigma} - w_i c_{i\alpha} N_\alpha^\sigma,\\
-    f_i^\sigma &= f_q^\sigma + 2w_i \rho^\sigma \frac{\bm{u}\cdot \bm{c}_i}{c_s^2} - w_i c_{i\alpha} N_\alpha^\sigma.
+    f_i^\sigma &= f_q^\sigma + 2w_i \rho^\sigma \frac{\bm{u}\cdot \bm{c}_i}{c_s^2} - w_i c_{i\alpha} N_\alpha^\sigma,
 \end{split}
 \end{equation}
 where the index $q$ is given by $\bm{c}_i = -\bm{c}_q$. Furthermore, repeated Greek indices indicate sums. Note that the incoming populations are defined by $\bm{c}_i \cdot \hat{\bm{n}}_w > 0$, where $\hat{\bm{n}}_w$ is the normal vector to the boundary pointing into the domain. The density $\rho$ and the velocity $\bm{u}$ are the imposed boundary density and velocity. To conserve mass, we will satisfy the condition that the amount of mass being removed from the domain is equal to the mass added to the domain at every grid point. During the streaming step, the values of the outgoing populations $f_q$ will be overwritten by populations from the bulk, leading to mass loss. The mass gain is given by Eq.~(\ref{eq:NEBB}). This gives the net mass loss at the boundary due to the NEBB method,
@@ -246,7 +246,7 @@ The Shan-Chen force given in Eq.~(\ref{eq:Shan-Chen force}) reaches out of the d
 \end{equation}
 where the incoming directions are defined by $\bm{c}_i \cdot \hat{\bm{n}}_w > 0$, with the wall normal vector pointing inside the domain. The wetting parameter is given as $\chi^\sigma = 1 - \xi$ and $\chi^{\tilde{\sigma}} = 1 + \xi$, where $\sigma$ is the fluid making up the droplet. The surface will be hydrophilic for negative $\xi$ and hydrophobic for positive $\xi$.
 \subsection{Geometric Schemes for Color-Gradient}
-Like for the Shan-Chen method, the computation of the Color-Gradient in Eq.~(\ref{eq:Color-Gradient}) reaches outside of the domain. The densities inside the solid are again averaged from the nearby fluid nodes~\cite{zhang_simplified_2023},
+Like for the Shan-Chen method, the computation of the Color-Gradient in Eq.~(\ref{eq:Color-Gradient}) reaches outside the domain. The densities inside the solid are again averaged from the nearby fluid nodes~\cite{zhang_simplified_2023},
 \begin{equation}
     \rho^{\text{solid}, \sigma} = \frac{\sum_i^\text{in} w_i \rho^\sigma\left(\bm{x} + \bm{c}_i\right)}{\sum_i^{\text{in}} w_i}.
 \end{equation}
@@ -270,11 +270,11 @@ where the dimensional source term is given as follows,
 \begin{equation}
     \tilde{S}_i =  \left(1 - \frac{\Delta \tilde{t}}{2\tilde{\tau}}\right)w_i \left(\frac{\tilde{\bm{c}}_i - \tilde{\bm{u}}}{\tilde{c}_s^2} + \frac{\tilde{\bm{c}}_i \cdot \tilde{\bm{u}}}{\tilde{c}_s^4}\tilde{\bm{c}}_i\right) \cdot \tilde{\bm{F}}.
 \end{equation}
-We will now nondimensionalize this equation the length scale $\tilde{L}$, the velocity scale $\tilde{c}$, the time scale $\tilde{t}_0$ and the density scale $\tilde{\rho}_0$. Note that $\tilde{c} = \Delta \tilde{x} / \Delta \tilde{t}$. Furthermore, we introduce the Strouhal number $\textit{Sh} = \tilde{L} / (\tilde{t}_0 \tilde{c}) = \Delta t / \Delta x$. This gives the nondimensional version of the previous equations,
+We will now nondimensionalize this equation the length scale $\tilde{L}$, the velocity scale $\tilde{c}$, the timescale $\tilde{t}_0$ and the density scale $\tilde{\rho}_0$. Note that $\tilde{c} = \Delta \tilde{x} / \Delta \tilde{t}$. Furthermore, we introduce the Strouhal number $\textit{Sh} = \tilde{L} / (\tilde{t}_0 \tilde{c}) = \Delta t / \Delta x$. This gives the nondimensional version of the previous equations,
 \begin{equation}
 \begin{split}
     &\quad f_i\left(\bm{x} + \bm{c}_i \Delta x, t + \Delta t\right) - f_i\left(\bm{x}, t\right)\\
-    &= -\frac{\Delta t}{\tau}\left(f_i\left(\bm{x}, t\right)  - f^\text{eq}_i\left(\rho, \bm{u}\right)\right) + \frac{\Delta t}{\textit{Sh}} S_i,\\
+    &= -\frac{\Delta t}{\tau}\Bigl(f_i\left(\bm{x}, t\right)  - f^\text{eq}_i\left(\rho, \bm{u}\right)\Bigr) + \Delta x S_i,\\
     S_i &=  \left(1 - \frac{\Delta t}{2\tau}\right)w_i \left(\frac{\bm{c}_i - \bm{u}}{c_s^2} + \frac{\bm{c}_i \cdot \bm{u}}{c_s^4}\bm{c}_i\right) \cdot \bm{F},
 \end{split}
 \end{equation}
@@ -342,8 +342,10 @@ We also define the following stretched coordinate,
 which is defined to be zero at the boundary. We now impose the matching condition, which states that the Knudsen correction $f_i^\textit{Kn}$ and its moments go to zero faster than any negative power of $\eta$~\cite{sone_kinetic_2002}. This is done because we expect $f_i$ to approach $f_i^\text{bulk}$ far away from the boundary. To find the equations for this Knudsen correction to the distribution function close to the boundary, we insert Eq.~(\ref{eq:knudsen layer expansion}) into Eq~(\ref{eq:Taylor expansion LBE}). We know that $f_i^\text{bulk}$ satisfies this equation, so we are left with the following equation,
 \begin{equation}\label{eq:Taylor expansion knudsen}
 \begin{split}
-    &\sum_{n=1}^\infty \frac{1}{n!}\Bigl(\Delta x c_{i\alpha} \partial_\alpha + \Delta t \partial t\Bigr)^n f_i^\textit{Kn}=-\frac{\Delta t}{\tau}\Bigl(f_i^\textit{Kn}  - g^\text{eq}_i\Bigr),\\
-    &g^\text{eq}_i \equiv f^\text{eq}_i\left(\rho, \bm{u}\right) - f^\text{eq}_i\left(\rho^\text{bulk}, \bm{u}^\text{bulk}\right). 
+    &\sum_{n=1}^\infty \frac{1}{n!}\Bigl(\Delta x c_{i\alpha} \partial_\alpha + \Delta t \partial t\Bigr)^n f_i^\textit{Kn}=-\frac{\Delta t}{\tau}\Bigl(f_i^\textit{Kn}  - g^\text{eq}_i\Bigr)\\
+    &\qquad\qquad\qquad\qquad\qquad\qquad\qquad\ \   + \Delta xT_i,\\
+    &g^\text{eq}_i \equiv f^\text{eq}_i\left(\rho, \bm{u}\right) - f^\text{eq}_i\left(\rho^\text{bulk}, \bm{u}^\text{bulk}\right),\\
+    &T_i \equiv S_i\left(\rho, \bm{u}\right) - S_i\left(\rho^\text{bulk}, \bm{u}^\text{bulk}\right).
 \end{split}
 \end{equation}
 We defined the densities as follows,
@@ -351,7 +353,7 @@ We defined the densities as follows,
 \begin{split}
     &\rho^\text{bulk} \equiv \sum_i f_i^\text{bulk},\\
     &\rho^\textit{Kn} \equiv \sum_i f_i^\textit{Kn},\\
-    &\rho = \rho^\text{bulk} + \rho^\textit{Kn}.
+    &\rho \equiv \rho^\text{bulk} + \rho^\textit{Kn}.
 \end{split}
 \end{equation}
 Furthermore, the velocities are defined as follows,
@@ -359,14 +361,14 @@ Furthermore, the velocities are defined as follows,
 \begin{split}
     &\rho^\text{bulk}\bm{u}^\text{bulk} \equiv \sum_i \bm{c}_if_i^\text{bulk} + \frac{1}{2}\bm{F},\\
     &\rho^\textit{Kn}\bm{u}^\textit{Kn} \equiv \sum_i \bm{c}_if_i^\textit{Kn},\\
-    &\rho\bm{u} = \sum_i \bm{c}_if_i^\text{bulk} + \sum_i \bm{c}_if_i^\textit{Kn}.
+    &\rho\bm{u} \equiv \rho^\text{bulk}\bm{u}^\text{bulk} + \rho^\textit{Kn}\bm{u}^\textit{Kn}.
 \end{split}
 \end{equation}
 For the expansion in Eq.~(\ref{eq:Taylor expansion knudsen}), we have to take into account that the spatial derivatives along the boundary normal scale differently and have to be rewritten,
 \begin{equation}
 \begin{split}
     &\sum_{n=1}^\infty \frac{1}{n!}\left(\frac{\Delta x}{\textit{Kn}} c_{in}\partial_\eta + \Delta x c_{ip} \partial_p + \Delta t \partial t\right)^n f_i^\textit{Kn} = \\
-    &-\frac{\Delta t}{\tau}\Bigl(f_i^\textit{Kn}  - g_i^\text{eq}\Bigr).
+    &-\frac{\Delta t}{\tau}\Bigl(f_i^\textit{Kn}  - g_i^\text{eq}\Bigr) + \Delta x T_i.
 \end{split}
 \end{equation}
 Like for the bulk distribution function, we can find the zero-order equation,
@@ -387,7 +389,115 @@ We can split this equation up in an equation for the incoming populations ($c_{i
     &f_{i,j}^{\textit{Kn},(0)} = g_{i,j}^{\text{eq},(0)},\ c_{in} = 0,
 \end{split}
 \end{equation}
-where we defined $f_{ij} \equiv f_i\Bigl(j|c_{in}|\frac{\Delta x}{\textit{Kn}}\Bigr)$.
+where we defined $f_{i,j} \equiv f_i\Bigl(j|c_{in}|\frac{\Delta x}{\textit{Kn}}\Bigr)$. We can also write this in sum form by making use of the boundary conditions at $\eta = 0$ and $\eta \rightarrow \infty$, 
+\begin{equation}
+\begin{split}
+    f_{i,j}^{\textit{Kn},(0)} &= \frac{\omega}{\left(1 - \omega\right)} \sum_{k=0}^{j-1} \left(1 - \omega\right)^{|k-j|}g_{i,k}^{\text{eq},(0)}\\
+    &\quad + \left(1 - \omega\right)^j f_{i,0}^{\textit{Kn},(0)},\ c_{in} > 0,\\
+    f_{i,j}^{\textit{Kn},(0)} &=\frac{\omega}{\left(1 - \omega\right)} \sum_{k=j+1}^{\infty} \left(1 - \omega\right)^{|k-j|}g_{i,k}^{\text{eq},(0)},\ c_{in} < 0,
+\end{split}
+\end{equation}
+with $\omega \equiv \Delta t / \tau$. We now want to plug in the NEBB boundary condition into the incoming populations at $\eta = 0$. The boundary condition for a single fluid component is given as follows,
+\begin{equation}
+\begin{split}
+    f_i &= f_q + \left(f_i^\text{eq} - f_q^\text{eq}\right) - w_i c_{i\alpha}N_\alpha,\\
+    N_\alpha &= \frac{2}{c_s^2 A_\alpha} \left[\sum_j^\text{par} c_{j\alpha}f_j + \left(A_\alpha - 1\right)\rho u_\alpha + \frac{1}{2}F_\alpha\right].
+\end{split}
+\end{equation}
+We can plug in Eq.~(\ref{eq:knudsen layer expansion}) into this equation,
+\begin{equation}
+    f_i^\textit{Kn} = f_q^\textit{Kn} - \left(f_i^\text{bulk} - f_q^\text{bulk}\right) + \left(f_i^\text{eq} - f_q^\text{eq}\right) - w_i c_{i\alpha}N_\alpha.
+\end{equation}
+At zeroth order in Knudsen number, we are left with the following boundary condition,
+\begin{equation}
+\begin{split}
+    f_i^{\textit{Kn},(0)} &= f_q^{\textit{Kn},(0)} + \left(g_i^{\text{eq},(0)} - g_q^{\text{eq},(0)}\right) - w_i c_{i\alpha}N_\alpha^{(0)},\\
+    N_\alpha^{(0)} &=  \frac{1}{c_s^2 A_\alpha} F_\alpha^{(0)}.
+\end{split}
+\end{equation}
+\subsection{Mass correction}
+Furthermore, we need to look at the mass correction step. For a single-component fluid, this is given as follows,
+\begin{equation}
+\begin{split}
+    f_0(t+\Delta t) &= f_0^\text{LBE}(t + \Delta t) + \sum_i^\text{out}\Bigl(f_i^*(t) - f_i(t+\Delta t)\Bigr)\\
+    &\quad + \frac{1}{2}F_n(t+\Delta t),
+\end{split}
+\end{equation}
+where the star indicates after-collision populations,
+\begin{equation}
+    f_i\left(\bm{x}+\bm{c}_i \Delta x, t + \Delta t\right) = f_i^* \equiv f_i - \frac{\Delta t}{\tau}\Bigl(f_i - f_i^\text{eq}\Bigr).
+\end{equation}
+This gives the following,
+\begin{equation}
+    f_i^*(t) - f_i(t+\Delta t) = \sum_{n=1}^\infty \frac{1}{n!}\Bigl(\Delta x c_{i\alpha} \partial_\alpha\Bigr)^n f_i(t+\Delta t).
+\end{equation}
+We can rewrite the mass correction,
+\begin{equation}
+    f_0 = f_0^\text{LBE} + \sum_i^\text{out}\sum_{n=1}^\infty \frac{1}{n!}\Bigl(\Delta x c_{i\alpha} \partial_\alpha\Bigr)^n f_i + \frac{1}{2}F_n.
+\end{equation}
+We choose to attribute this change to the distribution solely to the Knudsen layer part $f_0^\textit{Kn}$, while keeping $f_i^\text{bulk}$ constant as Navier-Stokes is derived from this. This gives the following equation for the zero-velocity component of the zeroth order Knudsen distribution function at $\eta = 0$, 
+\begin{equation}
+\begin{split}
+    f_0^{\textit{Kn},(0)} &=g_0^{\text{eq},(0)} + \sum_i^\text{out}\sum_{n=1}^\infty \frac{1}{n!}\left(\frac{\Delta x}{\textit{Kn}} c_{in} \partial_\eta\right)^n f_i^{\textit{Kn},(0)} + \frac{1}{2}F_n^{(0)}\\
+    &= g_0^{\text{eq},(0)} - \frac{\Delta t}{\tau}\sum_i^\text{out}\left(f_i^{\textit{Kn},(0)} - g_i^{\text{eq},(0)}\right) + \frac{1}{2}F_n^{(0)}.
+\end{split}
+\end{equation}
+
+
+\section{Test}
+This can be seen as adding a mass source to the LBE in Eq.~(\ref{eq:Taylor expansion LBE}) for the zero-velocity component,
+\begin{equation}
+\begin{split}
+    &f_0(t + \Delta t) - f_0 = - \frac{\Delta t}{\tau}\Bigl(f_0 - f_0^\text{eq}\Bigr) + \Delta x S_i+ S^\text{mc},\\
+    &S^\text{mc} = \sum_i^\text{out}\Bigl(f_i^*(t) - f_i(t+\Delta t)\Bigr) + \frac{1}{2}F_n(t+\Delta t).
+\end{split}
+\end{equation}
+This can be written in continuous form,
+\begin{equation}
+\begin{split}
+    &\sum_{n=1}^\infty \frac{1}{n!}\Bigl(\Delta t \partial_t\Bigr)^n f_0 = - \frac{\Delta t}{\tau}\Bigl(f_0 - f_0^\text{eq}\Bigr) + \Delta x S_i +  S^\text{mc},\\
+    &S^\text{mc} = \sum_i^\text{out}\sum_{n=1}^\infty \frac{1}{n!}\Bigl(\Delta x c_{i\alpha} \partial_\alpha\Bigr)^n f_i + \sum_{n=0}^\infty \frac{1}{n!} \Bigl(\Delta t \partial_t\Bigr)^n F_n.
+\end{split}
+\end{equation}
+We can now write down the boundary condition for the zero-velocity component at zeroth order,
+\begin{equation}
+    f_0^{(0)} = f_0^{\text{eq},(0)} - \frac{\tau}{\Delta t}S^{\text{mc},(0)}.
+\end{equation}
+It is obvious that the bulk solution cannot solve this at zeroth order, so we add the Knudsen distribution,
+\begin{equation}
+\begin{split}
+    &f_0^{\textit{Kn},(0)} = g_0^\text{eq,(0)} - \frac{\tau}{\Delta t}\Biggl(\sum_i^\text{out}\sum_{n=1}^\infty \frac{1}{n!}\left(\frac{\Delta x}{\textit{Kn}} c_{i n} \partial_\eta\right)^n f_i^{\textit{Kn},(0)}\\
+    &\qquad\qquad\qquad\qquad\qquad + F_n^{(0)}\Biggr).
+\end{split}
+\end{equation}
+This gives the following equations for the bulk,
+\begin{equation}
+\begin{split}
+    &f_0^{\text{bulk},(0)} = f_0^{\text{bulk},\text{eq},(0)} - \frac{\tau}{\Delta t}S^{\text{mc},(0)},\\
+    &f_0^{\text{bulk},(1)} = f_0^{\text{bulk},\text{eq},(1)} - \frac{\tau}{\Delta t}\Biggl(S^{\text{mc},(1)}-\Delta xS_0^{(0)}\Biggr).
+\end{split}
+\end{equation}
+With the following expansion for the mass conserving source term,
+\begin{equation}
+\begin{split}
+    S^{\text{mc},(0)} &= \frac{1}{2}F_n^{(0)}\left(\rho^{\text{bulk}}, \bm{u}^\text{bulk}\right),\\
+    S^{\text{mc},(1)} &= \Delta x c_{i\alpha} \partial_\alpha f_i^{\text{bulk}, (0)}+ \frac{1}{2}F_n^{(1)}\left(\rho^{\text{bulk}}, \bm{u}^\text{bulk}\right).
+\end{split}
+\end{equation}
+The Knudsen layer equation for the zero-velocity population can be found similarly,
+\begin{equation}
+\begin{split}
+    f_0^{\textit{Kn},(0)} &= g_0^{\text{eq},(0)} - \frac{\tau}{\Delta t}T^{\text{mc},(0)},\\
+    T^{\text{mc},(0)} &= \frac{1}{2}\left[F_n^{(0)}\left(\rho, \bm{u}\right) - F_n^{(0)}\left(\rho^{\text{bulk}}, \bm{u}^\text{bulk}\right)\right]\\
+    &\quad \ +\sum_i^\text{out}\sum_{n=1}^\infty \frac{1}{n!}\left(\frac{\Delta x}{\textit{Kn}} c_{in} \partial_\eta\right)^n f_i^{\textit{Kn}, (0)}.
+\end{split}
+\end{equation}
+The issue here is that even though we can transform the infinite sum to a discrete step in space, this step will go outside the domain. Instead, we can write it as follows,
+\begin{equation}
+\begin{split}
+    &\sum_{n=1}^\infty \frac{1}{n!}\left(\frac{\Delta x}{\textit{Kn}} c_{in} \partial_\eta\right)^n f_i^{\textit{Kn}, (0)} = -\frac{\Delta t}{\tau}\Bigl(f_i^{\textit{Kn},(0)}  - g_i^{\text{eq},(0)}\Bigr).
+\end{split}
+\end{equation}
 
 \bibliography{references}
 

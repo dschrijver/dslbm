@@ -3,7 +3,7 @@ from scipy.optimize import fsolve
 from numba import njit
 import matplotlib.pyplot as plt
 
-@njit
+
 def correction_boundary(i, params_Kn, geq):
     rho_Kn = params_Kn[0]
     u_Kn = params_Kn[1]
@@ -40,7 +40,7 @@ def correction_boundary(i, params_Kn, geq):
 
     return 2*wp[i]*rho*uc/cs2 - wp[i] * np.dot(c_double[i,:], Nzh)
 
-@njit
+
 def compute_eq(i, rho, vel):
     uc = np.zeros(N, dtype=np.float64)
     u2 = np.zeros(N, dtype=np.float64)
@@ -50,7 +50,7 @@ def compute_eq(i, rho, vel):
         u2 += vel[alpha]*vel[alpha]
     return wp[i] * rho * (1 + uc/cs2 + uc*uc/(2*cs2*cs2) - u2/(2*cs2))
 
-@njit
+
 def system_of_equations(f):
 
     # Compute macroscopic quantities
@@ -100,27 +100,41 @@ def system_of_equations(f):
 
         # Outgoing populations
         elif cn < 0:
-            # Boundary condition at infinity
-            f_result[i,-1] = 0
-            f_result[i,:-1] = (1 - omega)*f[i,1:] + omega*geq[i,1:]
+            for j in range(N):
+                f_result[i,j] = 0
+                for k in range(j+1,N):
+                    f_result[i,j] += (1-omega)**(np.abs(k-j))*geq[i,k]
+            f_result[i] *= omega/(1-omega)
 
+    for i in range(NP):
+        cn = c[i,0]*n_hat[0] + c[i,1]*n_hat[1] + c[i,2]*n_hat[2]
+
+        # Incoming populations
         if cn > 0:
             # Boundary condition at zero
-            f_outgoing = f[p_bounceback[i],0]
+            f_outgoing = f_result[p_bounceback[i],0]
             correction = correction_boundary(i, params_Kn, geq)
             f_result[i,0] = f_outgoing + correction
-            f_result[i,1:] = (1 - omega)*f[i,:-1] + omega*geq[i,:-1]
 
-    # # Add mass correction
-    # correction = 0.5*Force_y[0]
-    # for i in range(NP):
-    #     cn = c[i,0]*n_hat[0] + c[i,1]*n_hat[1] + c[i,2]*n_hat[2]
+            for j in range(1,N):
+                f_result[i,j] = 0
+                for k in range(j):
+                    f_result[i,j] += (1-omega)**(np.abs(k-j))*geq[i,k]
+            f_result[i,1:] *= omega/(1-omega)
+            for j in range(1,N):
+                f_result[i,j] += (1-omega)**j*f_result[i,0]
 
-    #     # Outgoing populations
-    #     if cn < 0:
-    #         # Boundary condition at infinity
-    #         correction += -omega*(f[i,0]-geq[i,0])
-    # f_result[0,0] += -1/omega*correction
+
+    # Add mass correction
+    correction = 0
+    for i in range(NP):
+        cn = c[i,0]*n_hat[0] + c[i,1]*n_hat[1] + c[i,2]*n_hat[2]
+
+        # Outgoing populations
+        if cn < 0:
+            # Boundary condition at infinity
+            correction += -omega*(f[i,0]-geq[i,0])
+    f_result[0,0] += -1/omega*correction
 
     return f_result
 
@@ -135,10 +149,11 @@ wp = np.array([8.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0, 2.0 /
 c = np.array([cx, cy, cz]).T
 NP = len(wp)
 cs2 = 1/3
-N = 100
+N = 10
 
 # Choices
 omega = 1/1.2
+
 n_hat = np.array([0.0, 1.0, 0.0])
 rho_NS = np.full(N, 1)
 u_NS = np.zeros(N)
@@ -152,12 +167,12 @@ vel_NS[2] = w_NS
 
 Force_x = np.full(N, 0)
 Force_y = np.full(N, 0)
+Force_y[0] = 1
 Force_z = np.full(N, 0)
 Force = np.array([Force_x, Force_y, Force_z])
 
 # Initial condition
 rho_Kn_0_ini = np.zeros(N)
-# rho_Kn_0_ini[0] = 0.1
 u_Kn_0_ini = np.zeros(N)
 v_Kn_0_ini = np.zeros(N)
 w_Kn_0_ini = np.zeros(N)
@@ -195,12 +210,10 @@ for j in range(N):
         w_Kn[j] /= rho_Kn[j]
 
 plt.plot(rho_Kn)
-plt.gca().get_yaxis().get_major_formatter().set_useOffset(False)
 plt.show()
 plt.close()
 
-plt.plot(v_Kn)
-plt.gca().get_yaxis().get_major_formatter().set_useOffset(False)
+plt.plot(u_Kn)
 plt.show()
 
 # plt.plot(rho_Kn*u_Kn)

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.1.30)  19 MAR 2026 19:59
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.1.30)  6 APR 2026 16:01
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -344,7 +344,12 @@ Overfull \hbox (1.96864pt too wide) detected at line 298
 []
  []
 
-[5] (./main.bbl [6]
+[5] [6]
+Overfull \hbox (10.45111pt too wide) detected at line 444
+[]
+ []
+
+(./main.bbl [7]
 Underfull \hbox (badness 1688) in paragraph at lines 275--284
  []\OT1/cmr/m/n/9 R. C. V. Coelho, C. B. Moura, M. M. Telo da
  []
@@ -379,23 +384,23 @@ Underfull \hbox (badness 1264) in paragraph at lines 310--319
  \OT1/cmr/m/n/9 method for bi-nary flu-ids with large den-sity ra-tios,
  []
 
-) [7] (./main.aux)
+) [8] (./main.aux)
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: F783108F431327A9560ACE18B7175983;2406.
+(rerunfilecheck)             Checksum: 47C92F21522A25AD2BA36BCC34FA4F5B;2617.
  ) 
 Here is how much of TeX's memory you used:
- 10791 strings out of 478287
- 163869 string characters out of 5849289
- 507552 words of memory out of 5000000
- 28777 multiletter control sequences out of 15000+600000
+ 10814 strings out of 478287
+ 164154 string characters out of 5849289
+ 518552 words of memory out of 5000000
+ 28780 multiletter control sequences out of 15000+600000
  478585 words of font info for 59 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,19n,63p,961b,531s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,20n,63p,961b,521s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
-Output written on main.pdf (7 pages, 327830 bytes).
+Output written on main.pdf (8 pages, 336774 bytes).
 PDF statistics:
- 424 PDF objects out of 1000 (max. 8388607)
- 360 compressed objects within 4 object streams
- 95 named destinations out of 1000 (max. 500000)
- 113 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 460 PDF objects out of 1000 (max. 8388607)
+ 395 compressed objects within 4 object streams
+ 115 named destinations out of 1000 (max. 500000)
+ 129 words of extra memory for PDF output out of 10000 (max. 10000000)
 

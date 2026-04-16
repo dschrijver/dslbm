@@ -1,15 +1,15 @@
 # Fdb version 3
-["bibtex main"] 1773945768 "main.aux" "main.bbl" "main" 1773946783
+["bibtex main"] 1774814821 "main.aux" "main.bbl" "main" 1775484083
   "/usr/share/texlive/texmf-dist/bibtex/bst/revtex/apsrev4-2.bst" 1601932770 69609 e9dea59f0e753ccda3ddc8f5806d846d ""
-  "main.aux" 1773946783 8606 6540cc1952068bfdfe8a627291ce0927 "pdflatex"
-  "mainNotes.bib" 1773946783 104 4d8bb863c86f3d7b03a471e9d4707f34 "pdflatex"
+  "main.aux" 1775484083 8828 8a15a0985cbf4d15ceea0a1cb622d01d "pdflatex"
+  "mainNotes.bib" 1775484083 104 4d8bb863c86f3d7b03a471e9d4707f34 "pdflatex"
   "references.bib" 1773944315 28756 7651505b4f2d1f74b4a7c96050ed5227 ""
   (generated)
   "main.bbl"
   "main.blg"
-["pdflatex"] 1773946783 "/home/daan/dslbm/paper/main.tex" "main.pdf" "main" 1773946783
+["pdflatex"] 1775484082 "/home/daan/dslbm/paper/main.tex" "main.pdf" "main" 1775484083
   "/etc/texmf/web2c/texmf.cnf" 1708454415 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/daan/dslbm/paper/main.tex" 1773946783 33349 69c31ac63b960fd3bd5c2efbf020191d ""
+  "/home/daan/dslbm/paper/main.tex" 1775484082 40146 db774b4fb068f2942121e38ad82266fb ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1246382020 1120 1e8878807317373affa7f7bba4cf2f6a ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1246382020 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
@@ -116,10 +116,10 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1644012257 39432 7155514e09a3d69036fac785183a21c2 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1735741576 4379155 98693266ff65f58d9f98aff394de12d2 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1769766375 2802026 b0e558e786d66052f94c03823c266708 ""
-  "main.aux" 1773946783 8606 6540cc1952068bfdfe8a627291ce0927 "pdflatex"
-  "main.bbl" 1773945768 20058 e7cc60cf1d45f687cdc085683c66d9cb "bibtex main"
-  "main.out" 1773946783 2406 f783108f431327a9560ace18b7175983 "pdflatex"
-  "main.tex" 1773946783 33349 69c31ac63b960fd3bd5c2efbf020191d ""
+  "main.aux" 1775484083 8828 8a15a0985cbf4d15ceea0a1cb622d01d "pdflatex"
+  "main.bbl" 1774814821 20058 e7cc60cf1d45f687cdc085683c66d9cb "bibtex main"
+  "main.out" 1775484083 2617 47c92f21522a25ad2ba36bcc34fa4f5b "pdflatex"
+  "main.tex" 1775484082 40146 db774b4fb068f2942121e38ad82266fb ""
   (generated)
   "main.aux"
   "main.log"
