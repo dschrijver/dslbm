@@ -4,3 +4,4 @@ hdf5/
 .vscode/
 /make.def.*
 post_processing/
+/definitions.h

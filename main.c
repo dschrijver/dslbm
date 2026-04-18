@@ -32,6 +32,8 @@ int main(int argc, char **argv)
 
     initialize_MPI(params);
 
+    initialize_HDF5(params);
+
     initialize_stencil(sim);
 
     allocate_distributions(sim);
@@ -54,7 +56,7 @@ int main(int argc, char **argv)
     double start_timestep, duration_timestep;
     double start_substep, duration_substep;
     char output_info[128];
-    double M_total;
+    double M_RED, M_BLUE, M_total;
 
     while (params->t < params->NTIME)
     {
@@ -79,22 +81,13 @@ int main(int argc, char **argv)
             )
         }
 
-#ifdef COLOR_GRADIENT
         TIME("> Communicate fields...",
             communicate_fields(sim);
         )
-#endif
 
         TIME("> Collision...",
-#ifdef BGK
-            collide_distributions_BGK(sim);
-#endif
-#ifdef MRT
-            collide_distributions_MRT(sim);
-#endif
-#ifdef COLOR_GRADIENT
-            collide_distributions_CGM(sim);
-#endif
+            evaluate_color_gradients(sim);
+            collide(sim);
         )
 
         TIME("> Communicate distributions...",
@@ -105,20 +98,26 @@ int main(int argc, char **argv)
             stream_distributions(sim);
         )
 
-#ifdef WETNODE
         TIME("> Wetnode boundary conditions...",
             wetnode_boundary_conditions(sim);
         )
-#endif
 
         TIME("> Computing macroscopic fields...",
             extract_moments(sim);
-#ifdef SHAN_CHEN
-            communicate_fields(sim);
-#endif
             evaluate_forces(sim);
             update_final_velocity(sim);
-            M_total = evaluate_total_mass(sim);
+            M_RED = evaluate_mass(RED, sim);
+            M_BLUE = evaluate_mass(BLUE, sim);
+            M_total = M_RED + M_BLUE;
+            if (M_total != M_total)
+            {
+                if (params->process_rank == 0)
+                {
+                    printf("\n--------------------------------------------------------------------------------\n");
+                    printf("Step failed, mass is NaN!\n");
+                }
+                break;
+            }
         )
 
         duration_timestep = MPI_Wtime() - start_timestep;
@@ -128,7 +127,7 @@ int main(int argc, char **argv)
         {
             printf("--------------------------------------------------------------------------------\n");
             printf("Step completed!\n");
-            printf("    Total mass: %.15e\n", M_total);
+            printf("    RED mass: %.5e, BLUE mass: %.5e, Total mass: %.5e\n", M_RED, M_BLUE, M_total);
             printf("    Duration of time step: %.4fs\n", duration_timestep);
             printf("    Total simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0);
             printf("    Expected remaining simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0 / (double)(params->t + 1) * (double)(params->NTIME - params->t - 1));
@@ -144,6 +143,8 @@ int main(int argc, char **argv)
     {
         printf("\nSimulation done!\n");
     }
+
+    free_all(sim);
 
     MPI_Finalize();
     return 0;

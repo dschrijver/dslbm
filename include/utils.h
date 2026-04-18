@@ -8,11 +8,19 @@ enum components
     NCOMP
 };
 
+enum flags
+{
+    FLUID,
+    BOUNDARY,
+    WETNODE
+};
+
 #define DS_PI 3.14159265358979323846
-#define INDEX_MRT(i, j) (NP * (i) + (j))
 #define INDEX_GLOB(i, j, k) (NY * NZ * (i + 2 - i_start) + NZ * (j) + (k))
 #define INDEX(i, j, k, n) (NY * NZ * NCOMP * (i + 2 - i_start) + NZ * NCOMP * (j) + NCOMP * (k) + (n))
-#define INDEX_F(i, j, k, p, n) (NY * NZ * NP * NCOMP * (i + 1 - i_start) + NZ * NP * NCOMP * (j) + NP * NCOMP * (k) + NCOMP * (p) + (n))
+#define INDEX_F(i, j, k, p, n) (NY * NZ * NP * NCOMP * (i + 1 - i_start) + NZ * NP * NCOMP * (j) + NP * NCOMP * (k) + NP * (n) + (p))
+#define INDEX_FLAG(i, j, k) ((NY + 4)*(NZ + 4)*(i + 2 - i_start) + (NZ + 4)*(j + 2) + (k + 2))
+#define f(p) f1[INDEX_F(i, j, k, p, n)]
 
 inline int mod(int x, int n)
 {
@@ -23,6 +31,14 @@ inline int mod(int x, int n)
     else
         return x;
 }
+
+
+inline int min(int x, int y)
+{
+    if (x < y) return x;
+    else return y;
+}
+
 
 #define FOR_DOMAIN                        \
     for (int i = i_start; i < i_end; i++) \

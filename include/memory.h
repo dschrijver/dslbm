@@ -5,5 +5,6 @@ void allocate_bags(SimulationBag **sim, DistributionBag **dists, GlobalFieldBag 
 void allocate_stencil(SimulationBag *sim);
 void allocate_distributions(SimulationBag *sim);
 void allocate_fields(SimulationBag *sim);
+void free_all(SimulationBag *sim);
 
 #endif

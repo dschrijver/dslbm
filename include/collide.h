@@ -3,9 +3,10 @@
 
 #include "datatypes.h"
 
-void collide_distributions_BGK(SimulationBag *sim);
-void collide_distributions_MRT(SimulationBag *sim);
-void collide_distributions_CGM(SimulationBag *sim);
-void extrapolate_wall_density(int i, int j, int k, double *rho_RED, double *rho_BLUE, SimulationBag *sim);
+void compute_equilibrium(double rho, double u, double v, double w, double cs2, double *feq, SimulationBag *sim);
+void evaluate_color_gradients(SimulationBag *sim);
+double extrapolate_wall_rho_N(int i, int j, int k, SimulationBag *sim);
+void collide(SimulationBag *sim);
+void compute_stationary_equilibrium(double rho, double cs2, double *feq);
 
 #endif

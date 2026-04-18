@@ -23,9 +23,10 @@ void extract_moments(SimulationBag *sim)
     int *cy = stencil->cy;
     int *cz = stencil->cz;
 
-    double zeta = stencil->zeta;
-    double alpha_RED = params->alpha_RED;
-    double alpha_BLUE = params->alpha_BLUE;
+    double *cs2 = stencil->cs2;
+
+    double rho_0_RED = params->rho_0_RED;
+    double rho_0_BLUE = params->rho_0_BLUE;
 
     double *rho = glob_fields->rho;
     double *pressure = glob_fields->pressure;
@@ -59,17 +60,14 @@ void extract_moments(SimulationBag *sim)
         rho[INDEX_GLOB(i, j, k)] = rho_i;
         rho_comp[INDEX(i, j, k, RED)] = rho_RED_i;
         rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i;
-        rho_N[INDEX_GLOB(i, j, k)] = (rho_RED_i - rho_BLUE_i) / rho_i;
-
-        pressure[INDEX_GLOB(i, j, k)] = rho_comp[INDEX(i, j, k, RED)] * zeta * (1.0 - alpha_RED) + rho_comp[INDEX(i, j, k, BLUE)] * zeta * (1.0 - alpha_BLUE);
-
-#ifdef SHAN_CHEN
-        pressure[INDEX_GLOB(i, j, k)] += stencil->cs2 * params->G_SC * rho_comp[INDEX(i, j, k, RED)] * rho_comp[INDEX(i, j, k, BLUE)];
-#endif
 
         u[INDEX_GLOB(i, j, k)] = u_i / rho_i;
         v[INDEX_GLOB(i, j, k)] = v_i / rho_i;
         w[INDEX_GLOB(i, j, k)] = w_i / rho_i;
+
+        // De Rosis 2019, 10.1063/1.5124719
+        rho_N[INDEX_GLOB(i, j, k)] = (rho_RED_i/rho_0_RED - rho_BLUE_i/rho_0_BLUE) / (rho_RED_i/rho_0_RED + rho_BLUE_i/rho_0_BLUE);
+        pressure[INDEX_GLOB(i, j, k)] = cs2[RED] * rho_comp[INDEX(i, j, k, RED)] + cs2[BLUE] * rho_comp[INDEX(i, j, k, BLUE)];
     }
 }
 
@@ -110,37 +108,7 @@ void update_final_velocity(SimulationBag *sim)
     }
 }
 
-void evaluate_density(int i, int j, int k, SimulationBag *sim)
-{
-    ParamBag *params = sim->params;
-    DistributionBag *dists = sim->dists;
-    ComponentFieldBag *comp_fields = sim->comp_fields;
-    Stencil *stencil = sim->stencil;
-
-    double rho_RED_i, rho_BLUE_i;
-
-    int NY = params->NY;
-    int NZ = params->NZ;
-    int NP = stencil->NP;
-
-    int i_start = params->i_start;
-
-    double *rho_comp = comp_fields->rho_comp;
-
-    double *f1 = dists->f1;
-
-    rho_RED_i = 0.0;
-    rho_BLUE_i = 0.0;
-    for (int p = 0; p < NP; p++)
-    {
-        rho_RED_i += f1[INDEX_F(i, j, k, p, RED)];
-        rho_BLUE_i += f1[INDEX_F(i, j, k, p, BLUE)];
-    }
-    rho_comp[INDEX(i, j, k, RED)] = rho_RED_i;
-    rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i;
-}
-
-double evaluate_total_mass(SimulationBag *sim)
+double evaluate_mass(int n, SimulationBag *sim)
 {
     ParamBag *params = sim->params;
     ComponentFieldBag *comp_fields = sim->comp_fields;
@@ -158,8 +126,11 @@ double evaluate_total_mass(SimulationBag *sim)
     M_local = 0.0;
     FOR_DOMAIN
     {
-        M_local += rho_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)];
+        M_local += rho_comp[INDEX(i, j, k, n)];
     }
+
+    if (params->comm_xslices == MPI_COMM_NULL)
+        return 0.0;
 
     MPI_Allreduce(&M_local, &M_total, 1, MPI_DOUBLE, MPI_SUM, params->comm_xslices);
 

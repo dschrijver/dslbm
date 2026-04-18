@@ -2,58 +2,48 @@
 #define DATATYPES_H
 
 #include <mpi.h>
+#include <hdf5.h>
 
 #include "utils.h"
 
 typedef struct ParamBag
 {
     // Simulation variables
-    int t;        ///< Current time in simulation
-    int t_output; ///< Time at which to output next h5 files.
-    int t_log;    ///< Time at which to log progress.
-    int n_output; ///< Index of next h5 output file.
+    int t;       
+    int t_output;
+    int t_log;  
+    int n_output; 
 
     // General parameters
-    int NTIME;  ///< Final time of simulation.
-    int NSTORE; ///< Store data in data_*.h5 files every NSTORE steps.
-    int NLOG;   ///< Log progress every NSTORE steps.
-    int NX;     ///< Number of fluid points in x (i) direction. Note: Max_number_of_processors <= NX/2.
-    int NY;     ///< Number of fluid points in y (j) direction.
-    int NZ;     ///< Number of fluid points in z (k) direction.
+    int NTIME; 
+    int NSTORE; 
+    int NLOG; 
+    int NX;    
+    int NY;  
+    int NZ;  
 
-    // Relaxation times
-    double tau_RED;  ///< Viscous relaxation time of RED fluid.
-    double tau_BLUE; ///< Viscous relaxation time of BLUE fluid.
-
-    // MRT parameters
-    double s_rho_RED;  ///< MRT parameter.
-    double s_rho_BLUE; ///< MRT parameter.
-    double s_j_RED;    ///< MRT parameter.
-    double s_j_BLUE;   ///< MRT parameter.
-    double s_e_RED;    ///< MRT parameter.
-    double s_e_BLUE;   ///< MRT parameter.
-    double s_eps_RED;  ///< MRT parameter.
-    double s_eps_BLUE; ///< MRT parameter.
-    double s_q_RED;    ///< MRT parameter.
-    double s_q_BLUE;   ///< MRT parameter.
-    double s_pi_RED;   ///< MRT parameter.
-    double s_pi_BLUE;  ///< MRT parameter.
-    double s_m_RED;    ///< MRT parameter.
-    double s_m_BLUE;   ///< MRT parameter.
-
+    // Initial denities
     double rho_0_RED;
     double rho_0_BLUE;
 
-    double sigma;
-    double beta;
+    // Kinematic viscosities
+    double nu_RED;
+    double nu_BLUE;
+
+    // Speed of sound parameters
     double alpha_RED;
     double alpha_BLUE;
 
+    // Surface tension
+    double sigma;
+
+    // Recoloring parameter
+    double beta;
+
+    // Gravitational accelerations
     double gx;
     double gy;
     double gz;
-
-    double G_SC;
 
     // MPI
     int number_of_processes;  ///< Stores number of processes
@@ -64,12 +54,29 @@ typedef struct ParamBag
     int i_end;                ///< Ending index of slab owned by current processor.
     int NX_proc;              ///< Number of nodes owned by current processor, NX_proc = i_end - i_start.
     MPI_Comm comm_xslices;    ///< Communicator of slab decomposition.
+
+    // HDF5
+    hid_t fapl_id;
+    hid_t scalar_space;
+    hid_t filespace;
+    hid_t memspace_glob;
+    hid_t memspace_comp;
+    hid_t dcpl_id;
+    hid_t dxpl_id;
 } ParamBag;
 
 typedef struct DistributionBag
 {
     double *f1;
     double *f2;
+    double *raw;
+    double *k_pert;
+    double *k_star;
+    double *feq;
+
+    // Communication
+    double *send_buffer;
+    double *recv_buffer;
 } DistributionBag;
 
 typedef struct GlobalFieldBag
@@ -85,6 +92,17 @@ typedef struct GlobalFieldBag
 
     // Color-Gradient
     double *rho_N;
+    double *G_norm;
+    double *Gx;
+    double *Gy;
+    double *Gz;
+
+    // Boundaries
+    int *flag;
+
+    // Communication
+    double *send_buffer;
+    double *recv_buffer;
 } GlobalFieldBag;
 
 typedef struct ComponentFieldBag
@@ -92,20 +110,21 @@ typedef struct ComponentFieldBag
     // Densities of components
     double *rho_comp;
 
-    // Component velocities
-    double *u_comp;
-    double *v_comp;
-    double *w_comp;
-
     // Forces on components
     double *Fx;
     double *Fy;
     double *Fz;
+
+    // Component velocities
+    double *u_comp;
+    double *v_comp;
+    double *w_comp;
 } ComponentFieldBag;
 
 typedef struct Stencil
 {
-    double cs2; // 1/3
+    double cs2[2];
+    double tau[2];
 
     // Stencil
     int NP;
@@ -115,16 +134,8 @@ typedef struct Stencil
     double *wp;
     int *p_bounceback;
 
-    // MRT
-    double *M;
-    double *M_inv;
-    double *omega[2];
-
     // Color-Gradient
     double zeta;
-    double *B;
-    double *phi_eq[2];
-    double *wp_D3Q41;
 
     // NEBB
     double C_norm;

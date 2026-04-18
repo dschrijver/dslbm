@@ -5,7 +5,6 @@
 
 void extract_moments(SimulationBag *sim);
 void update_final_velocity(SimulationBag *sim);
-void evaluate_density(int i, int j, int k, SimulationBag *sim);
-double evaluate_total_mass(SimulationBag *sim);
+double evaluate_mass(int n, SimulationBag *sim);
 
 #endif

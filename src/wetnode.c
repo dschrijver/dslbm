@@ -5,13 +5,11 @@
 #include "../include/forcing.h"
 #include "../include/fields.h"
 #include "../include/communicate.h"
+#include "../include/collide.h"
 #include "../include/wetnode.h"
 
 void wetnode_boundary_conditions(SimulationBag *sim)
 {
-#ifndef WETNODE
-    (void)sim;
-#else
     ParamBag *params = sim->params;
 
     int NY = params->NY;
@@ -19,10 +17,14 @@ void wetnode_boundary_conditions(SimulationBag *sim)
 
     int i_start = params->i_start;
     int i_end = params->i_end;
-#endif
+    
+    (void)sim;
+    (void)params;
+    (void)NY;
+    (void)NZ;
+    (void)i_start;
+    (void)i_end;
 
-    // Mass conservation after streaming
-#ifdef WETNODE_MASS_CONSERVATION
 #if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
     if (i_start == 0)
     {
@@ -88,17 +90,7 @@ void wetnode_boundary_conditions(SimulationBag *sim)
         }
     }
 #endif
-#endif
 
-    // Compute bulk densities
-#ifdef SHAN_CHEN
-    FOR_DOMAIN
-    {
-        evaluate_density(i, j, k, sim);
-    }
-#endif
-
-    // Set velocities
 #ifdef LEFT_NEBB_VELOCITY
     if (i_start == 0)
     {
@@ -420,10 +412,6 @@ void wetnode_boundary_conditions(SimulationBag *sim)
     }
 #endif
 
-#ifdef SHAN_CHEN
-    communicate_fields(sim);
-#endif
-
     // Evaluate forces
 #if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
     if (i_start == 0)
@@ -555,7 +543,7 @@ void wetnode_mass_conservation_streaming(int i, int j, int k, int nx, int ny, in
     }
 }
 
-void wetnode_compute_density_mass_conservation(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
+void wetnode_compute_density(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
 {
     ParamBag *params = sim->params;
     GlobalFieldBag *glob_fields = sim->glob_fields;
@@ -597,62 +585,6 @@ void wetnode_compute_density_mass_conservation(int i, int j, int k, int nx, int 
         {
             rho_RED_i += f1[INDEX_F(i, j, k, p, RED)] + f2[INDEX_F(i, j, k, p, RED)];
             rho_BLUE_i += f1[INDEX_F(i, j, k, p, BLUE)] + f2[INDEX_F(i, j, k, p, BLUE)];
-        }
-        else if (cn == 0)
-        {
-            rho_RED_i += f1[INDEX_F(i, j, k, p, RED)];
-            rho_BLUE_i += f1[INDEX_F(i, j, k, p, BLUE)];
-        }
-    }
-
-    un = u[INDEX_GLOB(i, j, k)] * (double)nx + v[INDEX_GLOB(i, j, k)] * (double)ny + w[INDEX_GLOB(i, j, k)] * (double)nz;
-
-    rho_comp[INDEX(i, j, k, RED)] = rho_RED_i / (1.0 - un);
-    rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i / (1.0 - un);
-}
-
-void wetnode_compute_density_no_mass_conservation(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
-{
-    ParamBag *params = sim->params;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
-    ComponentFieldBag *comp_fields = sim->comp_fields;
-    DistributionBag *dists = sim->dists;
-    Stencil *stencil = sim->stencil;
-
-    double rho_RED_i, rho_BLUE_i;
-    double un;
-    int cn;
-
-    int NY = params->NY;
-    int NZ = params->NZ;
-    int NP = stencil->NP;
-
-    int *cx = stencil->cx;
-    int *cy = stencil->cy;
-    int *cz = stencil->cz;
-
-    int i_start = params->i_start;
-
-    double *rho_comp = comp_fields->rho_comp;
-
-    double *u = glob_fields->u;
-    double *v = glob_fields->v;
-    double *w = glob_fields->w;
-
-    double *f1 = dists->f1;
-    double *f2 = dists->f2;
-
-    rho_RED_i = f2[INDEX_F(i, j, k, 0, RED)];
-    rho_BLUE_i = f2[INDEX_F(i, j, k, 0, BLUE)];
-
-    for (int p = 1; p < NP; p++)
-    {
-        cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
-
-        if (cn < 0)
-        {
-            rho_RED_i += 2.0 * f1[INDEX_F(i, j, k, p, RED)];
-            rho_BLUE_i += 2.0 * f1[INDEX_F(i, j, k, p, BLUE)];
         }
         else if (cn == 0)
         {
@@ -747,21 +679,24 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
     Stencil *stencil = sim->stencil;
 
     double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
-    double u_i, v_i, w_i, vc_i, wc_i, uc;
+    double u_i, v_i, w_i, vc_i, wc_i;
+    double cs2_i;
 
+    int i_start = params->i_start;
     int NY = params->NY;
     int NZ = params->NZ;
     int NP = stencil->NP;
 
-    double cs2 = stencil->cs2;
     int *cx = stencil->cx;
     int *cy = stencil->cy;
     int *cz = stencil->cz;
+    int *p_bounceback = stencil->p_bounceback;
     double *wp = stencil->wp;
 
-    int *p_bounceback = stencil->p_bounceback;
+    double *cs2 = stencil->cs2;
 
-    int i_start = params->i_start;
+    double C_norm = stencil->C_norm;
+    double C_par = stencil->C_par;
 
     double *rho_comp = comp_fields->rho_comp;
     double *Fx = comp_fields->Fx;
@@ -776,9 +711,7 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
     double *w_comp = comp_fields->w_comp;
 
     double *f1 = dists->f1;
-
-    double C_norm = stencil->C_norm;
-    double C_par = stencil->C_par;
+    double *feq = dists->feq;
 
     for (int j = 0; j < NY; j++)
     {
@@ -801,8 +734,12 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
                 v_i = v[INDEX_GLOB(i, j, k)];
                 w_i = w[INDEX_GLOB(i, j, k)];
 
-                vc_i = v_comp[INDEX_GLOB(i, j, k)];
-                wc_i = w_comp[INDEX_GLOB(i, j, k)];
+                cs2_i = cs2[n];
+
+                compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
+
+                vc_i = v_comp[INDEX(i, j, k, n)];
+                wc_i = w_comp[INDEX(i, j, k, n)];
 
                 Fx_i = Fx[INDEX(i, j, k, n)];
                 Fy_i = Fy[INDEX(i, j, k, n)];
@@ -822,10 +759,8 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
 
                     else if (cx[p] * nx > 0)
                     {
-                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
-
-                        Ny += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cy[p];
-                        Nz += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cz[p];
+                        Ny -= (feq[p_bounceback[p]] - feq[p]) * (double)cy[p];
+                        Nz -= (feq[p_bounceback[p]] - feq[p]) * (double)cz[p];
                     }
                 }
 
@@ -836,14 +771,11 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
                 {
                     if (cx[p] * nx > 0)
                     {
-                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
-                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + 2.0 * wp[p] * rho_i * uc / cs2 - wp[p] * (double)cx[p] * Nx - wp[p] * (double)cy[p] * Ny - wp[p] * (double)cz[p] * Nz;
+                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] - (feq[p_bounceback[p]] - feq[p]) - wp[p] * (double)cx[p] * Nx - wp[p] * (double)cy[p] * Ny - wp[p] * (double)cz[p] * Nz;
                     }
                 }
 
-#ifdef WETNODE_MASS_CONSERVATION
                 f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fx_i * nx;
-#endif
             }
         }
     }
@@ -858,22 +790,25 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
     Stencil *stencil = sim->stencil;
 
     double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
-    double u_i, v_i, w_i, uc_i, wc_i, uc;
+    double u_i, v_i, w_i, uc_i, wc_i;
+    double cs2_i;
 
+    int i_start = params->i_start;
+    int i_end = params->i_end;
     int NY = params->NY;
     int NZ = params->NZ;
     int NP = stencil->NP;
 
-    double cs2 = stencil->cs2;
     int *cx = stencil->cx;
     int *cy = stencil->cy;
     int *cz = stencil->cz;
+    int *p_bounceback = stencil->p_bounceback;
     double *wp = stencil->wp;
 
-    int *p_bounceback = stencil->p_bounceback;
+    double *cs2 = stencil->cs2;
 
-    int i_start = params->i_start;
-    int i_end = params->i_end;
+    double C_norm = stencil->C_norm;
+    double C_par = stencil->C_par;
 
     double *rho_comp = comp_fields->rho_comp;
     double *Fx = comp_fields->Fx;
@@ -888,9 +823,7 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
     double *w_comp = comp_fields->w_comp;
 
     double *f1 = dists->f1;
-
-    double C_norm = stencil->C_norm;
-    double C_par = stencil->C_par;
+    double *feq = dists->feq;
 
     for (int i = i_start; i < i_end; i++)
     {
@@ -913,6 +846,10 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
                 v_i = v[INDEX_GLOB(i, j, k)];
                 w_i = w[INDEX_GLOB(i, j, k)];
 
+                cs2_i = cs2[n];
+
+                compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
+
                 uc_i = u_comp[INDEX(i, j, k, n)];
                 wc_i = w_comp[INDEX(i, j, k, n)];
 
@@ -926,36 +863,31 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
 
                 for (int p = 1; p < NP; p++)
                 {
-                    if (cy[p] == 0)
+                    if (cx[p] == 0)
                     {
-                        Nx += f1[INDEX_F(i, j, k, p, n)] * (double)cx[p];
+                        Ny += f1[INDEX_F(i, j, k, p, n)] * (double)cy[p];
                         Nz += f1[INDEX_F(i, j, k, p, n)] * (double)cz[p];
                     }
 
-                    else if (cy[p] * ny > 0)
+                    else if (cx[p] * ny > 0)
                     {
-                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
-
-                        Nx += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cx[p];
-                        Nz += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cz[p];
+                        Ny -= (feq[p_bounceback[p]] - feq[p]) * (double)cy[p];
+                        Nz -= (feq[p_bounceback[p]] - feq[p]) * (double)cz[p];
                     }
                 }
 
-                Nx /= C_par;
+                Ny /= C_par;
                 Nz /= C_par;
 
                 for (int p = 1; p < NP; p++)
                 {
-                    if (cy[p] * ny > 0)
+                    if (cx[p] * ny > 0)
                     {
-                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
-                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + 2.0 * wp[p] * rho_i * uc / cs2 - wp[p] * (double)cx[p] * Nx - wp[p] * (double)cy[p] * Ny - wp[p] * (double)cz[p] * Nz;
+                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] - (feq[p_bounceback[p]] - feq[p]) - wp[p] * (double)cx[p] * Nx - wp[p] * (double)cy[p] * Ny - wp[p] * (double)cz[p] * Nz;
                     }
                 }
 
-#ifdef WETNODE_MASS_CONSERVATION
                 f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fy_i * ny;
-#endif
             }
         }
     }
@@ -970,22 +902,25 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
     Stencil *stencil = sim->stencil;
 
     double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
-    double u_i, v_i, w_i, uc_i, vc_i, uc;
+    double u_i, v_i, w_i, uc_i, vc_i;
+    double cs2_i;
 
+    int i_start = params->i_start;
+    int i_end = params->i_end;
     int NY = params->NY;
     int NZ = params->NZ;
     int NP = stencil->NP;
 
-    double cs2 = stencil->cs2;
     int *cx = stencil->cx;
     int *cy = stencil->cy;
     int *cz = stencil->cz;
+    int *p_bounceback = stencil->p_bounceback;
     double *wp = stencil->wp;
 
-    int *p_bounceback = stencil->p_bounceback;
+    double *cs2 = stencil->cs2;
 
-    int i_start = params->i_start;
-    int i_end = params->i_end;
+    double C_norm = stencil->C_norm;
+    double C_par = stencil->C_par;
 
     double *rho_comp = comp_fields->rho_comp;
     double *Fx = comp_fields->Fx;
@@ -1000,9 +935,7 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
     double *v_comp = comp_fields->v_comp;
 
     double *f1 = dists->f1;
-
-    double C_norm = stencil->C_norm;
-    double C_par = stencil->C_par;
+    double *feq = dists->feq;
 
     for (int i = i_start; i < i_end; i++)
     {
@@ -1025,6 +958,10 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
                 v_i = v[INDEX_GLOB(i, j, k)];
                 w_i = w[INDEX_GLOB(i, j, k)];
 
+                cs2_i = cs2[n];
+
+                compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
+
                 uc_i = u_comp[INDEX(i, j, k, n)];
                 vc_i = v_comp[INDEX(i, j, k, n)];
 
@@ -1038,36 +975,31 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
 
                 for (int p = 1; p < NP; p++)
                 {
-                    if (cz[p] == 0)
+                    if (cx[p] == 0)
                     {
-                        Nx += f1[INDEX_F(i, j, k, p, n)] * (double)cx[p];
                         Ny += f1[INDEX_F(i, j, k, p, n)] * (double)cy[p];
+                        Nz += f1[INDEX_F(i, j, k, p, n)] * (double)cz[p];
                     }
 
-                    else if (cz[p] * nz > 0)
+                    else if (cx[p] * nz > 0)
                     {
-                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
-
-                        Nx += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cx[p];
-                        Ny += 2.0 * wp[p] * rho_i * uc / cs2 * (double)cy[p];
+                        Ny -= (feq[p_bounceback[p]] - feq[p]) * (double)cy[p];
+                        Nz -= (feq[p_bounceback[p]] - feq[p]) * (double)cz[p];
                     }
                 }
 
-                Nx /= C_par;
                 Ny /= C_par;
+                Nz /= C_par;
 
                 for (int p = 1; p < NP; p++)
                 {
-                    if (cz[p] * nz > 0)
+                    if (cx[p] * nz > 0)
                     {
-                        uc = u_i * (double)cx[p] + v_i * (double)cy[p] + w_i * (double)cz[p];
-                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + 2.0 * wp[p] * rho_i * uc / cs2 - wp[p] * (double)cx[p] * Nx - wp[p] * (double)cy[p] * Ny - wp[p] * (double)cz[p] * Nz;
+                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] - (feq[p_bounceback[p]] - feq[p]) - wp[p] * (double)cx[p] * Nx - wp[p] * (double)cy[p] * Ny - wp[p] * (double)cz[p] * Nz;
                     }
                 }
 
-#ifdef WETNODE_MASS_CONSERVATION
                 f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fz_i * nz;
-#endif
             }
         }
     }

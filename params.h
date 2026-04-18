@@ -6,49 +6,36 @@
 static inline void set_params(ParamBag *params)
 {
     // General parameters
-    params->NTIME = 200000;
-    params->NSTORE = 2000;
-    params->NLOG = 200;
-    params->NX = 25;
-    params->NY = 200;
-    params->NZ = 1;
+    params->NTIME   = 100;
+    params->NSTORE  = 10;
+    params->NLOG    = 1;
+    params->NX      = 100;
+    params->NY      = 100;
+    params->NZ      = 100;
 
-    // Relaxation times
-    params->tau_RED = 0.6;
-    params->tau_BLUE = 0.6;
+    // Initial denities
+    params->rho_0_RED   = 1000.0;
+    params->rho_0_BLUE  = 1.0;
 
-    // MRT parameters
-    params->s_rho_RED = 1.0;
-    params->s_rho_BLUE = 1.0;
-    params->s_j_RED = 1.0;
-    params->s_j_BLUE = 1.0;
-    params->s_e_RED = 1.1;
-    params->s_e_BLUE = 1.1;
-    params->s_eps_RED = 1.1;
-    params->s_eps_BLUE = 1.1;
-    params->s_q_RED = 1.1;
-    params->s_q_BLUE = 1.1;
-    params->s_pi_RED = 1.1;
-    params->s_pi_BLUE = 1.1;
-    params->s_m_RED = 1.2;
-    params->s_m_BLUE = 1.2;
+    // Kinematic viscosities
+    params->nu_RED  = 0.0001;
+    params->nu_BLUE = 0.001;
 
-    // Starting densities
-    params->rho_0_RED = 1.0;
-    params->rho_0_BLUE = 1.0;
-
-    params->sigma = 1e-2;
-    params->beta = 0.7;
-    params->alpha_BLUE = 0.2;
-    // params->alpha_BLUE = 1.0/3.0;
+    // Speed of sound parameters
     double gamma = params->rho_0_RED / params->rho_0_BLUE;
-    params->alpha_RED = 1.0 - (1.0 - params->alpha_BLUE) / gamma;
+    params->alpha_BLUE  = 0.2;
+    params->alpha_RED   = 1.0 - (1.0 - params->alpha_BLUE) / gamma;
 
+    // Surface tension
+    params->sigma = 1e-4;
+
+    // Recoloring parameter
+    params->beta = 0.2;
+
+    // Gravitational accelerations
     params->gx = 0.0;
     params->gy = 0.0;
     params->gz = 0.0;
-
-    params->G_SC = 4.0;
 }
 
 #endif
