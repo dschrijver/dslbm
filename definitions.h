@@ -9,7 +9,7 @@
 
 #define LEFT_NEBB_VELOCITY
 #define LEFT_U_VELOCITY 0.0
-#define LEFT_V_VELOCITY 1e-2
+#define LEFT_V_VELOCITY 0.0
 #define LEFT_W_VELOCITY 0.0
 
 #define RIGHT_NEBB_VELOCITY
@@ -20,8 +20,8 @@
 // --------------------------
 //     Initial conditions
 // --------------------------
-#define INI_TWOCOMPONENT_COUETTE
-#define INI_TWOCOMPONENT_COUETTE_V_LEFT 1e-2
-#define INI_TWOCOMPONENT_COUETTE_SF     1.0
+#define INI_TWOCOMPONENT_POISEUILLE
+#define INI_TWOCOMPONENT_POISEUILLE_A   (0.25*width)
+#define INI_TWOCOMPONENT_POISEUILLE_SF  2.0
 
 #endif

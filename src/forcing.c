@@ -47,8 +47,12 @@ void evaluate_force(int i, int j, int k, SimulationBag *sim)
     {
         rho_i = rho_comp[INDEX(i, j, k, n)];
 
-        Fx[INDEX(i, j, k, n)] = rho_i * gx;
-        Fy[INDEX(i, j, k, n)] = rho_i * gy;
-        Fz[INDEX(i, j, k, n)] = rho_i * gz;
+        // Fx[INDEX(i, j, k, n)] = rho_i * gx;
+        // Fy[INDEX(i, j, k, n)] = rho_i * gy;
+        // Fz[INDEX(i, j, k, n)] = rho_i * gz;
+
+        Fx[INDEX(i, j, k, n)] = gx;
+        Fy[INDEX(i, j, k, n)] = gy;
+        Fz[INDEX(i, j, k, n)] = gz;
     }
 }

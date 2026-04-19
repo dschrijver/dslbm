@@ -137,14 +137,15 @@ void initialize_fields(SimulationBag *sim)
 #endif
 
 #ifdef INI_TWOCOMPONENT_POISEUILLE
-    double y, r;
+    double x, r;
+    double width = physlx(params);
     FOR_DOMAIN
     {
-        y = physy(j) - INI_DROPLET_Y;
-        r = fabs(y);
+        x = physx(i) - 0.5*width;
+        r = fabs(x);
 
-        rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 - tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_DROPLET_SF));
-        rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 + tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_DROPLET_SF));
+        rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 + tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_TWOCOMPONENT_POISEUILLE_SF));
+        rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 - tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_TWOCOMPONENT_POISEUILLE_SF));
         u[INDEX_GLOB(i, j, k)] = 0.0;
         v[INDEX_GLOB(i, j, k)] = 0.0;
         w[INDEX_GLOB(i, j, k)] = 0.0;
@@ -156,7 +157,7 @@ void initialize_fields(SimulationBag *sim)
     double width = physlx(params);
     FOR_DOMAIN
     {
-        x = physy(i);
+        x = physx(i);
 
         rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 - tanh((x - 0.5*width) / INI_TWOCOMPONENT_COUETTE_SF));
         rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5*width) / INI_TWOCOMPONENT_COUETTE_SF));
