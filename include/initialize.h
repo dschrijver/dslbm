@@ -11,5 +11,8 @@ void initialize_distributions(SimulationBag *sim);
 double physx(int i);
 double physy(int j);
 double physz(int k);
+double physlx(ParamBag *params);
+double physly(ParamBag *params);
+double physlz(ParamBag *params);
 
 #endif

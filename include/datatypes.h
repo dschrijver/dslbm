@@ -136,10 +136,6 @@ typedef struct Stencil
 
     // Color-Gradient
     double zeta;
-
-    // NEBB
-    double C_norm;
-    double C_par;
 } Stencil;
 
 typedef struct SimulationBag

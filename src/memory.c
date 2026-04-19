@@ -78,7 +78,7 @@ void allocate_fields(SimulationBag *sim)
     glob_fields->Gx = (double *)malloc(global_malloc_size);
     glob_fields->Gy = (double *)malloc(global_malloc_size);
     glob_fields->Gz = (double *)malloc(global_malloc_size);
-    glob_fields->flag = (int *)malloc((NX_proc + 4) * NY * NZ * sizeof(int));
+    glob_fields->flag = (int *)malloc((NX_proc + 4) * (NY + 4) * (NZ + 4) * sizeof(int));
 
     int malloc_size = 2 * NY * NZ * sizeof(double);
     glob_fields->send_buffer = (double *)malloc(malloc_size);

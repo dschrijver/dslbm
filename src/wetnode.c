@@ -679,7 +679,7 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
     Stencil *stencil = sim->stencil;
 
     double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
-    double u_i, v_i, w_i, vc_i, wc_i;
+    double u_i, v_i, w_i, uc_i, vc_i, wc_i;
     double cs2_i;
 
     int i_start = params->i_start;
@@ -695,9 +695,6 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
 
     double *cs2 = stencil->cs2;
 
-    double C_norm = stencil->C_norm;
-    double C_par = stencil->C_par;
-
     double *rho_comp = comp_fields->rho_comp;
     double *Fx = comp_fields->Fx;
     double *Fy = comp_fields->Fy;
@@ -707,6 +704,7 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
     double *v = glob_fields->v;
     double *w = glob_fields->w;
 
+    double *u_comp = comp_fields->u_comp;
     double *v_comp = comp_fields->v_comp;
     double *w_comp = comp_fields->w_comp;
 
@@ -738,6 +736,7 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
 
                 compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
 
+                uc_i = u_comp[INDEX(i, j, k, n)];
                 vc_i = v_comp[INDEX(i, j, k, n)];
                 wc_i = w_comp[INDEX(i, j, k, n)];
 
@@ -745,7 +744,7 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
                 Fy_i = Fy[INDEX(i, j, k, n)];
                 Fz_i = Fz[INDEX(i, j, k, n)];
 
-                Nx = 0.5 * Fx_i / C_norm;
+                Nx = 0.5 * Fx_i - rho_i * uc_i;
                 Ny = 0.5 * Fy_i - rho_i * vc_i;
                 Nz = 0.5 * Fz_i - rho_i * wc_i;
 
@@ -759,19 +758,21 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
 
                     else if (cx[p] * nx > 0)
                     {
-                        Ny -= (feq[p_bounceback[p]] - feq[p]) * (double)cy[p];
-                        Nz -= (feq[p_bounceback[p]] - feq[p]) * (double)cz[p];
+                        Nx += (feq[p] - feq[p_bounceback[p]]) * (double)cx[p];
+                        Ny += (feq[p] - feq[p_bounceback[p]]) * (double)cy[p];
+                        Nz += (feq[p] - feq[p_bounceback[p]]) * (double)cz[p];
                     }
                 }
 
-                Ny /= C_par;
-                Nz /= C_par;
+                Nx *= 6.0;
+                Ny *= 18.0;
+                Nz *= 18.0;
 
                 for (int p = 1; p < NP; p++)
                 {
                     if (cx[p] * nx > 0)
                     {
-                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] - (feq[p_bounceback[p]] - feq[p]) - wp[p] * (double)cx[p] * Nx - wp[p] * (double)cy[p] * Ny - wp[p] * (double)cz[p] * Nz;
+                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + (feq[p] - feq[p_bounceback[p]]) - wp[p] * ((double)cx[p] * Nx + (double)cy[p] * Ny + (double)cz[p] * Nz);
                     }
                 }
 
@@ -790,7 +791,7 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
     Stencil *stencil = sim->stencil;
 
     double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
-    double u_i, v_i, w_i, uc_i, wc_i;
+    double u_i, v_i, w_i, uc_i, vc_i, wc_i;
     double cs2_i;
 
     int i_start = params->i_start;
@@ -807,9 +808,6 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
 
     double *cs2 = stencil->cs2;
 
-    double C_norm = stencil->C_norm;
-    double C_par = stencil->C_par;
-
     double *rho_comp = comp_fields->rho_comp;
     double *Fx = comp_fields->Fx;
     double *Fy = comp_fields->Fy;
@@ -820,6 +818,7 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
     double *w = glob_fields->w;
 
     double *u_comp = comp_fields->u_comp;
+    double *v_comp = comp_fields->v_comp;
     double *w_comp = comp_fields->w_comp;
 
     double *f1 = dists->f1;
@@ -851,6 +850,7 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
                 compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
 
                 uc_i = u_comp[INDEX(i, j, k, n)];
+                vc_i = v_comp[INDEX(i, j, k, n)];
                 wc_i = w_comp[INDEX(i, j, k, n)];
 
                 Fx_i = Fx[INDEX(i, j, k, n)];
@@ -858,32 +858,34 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
                 Fz_i = Fz[INDEX(i, j, k, n)];
 
                 Nx = 0.5 * Fx_i - rho_i * uc_i;
-                Ny = 0.5 * Fy_i / C_norm;
+                Ny = 0.5 * Fy_i - rho_i * vc_i;
                 Nz = 0.5 * Fz_i - rho_i * wc_i;
 
                 for (int p = 1; p < NP; p++)
                 {
-                    if (cx[p] == 0)
+                    if (cy[p] == 0)
                     {
-                        Ny += f1[INDEX_F(i, j, k, p, n)] * (double)cy[p];
+                        Nx += f1[INDEX_F(i, j, k, p, n)] * (double)cx[p];
                         Nz += f1[INDEX_F(i, j, k, p, n)] * (double)cz[p];
                     }
 
-                    else if (cx[p] * ny > 0)
+                    else if (cy[p] * ny > 0)
                     {
-                        Ny -= (feq[p_bounceback[p]] - feq[p]) * (double)cy[p];
-                        Nz -= (feq[p_bounceback[p]] - feq[p]) * (double)cz[p];
+                        Nx += (feq[p] - feq[p_bounceback[p]]) * (double)cx[p];
+                        Ny += (feq[p] - feq[p_bounceback[p]]) * (double)cy[p];
+                        Nz += (feq[p] - feq[p_bounceback[p]]) * (double)cz[p];
                     }
                 }
 
-                Ny /= C_par;
-                Nz /= C_par;
+                Nx *= 18.0;
+                Ny *= 6.0;
+                Nz *= 18.0;
 
                 for (int p = 1; p < NP; p++)
                 {
-                    if (cx[p] * ny > 0)
+                    if (cy[p] * ny > 0)
                     {
-                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] - (feq[p_bounceback[p]] - feq[p]) - wp[p] * (double)cx[p] * Nx - wp[p] * (double)cy[p] * Ny - wp[p] * (double)cz[p] * Nz;
+                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + (feq[p] - feq[p_bounceback[p]]) - wp[p] * ((double)cx[p] * Nx + (double)cy[p] * Ny + (double)cz[p] * Nz);
                     }
                 }
 
@@ -902,7 +904,7 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
     Stencil *stencil = sim->stencil;
 
     double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
-    double u_i, v_i, w_i, uc_i, vc_i;
+    double u_i, v_i, w_i, uc_i, vc_i, wc_i;
     double cs2_i;
 
     int i_start = params->i_start;
@@ -919,9 +921,6 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
 
     double *cs2 = stencil->cs2;
 
-    double C_norm = stencil->C_norm;
-    double C_par = stencil->C_par;
-
     double *rho_comp = comp_fields->rho_comp;
     double *Fx = comp_fields->Fx;
     double *Fy = comp_fields->Fy;
@@ -933,6 +932,7 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
 
     double *u_comp = comp_fields->u_comp;
     double *v_comp = comp_fields->v_comp;
+    double *w_comp = comp_fields->w_comp;
 
     double *f1 = dists->f1;
     double *feq = dists->feq;
@@ -964,6 +964,7 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
 
                 uc_i = u_comp[INDEX(i, j, k, n)];
                 vc_i = v_comp[INDEX(i, j, k, n)];
+                wc_i = w_comp[INDEX(i, j, k, n)];
 
                 Fx_i = Fx[INDEX(i, j, k, n)];
                 Fy_i = Fy[INDEX(i, j, k, n)];
@@ -971,31 +972,33 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
 
                 Nx = 0.5 * Fx_i - rho_i * uc_i;
                 Ny = 0.5 * Fy_i - rho_i * vc_i;
-                Nz = 0.5 * Fz_i / C_norm;
+                Nz = 0.5 * Fz_i - rho_i * wc_i;
 
                 for (int p = 1; p < NP; p++)
                 {
-                    if (cx[p] == 0)
+                    if (cz[p] == 0)
                     {
+                        Nx += f1[INDEX_F(i, j, k, p, n)] * (double)cx[p];
                         Ny += f1[INDEX_F(i, j, k, p, n)] * (double)cy[p];
-                        Nz += f1[INDEX_F(i, j, k, p, n)] * (double)cz[p];
                     }
 
-                    else if (cx[p] * nz > 0)
+                    else if (cz[p] * nz > 0)
                     {
-                        Ny -= (feq[p_bounceback[p]] - feq[p]) * (double)cy[p];
-                        Nz -= (feq[p_bounceback[p]] - feq[p]) * (double)cz[p];
+                        Nx += (feq[p] - feq[p_bounceback[p]]) * (double)cx[p];
+                        Ny += (feq[p] - feq[p_bounceback[p]]) * (double)cy[p];
+                        Nz += (feq[p] - feq[p_bounceback[p]]) * (double)cz[p];
                     }
                 }
 
-                Ny /= C_par;
-                Nz /= C_par;
+                Nx *= 18.0;
+                Ny *= 18.0;
+                Nz *= 6.0;
 
                 for (int p = 1; p < NP; p++)
                 {
-                    if (cx[p] * nz > 0)
+                    if (cz[p] * nz > 0)
                     {
-                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] - (feq[p_bounceback[p]] - feq[p]) - wp[p] * (double)cx[p] * Nx - wp[p] * (double)cy[p] * Ny - wp[p] * (double)cz[p] * Nz;
+                        f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + (feq[p] - feq[p_bounceback[p]]) - wp[p] * ((double)cx[p] * Nx + (double)cy[p] * Ny + (double)cz[p] * Nz);
                     }
                 }
 

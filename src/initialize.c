@@ -137,6 +137,7 @@ void initialize_fields(SimulationBag *sim)
 #endif
 
 #ifdef INI_TWOCOMPONENT_POISEUILLE
+    double y, r;
     FOR_DOMAIN
     {
         y = physy(j) - INI_DROPLET_Y;
@@ -146,6 +147,22 @@ void initialize_fields(SimulationBag *sim)
         rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 + tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_DROPLET_SF));
         u[INDEX_GLOB(i, j, k)] = 0.0;
         v[INDEX_GLOB(i, j, k)] = 0.0;
+        w[INDEX_GLOB(i, j, k)] = 0.0;
+    }
+#endif
+
+#ifdef INI_TWOCOMPONENT_COUETTE
+    double x;
+    double width = physlx(params);
+    FOR_DOMAIN
+    {
+        x = physy(i);
+
+        rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 - tanh((x - 0.5*width) / INI_TWOCOMPONENT_COUETTE_SF));
+        rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5*width) / INI_TWOCOMPONENT_COUETTE_SF));
+
+        u[INDEX_GLOB(i, j, k)] = 0.0;
+        v[INDEX_GLOB(i, j, k)] = INI_TWOCOMPONENT_COUETTE_V_LEFT;
         w[INDEX_GLOB(i, j, k)] = 0.0;
     }
 #endif
@@ -347,4 +364,43 @@ double physz(int k)
 #else
     return (double)k + 0.5;
 #endif
+}
+
+double physlx(ParamBag *params)
+{
+    double result = (double)params->NX;
+#if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
+    result -= 0.5;
+#endif
+
+#if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
+    result -= 0.5;
+#endif
+    return result;
+}
+
+double physly(ParamBag *params)
+{
+    double result = (double)params->NY;
+#if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
+    result -= 0.5;
+#endif
+
+#if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
+    result -= 0.5;
+#endif
+    return result;
+}
+
+double physlz(ParamBag *params)
+{
+    double result = (double)params->NZ;
+#if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
+    result -= 0.5;
+#endif
+
+#if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
+    result -= 0.5;
+#endif
+    return result;
 }

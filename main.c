@@ -45,6 +45,8 @@ int main(int argc, char **argv)
     params->t_log = 0;
     params->n_output = 0;
 
+    initialize_flags(sim);
+    
     initialize_fields(sim);
 
     evaluate_forces(sim);

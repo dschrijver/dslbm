@@ -22,9 +22,6 @@ static inline void initialize_stencil(SimulationBag *sim)
     stencil->tau[RED] = 1.0 / stencil->cs2[RED] * params->nu_RED + 0.5;
     stencil->tau[BLUE] = 1.0 / stencil->cs2[BLUE] * params->nu_BLUE + 0.5;
 
-    stencil->C_norm = 1.0 / 6.0;
-    stencil->C_par = 1.0 / 18.0;
-
     // De Rosis 2019, 10.1063/1.5124719
     int cx[] = {0, 1, -1, 0, 0, 0, 0, 1, -1, 1, -1, 1, -1, 1, -1, 0, 0, 0, 0, 1, -1, 1, -1, 1, -1, 1, -1};
     int cy[] = {0, 0, 0, 1, -1, 0, 0, 1, 1, -1, -1, 0, 0, 0, 0, 1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1};
