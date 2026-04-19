@@ -6,20 +6,20 @@
 static inline void set_params(ParamBag *params)
 {
     // General parameters
-    params->NTIME   = 1000;
-    params->NSTORE  = 100;
-    params->NLOG    = 1;
-    params->NX      = 100;
-    params->NY      = 100;
-    params->NZ      = 100;
+    params->NTIME = 1000000;
+    params->NSTORE = 10000;
+    params->NLOG = 1000;
+    params->NX = 100;
+    params->NY = 1;
+    params->NZ = 1;
 
     // Initial denities
-    params->rho_0_RED   = 1000.0;
-    params->rho_0_BLUE  = 1.0;
+    params->rho_0_RED   = 8.0;
+    params->rho_0_BLUE  = 0.008;
 
     // Kinematic viscosities
-    params->nu_RED  = 0.00001;
-    params->nu_BLUE = 0.0001;
+    params->nu_BLUE  = 1.0/6.0;
+    params->nu_RED = params->nu_BLUE/25.0;
 
     // Speed of sound parameters
     double gamma = params->rho_0_RED / params->rho_0_BLUE;
@@ -27,14 +27,13 @@ static inline void set_params(ParamBag *params)
     params->alpha_RED   = 1.0 - (1.0 - params->alpha_BLUE) / gamma;
 
     // Surface tension
-    params->sigma = 1e-4;
+    params->sigma = 0.0;
 
     // Recoloring parameter
     params->beta = 0.7;
 
-    // Gravitational accelerations
     params->gx = 0.0;
-    params->gy = 0.0;
+    params->gy = 1.5e-8;
     params->gz = 0.0;
 }
 
