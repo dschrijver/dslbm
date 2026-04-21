@@ -1,5 +1,6 @@
 #include "../include/datatypes.h"
 #include "../definitions.h"
+#include "../include/forcing.h"
 #include "../include/fields.h"
 
 void extract_moments(SimulationBag *sim)
@@ -135,4 +136,87 @@ double evaluate_mass(int n, SimulationBag *sim)
     MPI_Allreduce(&M_local, &M_total, 1, MPI_DOUBLE, MPI_SUM, params->comm_xslices);
 
     return M_total;
+}
+
+void evaluate_density(int i, int j, int k, SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    DistributionBag *dists = sim->dists;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+    GlobalFieldBag *glob_fields = sim->glob_fields;
+    Stencil *stencil = sim->stencil;
+
+    double rho_RED_i, rho_BLUE_i;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+    int NP = stencil->NP;
+
+    int i_start = params->i_start;
+
+    double *rho_comp = comp_fields->rho_comp;
+    double *rho = glob_fields->rho;
+
+    double *f1 = dists->f1;
+
+    rho_RED_i = 0.0;
+    rho_BLUE_i = 0.0;
+    for (int p = 0; p < NP; p++)
+    {
+        rho_RED_i += f1[INDEX_F(i, j, k, p, RED)];
+        rho_BLUE_i += f1[INDEX_F(i, j, k, p, BLUE)];
+    }
+    rho_comp[INDEX(i, j, k, RED)] = rho_RED_i;
+    rho_comp[INDEX(i, j, k, BLUE)] = rho_BLUE_i;
+    rho[INDEX_GLOB(i, j, k)] = rho_RED_i + rho_BLUE_i;
+}
+
+void evaluate_velocity(int i, int j, int k, SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    DistributionBag *dists = sim->dists;
+    GlobalFieldBag *glob_fields = sim->glob_fields;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+    Stencil *stencil = sim->stencil;
+
+    double rho_i, u_i, v_i, w_i;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+    int NP = stencil->NP;
+
+    int i_start = params->i_start;
+
+    int *cx = stencil->cx;
+    int *cy = stencil->cy;
+    int *cz = stencil->cz;
+
+    double *u = glob_fields->u;
+    double *v = glob_fields->v;
+    double *w = glob_fields->w;
+
+    double *Fx = comp_fields->Fx;
+    double *Fy = comp_fields->Fy;
+    double *Fz = comp_fields->Fz;
+
+    double *f1 = dists->f1;
+
+    rho_i = 0.0;
+    u_i = 0.0;
+    v_i = 0.0;
+    w_i = 0.0;
+    for (int p = 0; p < NP; p++)
+    {
+        rho_i += f1[INDEX_F(i, j, k, p, RED)] + f1[INDEX_F(i, j, k, p, BLUE)];
+
+        u_i += (f1[INDEX_F(i, j, k, p, RED)] + f1[INDEX_F(i, j, k, p, BLUE)]) * (double)cx[p];
+        v_i += (f1[INDEX_F(i, j, k, p, RED)] + f1[INDEX_F(i, j, k, p, BLUE)]) * (double)cy[p];
+        w_i += (f1[INDEX_F(i, j, k, p, RED)] + f1[INDEX_F(i, j, k, p, BLUE)]) * (double)cz[p];
+    }
+
+    evaluate_force(i, j, k, sim);
+
+    u[INDEX_GLOB(i, j, k)] = (u_i + 0.5 * (Fx[INDEX(i, j, k, RED)] + Fx[INDEX(i, j, k, BLUE)])) / rho_i;
+    v[INDEX_GLOB(i, j, k)] = (v_i + 0.5 * (Fy[INDEX(i, j, k, RED)] + Fy[INDEX(i, j, k, BLUE)])) / rho_i;
+    w[INDEX_GLOB(i, j, k)] = (w_i + 0.5 * (Fz[INDEX(i, j, k, RED)] + Fz[INDEX(i, j, k, BLUE)])) / rho_i;
 }

@@ -39,6 +39,11 @@ inline int min(int x, int y)
     else return y;
 }
 
+inline double delta(int a, int b)
+{
+    if (a == b) return 1.0;
+    else return 0.0;
+}
 
 #define FOR_DOMAIN                        \
     for (int i = i_start; i < i_end; i++) \

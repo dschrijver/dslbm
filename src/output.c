@@ -41,7 +41,9 @@ void output_data(SimulationBag *sim)
     output_global_field(v, "v", file_id, sim);
     output_global_field(w, "w", file_id, sim);
     output_global_field(rho_N, "rho_N", file_id, sim);
-    output_global_field(glob_fields->G_norm, "G_norm", file_id, sim);
+    output_global_field(glob_fields->Gx, "Gx", file_id, sim);
+    output_global_field(glob_fields->Gy, "Gy", file_id, sim);
+    output_global_field(glob_fields->Gz, "Gz", file_id, sim);
 
     output_comp_field(rho_comp, "rho", file_id, sim);
     output_comp_field(Fx, "Fx", file_id, sim);

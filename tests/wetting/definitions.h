@@ -7,12 +7,15 @@
 #define XPERIODIC
 #define ZPERIODIC
 
-#define BOTTOM_NEBB_VELOCITY
+// --- Wetting ---
+#define THETA_C 160.0
+
+#define BOTTOM_REGNEE_VELOCITY
 #define BOTTOM_U_VELOCITY 0.0
 #define BOTTOM_V_VELOCITY 0.0
 #define BOTTOM_W_VELOCITY 0.0
 
-#define TOP_NEBB_VELOCITY
+#define TOP_REGNEE_VELOCITY
 #define TOP_U_VELOCITY 0.0
 #define TOP_V_VELOCITY 0.0
 #define TOP_W_VELOCITY 0.0

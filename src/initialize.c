@@ -286,6 +286,36 @@ void initialize_flags(SimulationBag *sim)
                 if (k > NZ - 1)
                     flag[INDEX_FLAG(i, j, k)] = WETNODE;
 #endif
+
+#ifdef LEFT_REGNEE_VELOCITY
+                if (i < 0)
+                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
+#endif
+
+#ifdef RIGHT_REGNEE_VELOCITY
+                if (i > params->NX - 1)
+                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
+#endif
+
+#ifdef BOTTOM_REGNEE_VELOCITY
+                if (j < 0)
+                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
+#endif
+
+#ifdef TOP_REGNEE_VELOCITY
+                if (j > NY - 1)
+                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
+#endif
+
+#ifdef BACK_REGNEE_VELOCITY
+                if (k < 0)
+                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
+#endif
+
+#ifdef FRONT_REGNEE_VELOCITY
+                if (k > NZ - 1)
+                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
+#endif
             }
         }
     }
