@@ -9,67 +9,67 @@ void compute_equilibrium(double rho, double u, double v, double w, double cs2, d
 {
     DistributionBag *dists = sim->dists;
     double *raw = dists->raw;
-    double u2 = u*u;
-    double v2 = v*v;
-    double w2 = w*w;
-    double cs4 = cs2*cs2;
-    double cs8 = cs4*cs4;
+    double u2 = u * u;
+    double v2 = v * v;
+    double w2 = w * w;
+    double cs4 = cs2 * cs2;
+    double cs6 = cs2 * cs4;
 
     raw[0] = rho;
-    raw[1] = rho*u;
-    raw[2] = rho*v;
-    raw[3] = rho*w;
-    raw[4] = rho*u*v;
-    raw[5] = rho*u*w;
-    raw[6] = rho*v*w;
-    raw[7] = rho*(u2 - v2);
-    raw[8] = rho*(u2 - w2);
-    raw[9] = rho*(3.0*cs2 + u2 + v2 + w2);
-    raw[10] = rho*u*(2.0*cs2 + v2 + w2);
-    raw[11] = rho*v*(2.0*cs2 + u2 + w2);
-    raw[12] = rho*w*(2.0*cs2 + u2 + v2);
-    raw[13] = rho*u*(v2 - w2);
-    raw[14] = rho*v*(u2 - w2);
-    raw[15] = rho*w*(u2 - v2);
-    raw[16] = rho*u*v*w;
-    raw[17] = rho*(2.0*cs2*(u2 + v2 + w2) + cs2 + u2*v2 + u2*w2 + v2*w2);
-    raw[18] = rho*(cs4 + 2.0*cs2*u2 + u2*v2 + u2*w2 - v2*w2);
-    raw[19] = rho*(cs2 + u2)*(v2 - w2);
-    raw[20] = rho*v*w*(cs2 + u2);
-    raw[21] = rho*u*w*(cs2 + v2);
-    raw[22] = rho*u*v*(cs2 + w2);
-    raw[23] = rho*u*(-cs4 + 2.0*cs2*(v2 + w2) + cs2 + 2.0*v2*w2)/2.0;
-    raw[24] = rho*v*(cs4 + 4.0*cs2*(u2 + w2) + cs2 + 4.0*u2*w2)/4.0;
-    raw[25] = rho*w*(cs4 + 4.0*cs2*(u2 + v2) + cs2 + 4.0*u2*v2)/4.0;
-    raw[26] = rho*(4.0*cs8 + cs4*(-2.0*u2 + v2 + w2) + cs2*(2.0*u2 + v2 + w2) + 4.0*cs2*(u2*v2 + u2*w2 + v2*w2) + 4.0*u2*v2*w2)/4.0;
+    raw[1] = rho * u;
+    raw[2] = rho * v;
+    raw[3] = rho * w;
+    raw[4] = rho * u * v;
+    raw[5] = rho * u * w;
+    raw[6] = rho * v * w;
+    raw[7] = rho * (u2 - v2);
+    raw[8] = rho * (u2 - w2);
+    raw[9] = rho * (3.0 * cs2 + u2 + v2 + w2);
+    raw[10] = rho * u * (2.0 * cs2 + v2 + w2);
+    raw[11] = rho * v * (2.0 * cs2 + u2 + w2);
+    raw[12] = rho * w * (2.0 * cs2 + u2 + v2);
+    raw[13] = rho * u * (v2 - w2);
+    raw[14] = rho * v * (u2 - w2);
+    raw[15] = rho * w * (u2 - v2);
+    raw[16] = rho * u * v * w;
+    raw[17] = rho * (2.0 * cs2 * (u2 + v2 + w2) + cs2 + u2 * v2 + u2 * w2 + v2 * w2);
+    raw[18] = rho * (2.0 * cs2 * u2 + cs4 + u2 * v2 + u2 * w2 - v2 * w2);
+    raw[19] = rho * (cs2 + u2) * (v2 - w2);
+    raw[20] = rho * v * w * (cs2 + u2);
+    raw[21] = rho * u * w * (cs2 + v2);
+    raw[22] = rho * u * v * (cs2 + w2);
+    raw[23] = rho * u * (2.0 * cs2 * (v2 + w2) + cs2 - cs4 + 2.0 * v2 * w2) / 2.0;
+    raw[24] = rho * v * (4.0 * cs2 * (u2 + w2) + cs2 + cs4 + 4.0 * u2 * w2) / 4.0;
+    raw[25] = rho * w * (4.0 * cs2 * (u2 + v2) + cs2 + cs4 + 4.0 * u2 * v2) / 4.0;
+    raw[26] = rho * (cs2 * (2.0 * u2 + v2 + w2) + 4.0 * cs2 * (u2 * v2 + u2 * w2 + v2 * w2) + cs4 * (-2.0 * u2 + v2 + w2) + 4.0 * cs6 + 4.0 * u2 * v2 * w2) / 4.0;
 
     feq[0] = raw[0] + raw[17] - raw[26] - raw[9];
-    feq[1] = -raw[10]/2.0 - raw[17]/4.0 - raw[18]/4.0 + raw[1]/2.0 + raw[23]/2.0 + raw[26]/2.0 + raw[7]/6.0 + raw[8]/6.0 + raw[9]/6.0;
-    feq[2] = raw[10]/2.0 - raw[17]/4.0 - raw[18]/4.0 - raw[1]/2.0 - raw[23]/2.0 + raw[26]/2.0 + raw[7]/6.0 + raw[8]/6.0 + raw[9]/6.0;
-    feq[3] = -raw[11]/2.0 - 3.0*raw[17]/8.0 + raw[18]/8.0 - raw[19]/4.0 + raw[24]/2.0 + raw[26]/2.0 + raw[2]/2.0 - raw[7]/3.0 + raw[8]/6.0 + raw[9]/6.0;
-    feq[4] = raw[11]/2.0 - 3.0*raw[17]/8.0 + raw[18]/8.0 - raw[19]/4.0 - raw[24]/2.0 + raw[26]/2.0 - raw[2]/2.0 - raw[7]/3.0 + raw[8]/6.0 + raw[9]/6.0;
-    feq[5] = -raw[12]/2.0 - 3.0*raw[17]/8.0 + raw[18]/8.0 + raw[19]/4.0 + raw[25]/2.0 + raw[26]/2.0 + raw[3]/2.0 + raw[7]/6.0 - raw[8]/3.0 + raw[9]/6.0;
-    feq[6] = raw[12]/2.0 - 3.0*raw[17]/8.0 + raw[18]/8.0 + raw[19]/4.0 - raw[25]/2.0 + raw[26]/2.0 - raw[3]/2.0 + raw[7]/6.0 - raw[8]/3.0 + raw[9]/6.0;
-    feq[7] = raw[10]/8.0 + raw[11]/8.0 + raw[13]/8.0 + raw[14]/8.0 + raw[17]/16.0 + raw[18]/16.0 + raw[19]/8.0 - raw[22]/4.0 - raw[23]/4.0 - raw[24]/4.0 - raw[26]/4.0 + raw[4]/4.0;
-    feq[8] = -raw[10]/8.0 + raw[11]/8.0 - raw[13]/8.0 + raw[14]/8.0 + raw[17]/16.0 + raw[18]/16.0 + raw[19]/8.0 + raw[22]/4.0 + raw[23]/4.0 - raw[24]/4.0 - raw[26]/4.0 - raw[4]/4.0;
-    feq[9] = raw[10]/8.0 - raw[11]/8.0 + raw[13]/8.0 - raw[14]/8.0 + raw[17]/16.0 + raw[18]/16.0 + raw[19]/8.0 + raw[22]/4.0 - raw[23]/4.0 + raw[24]/4.0 - raw[26]/4.0 - raw[4]/4.0;
-    feq[10] = -raw[10]/8.0 - raw[11]/8.0 - raw[13]/8.0 - raw[14]/8.0 + raw[17]/16.0 + raw[18]/16.0 + raw[19]/8.0 - raw[22]/4.0 + raw[23]/4.0 + raw[24]/4.0 - raw[26]/4.0 + raw[4]/4.0;
-    feq[11] = raw[10]/8.0 + raw[12]/8.0 - raw[13]/8.0 + raw[15]/8.0 + raw[17]/16.0 + raw[18]/16.0 - raw[19]/8.0 - raw[21]/4.0 - raw[23]/4.0 - raw[25]/4.0 - raw[26]/4.0 + raw[5]/4.0;
-    feq[12] = -raw[10]/8.0 + raw[12]/8.0 + raw[13]/8.0 + raw[15]/8.0 + raw[17]/16.0 + raw[18]/16.0 - raw[19]/8.0 + raw[21]/4.0 + raw[23]/4.0 - raw[25]/4.0 - raw[26]/4.0 - raw[5]/4.0;
-    feq[13] = raw[10]/8.0 - raw[12]/8.0 - raw[13]/8.0 - raw[15]/8.0 + raw[17]/16.0 + raw[18]/16.0 - raw[19]/8.0 + raw[21]/4.0 - raw[23]/4.0 + raw[25]/4.0 - raw[26]/4.0 - raw[5]/4.0;
-    feq[14] = -raw[10]/8.0 - raw[12]/8.0 + raw[13]/8.0 - raw[15]/8.0 + raw[17]/16.0 + raw[18]/16.0 - raw[19]/8.0 - raw[21]/4.0 + raw[23]/4.0 + raw[25]/4.0 - raw[26]/4.0 + raw[5]/4.0;
-    feq[15] = raw[11]/8.0 + raw[12]/8.0 - raw[14]/8.0 - raw[15]/8.0 + raw[17]/8.0 - raw[18]/8.0 - raw[20]/4.0 - raw[24]/4.0 - raw[25]/4.0 - raw[26]/4.0 + raw[6]/4.0;
-    feq[16] = -raw[11]/8.0 + raw[12]/8.0 + raw[14]/8.0 - raw[15]/8.0 + raw[17]/8.0 - raw[18]/8.0 + raw[20]/4.0 + raw[24]/4.0 - raw[25]/4.0 - raw[26]/4.0 - raw[6]/4.0;
-    feq[17] = raw[11]/8.0 - raw[12]/8.0 - raw[14]/8.0 + raw[15]/8.0 + raw[17]/8.0 - raw[18]/8.0 + raw[20]/4.0 - raw[24]/4.0 + raw[25]/4.0 - raw[26]/4.0 - raw[6]/4.0;
-    feq[18] = -raw[11]/8.0 - raw[12]/8.0 + raw[14]/8.0 + raw[15]/8.0 + raw[17]/8.0 - raw[18]/8.0 - raw[20]/4.0 + raw[24]/4.0 + raw[25]/4.0 - raw[26]/4.0 + raw[6]/4.0;
-    feq[19] = raw[16]/8.0 + raw[20]/8.0 + raw[21]/8.0 + raw[22]/8.0 + raw[23]/8.0 + raw[24]/8.0 + raw[25]/8.0 + raw[26]/8.0;
-    feq[20] = -raw[16]/8.0 + raw[20]/8.0 - raw[21]/8.0 - raw[22]/8.0 - raw[23]/8.0 + raw[24]/8.0 + raw[25]/8.0 + raw[26]/8.0;
-    feq[21] = -raw[16]/8.0 - raw[20]/8.0 + raw[21]/8.0 - raw[22]/8.0 + raw[23]/8.0 - raw[24]/8.0 + raw[25]/8.0 + raw[26]/8.0;
-    feq[22] = raw[16]/8.0 - raw[20]/8.0 - raw[21]/8.0 + raw[22]/8.0 - raw[23]/8.0 - raw[24]/8.0 + raw[25]/8.0 + raw[26]/8.0;
-    feq[23] = -raw[16]/8.0 - raw[20]/8.0 - raw[21]/8.0 + raw[22]/8.0 + raw[23]/8.0 + raw[24]/8.0 - raw[25]/8.0 + raw[26]/8.0;
-    feq[24] = raw[16]/8.0 - raw[20]/8.0 + raw[21]/8.0 - raw[22]/8.0 - raw[23]/8.0 + raw[24]/8.0 - raw[25]/8.0 + raw[26]/8.0;
-    feq[25] = raw[16]/8.0 + raw[20]/8.0 - raw[21]/8.0 - raw[22]/8.0 + raw[23]/8.0 - raw[24]/8.0 - raw[25]/8.0 + raw[26]/8.0;
-    feq[26] = -raw[16]/8.0 + raw[20]/8.0 + raw[21]/8.0 + raw[22]/8.0 - raw[23]/8.0 - raw[24]/8.0 - raw[25]/8.0 + raw[26]/8.0;
+    feq[1] = -raw[10] / 2.0 - raw[17] / 4.0 - raw[18] / 4.0 + raw[1] / 2.0 + raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
+    feq[2] = raw[10] / 2.0 - raw[17] / 4.0 - raw[18] / 4.0 - raw[1] / 2.0 - raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
+    feq[3] = -raw[11] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 - raw[19] / 4.0 + raw[24] / 2.0 + raw[26] / 2.0 + raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
+    feq[4] = raw[11] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 - raw[19] / 4.0 - raw[24] / 2.0 + raw[26] / 2.0 - raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
+    feq[5] = -raw[12] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 + raw[19] / 4.0 + raw[25] / 2.0 + raw[26] / 2.0 + raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
+    feq[6] = raw[12] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 + raw[19] / 4.0 - raw[25] / 2.0 + raw[26] / 2.0 - raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
+    feq[7] = raw[10] / 8.0 + raw[11] / 8.0 + raw[13] / 8.0 + raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 - raw[22] / 4.0 - raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
+    feq[8] = -raw[10] / 8.0 + raw[11] / 8.0 - raw[13] / 8.0 + raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 + raw[22] / 4.0 + raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
+    feq[9] = raw[10] / 8.0 - raw[11] / 8.0 + raw[13] / 8.0 - raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 + raw[22] / 4.0 - raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
+    feq[10] = -raw[10] / 8.0 - raw[11] / 8.0 - raw[13] / 8.0 - raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 - raw[22] / 4.0 + raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
+    feq[11] = raw[10] / 8.0 + raw[12] / 8.0 - raw[13] / 8.0 + raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 - raw[21] / 4.0 - raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
+    feq[12] = -raw[10] / 8.0 + raw[12] / 8.0 + raw[13] / 8.0 + raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 + raw[21] / 4.0 + raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
+    feq[13] = raw[10] / 8.0 - raw[12] / 8.0 - raw[13] / 8.0 - raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 + raw[21] / 4.0 - raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
+    feq[14] = -raw[10] / 8.0 - raw[12] / 8.0 + raw[13] / 8.0 - raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 - raw[21] / 4.0 + raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
+    feq[15] = raw[11] / 8.0 + raw[12] / 8.0 - raw[14] / 8.0 - raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 - raw[20] / 4.0 - raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
+    feq[16] = -raw[11] / 8.0 + raw[12] / 8.0 + raw[14] / 8.0 - raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 + raw[20] / 4.0 + raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
+    feq[17] = raw[11] / 8.0 - raw[12] / 8.0 - raw[14] / 8.0 + raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 + raw[20] / 4.0 - raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
+    feq[18] = -raw[11] / 8.0 - raw[12] / 8.0 + raw[14] / 8.0 + raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 - raw[20] / 4.0 + raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
+    feq[19] = raw[16] / 8.0 + raw[20] / 8.0 + raw[21] / 8.0 + raw[22] / 8.0 + raw[23] / 8.0 + raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
+    feq[20] = -raw[16] / 8.0 + raw[20] / 8.0 - raw[21] / 8.0 - raw[22] / 8.0 - raw[23] / 8.0 + raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
+    feq[21] = -raw[16] / 8.0 - raw[20] / 8.0 + raw[21] / 8.0 - raw[22] / 8.0 + raw[23] / 8.0 - raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
+    feq[22] = raw[16] / 8.0 - raw[20] / 8.0 - raw[21] / 8.0 + raw[22] / 8.0 - raw[23] / 8.0 - raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
+    feq[23] = -raw[16] / 8.0 - raw[20] / 8.0 - raw[21] / 8.0 + raw[22] / 8.0 + raw[23] / 8.0 + raw[24] / 8.0 - raw[25] / 8.0 + raw[26] / 8.0;
+    feq[24] = raw[16] / 8.0 - raw[20] / 8.0 + raw[21] / 8.0 - raw[22] / 8.0 - raw[23] / 8.0 + raw[24] / 8.0 - raw[25] / 8.0 + raw[26] / 8.0;
+    feq[25] = raw[16] / 8.0 + raw[20] / 8.0 - raw[21] / 8.0 - raw[22] / 8.0 + raw[23] / 8.0 - raw[24] / 8.0 - raw[25] / 8.0 + raw[26] / 8.0;
+    feq[26] = -raw[16] / 8.0 + raw[20] / 8.0 + raw[21] / 8.0 + raw[22] / 8.0 - raw[23] / 8.0 - raw[24] / 8.0 - raw[25] / 8.0 + raw[26] / 8.0;
 }
 
 void evaluate_color_gradients(SimulationBag *sim)
@@ -256,7 +256,7 @@ void collide(SimulationBag *sim)
     double Fx_i, Fy_i, Fz_i;
     double k4, k5, k6, k7, k8;
     double cx_bar, cy_bar, cz_bar;
-    double cs2_i, cs4_i, cs8_i;
+    double cs2_i, cs4_i, cs6_i;
     double rho_N_i, omega;
     double f_star, rho_RED_i, rho_BLUE_i;
     double Gc, cos_phi, p_rec;
@@ -325,10 +325,10 @@ void collide(SimulationBag *sim)
         Gy_i = Gy[INDEX_GLOB(i, j, k)];
         Gz_i = Gz[INDEX_GLOB(i, j, k)];
 
-        G2 = G*G;
-        G2x_i = Gx_i*Gx_i;
-        G2y_i = Gy_i*Gy_i;
-        G2z_i = Gz_i*Gz_i;
+        G2 = G * G;
+        G2x_i = Gx_i * Gx_i;
+        G2y_i = Gy_i * Gy_i;
+        G2z_i = Gz_i * Gz_i;
 
         rho_N_i = rho_N[INDEX_GLOB(i, j, k)];
         if (rho_N_i > delta_tau)
@@ -354,33 +354,33 @@ void collide(SimulationBag *sim)
         }
         else
         {
-            k_pert[0] = -3.0*sigma*(G2 - G2x_i - G2y_i - G2z_i)/(8.0*G);
-            k_pert[1] = 3.0*sigma*u_i*(G2 - G2x_i - G2y_i - G2z_i)/(8.0*G);
-            k_pert[2] = 3.0*sigma*v_i*(G2 - G2x_i - G2y_i - G2z_i)/(8.0*G);
-            k_pert[3] = 3.0*sigma*w_i*(G2 - G2x_i - G2y_i - G2z_i)/(8.0*G);
-            k_pert[4] = -sigma*(3.0*G2*u_i*v_i - 3.0*G2x_i*u_i*v_i - 3.0*G2y_i*u_i*v_i - 3.0*G2z_i*u_i*v_i - 2.0*Gx_i*Gy_i)/(8.0*G);
-            k_pert[5] = -sigma*(3.0*G2*u_i*w_i - 3.0*G2x_i*u_i*w_i - 3.0*G2y_i*u_i*w_i - 3.0*G2z_i*u_i*w_i - 2.0*Gx_i*Gz_i)/(8.0*G);
-            k_pert[6] = -sigma*(3.0*G2*v_i*w_i - 3.0*G2x_i*v_i*w_i - 3.0*G2y_i*v_i*w_i - 3.0*G2z_i*v_i*w_i - 2.0*Gy_i*Gz_i)/(8.0*G);
-            k_pert[7] = -sigma*(3.0*G2*u2_i - 3.0*G2*v2_i - 3.0*G2x_i*u2_i + 3.0*G2x_i*v2_i - 2.0*G2x_i - 3.0*G2y_i*u2_i + 3.0*G2y_i*v2_i + 2.0*G2y_i - 3.0*G2z_i*u2_i + 3.0*G2z_i*v2_i)/(8.0*G);
-            k_pert[8] = -sigma*(3.0*G2*u2_i - 3.0*G2*w2_i - 3.0*G2x_i*u2_i + 3.0*G2x_i*w2_i - 2.0*G2x_i - 3.0*G2y_i*u2_i + 3.0*G2y_i*w2_i - 3.0*G2z_i*u2_i + 3.0*G2z_i*w2_i + 2.0*G2z_i)/(8.0*G);
-            k_pert[9] = -sigma*(3.0*G2*u2_i + 3.0*G2*v2_i + 3.0*G2*w2_i + 9.0*G2 - 3.0*G2x_i*u2_i - 3.0*G2x_i*v2_i - 3.0*G2x_i*w2_i - 5.0*G2x_i - 3.0*G2y_i*u2_i - 3.0*G2y_i*v2_i - 3.0*G2y_i*w2_i - 5.0*G2y_i - 3.0*G2z_i*u2_i - 3.0*G2z_i*v2_i - 3.0*G2z_i*w2_i - 5.0*G2z_i)/(8.0*G);
-            k_pert[10] = sigma*(3.0*G2*u_i*v2_i + 3.0*G2*u_i*w2_i + 6.0*G2*u_i - 3.0*G2x_i*u_i*v2_i - 3.0*G2x_i*u_i*w2_i - 2.0*G2x_i*u_i - 3.0*G2y_i*u_i*v2_i - 3.0*G2y_i*u_i*w2_i - 4.0*G2y_i*u_i - 3.0*G2z_i*u_i*v2_i - 3.0*G2z_i*u_i*w2_i - 4.0*G2z_i*u_i - 4.0*Gx_i*Gy_i*v_i - 4.0*Gx_i*Gz_i*w_i)/(8.0*G);
-            k_pert[11] = sigma*(3.0*G2*u2_i*v_i + 3.0*G2*v_i*w2_i + 6.0*G2*v_i - 3.0*G2x_i*u2_i*v_i - 3.0*G2x_i*v_i*w2_i - 4.0*G2x_i*v_i - 3.0*G2y_i*u2_i*v_i - 3.0*G2y_i*v_i*w2_i - 2.0*G2y_i*v_i - 3.0*G2z_i*u2_i*v_i - 3.0*G2z_i*v_i*w2_i - 4.0*G2z_i*v_i - 4.0*Gx_i*Gy_i*u_i - 4.0*Gy_i*Gz_i*w_i)/(8.0*G);
-            k_pert[12] = sigma*(3.0*G2*u2_i*w_i + 3.0*G2*v2_i*w_i + 6.0*G2*w_i - 3.0*G2x_i*u2_i*w_i - 3.0*G2x_i*v2_i*w_i - 4.0*G2x_i*w_i - 3.0*G2y_i*u2_i*w_i - 3.0*G2y_i*v2_i*w_i - 4.0*G2y_i*w_i - 3.0*G2z_i*u2_i*w_i - 3.0*G2z_i*v2_i*w_i - 2.0*G2z_i*w_i - 4.0*Gx_i*Gz_i*u_i - 4.0*Gy_i*Gz_i*v_i)/(8.0*G);
-            k_pert[13] = sigma*(3.0*G2*u_i*v2_i - 3.0*G2*u_i*w2_i - 3.0*G2x_i*u_i*v2_i + 3.0*G2x_i*u_i*w2_i - 3.0*G2y_i*u_i*v2_i + 3.0*G2y_i*u_i*w2_i - 2.0*G2y_i*u_i - 3.0*G2z_i*u_i*v2_i + 3.0*G2z_i*u_i*w2_i + 2.0*G2z_i*u_i - 4.0*Gx_i*Gy_i*v_i + 4.0*Gx_i*Gz_i*w_i)/(8.0*G);
-            k_pert[14] = sigma*(3.0*G2*u2_i*v_i - 3.0*G2*v_i*w2_i - 3.0*G2x_i*u2_i*v_i + 3.0*G2x_i*v_i*w2_i - 2.0*G2x_i*v_i - 3.0*G2y_i*u2_i*v_i + 3.0*G2y_i*v_i*w2_i - 3.0*G2z_i*u2_i*v_i + 3.0*G2z_i*v_i*w2_i + 2.0*G2z_i*v_i - 4.0*Gx_i*Gy_i*u_i + 4.0*Gy_i*Gz_i*w_i)/(8.0*G);
-            k_pert[15] = sigma*(3.0*G2*u2_i*w_i - 3.0*G2*v2_i*w_i - 3.0*G2x_i*u2_i*w_i + 3.0*G2x_i*v2_i*w_i - 2.0*G2x_i*w_i - 3.0*G2y_i*u2_i*w_i + 3.0*G2y_i*v2_i*w_i + 2.0*G2y_i*w_i - 3.0*G2z_i*u2_i*w_i + 3.0*G2z_i*v2_i*w_i - 4.0*Gx_i*Gz_i*u_i + 4.0*Gy_i*Gz_i*v_i)/(8.0*G);
-            k_pert[16] = sigma*(3.0*G2*u_i*v_i*w_i - 3.0*G2x_i*u_i*v_i*w_i - 3.0*G2y_i*u_i*v_i*w_i - 3.0*G2z_i*u_i*v_i*w_i - 2.0*Gx_i*Gy_i*w_i - 2.0*Gx_i*Gz_i*v_i - 2.0*Gy_i*Gz_i*u_i)/(8.0*G);
-            k_pert[17] = -sigma*(9.0*G2*u2_i*v2_i + 9.0*G2*u2_i*w2_i + 18.0*G2*u2_i + 9.0*G2*v2_i*w2_i + 18.0*G2*v2_i + 18.0*G2*w2_i + 15.0*G2 - 9.0*G2x_i*u2_i*v2_i - 9.0*G2x_i*u2_i*w2_i - 6.0*G2x_i*u2_i - 9.0*G2x_i*v2_i*w2_i - 12.0*G2x_i*v2_i - 12.0*G2x_i*w2_i - 7.0*G2x_i - 9.0*G2y_i*u2_i*v2_i - 9.0*G2y_i*u2_i*w2_i - 12.0*G2y_i*u2_i - 9.0*G2y_i*v2_i*w2_i - 6.0*G2y_i*v2_i - 12.0*G2y_i*w2_i - 7.0*G2y_i - 9.0*G2z_i*u2_i*v2_i - 9.0*G2z_i*u2_i*w2_i - 12.0*G2z_i*u2_i - 9.0*G2z_i*v2_i*w2_i - 12.0*G2z_i*v2_i - 6.0*G2z_i*w2_i - 7.0*G2z_i - 24.0*Gx_i*Gy_i*u_i*v_i - 24.0*Gx_i*Gz_i*u_i*w_i - 24.0*Gy_i*Gz_i*v_i*w_i)/(24.0*G);
-            k_pert[18] = -sigma*(9.0*G2*u2_i*v2_i + 9.0*G2*u2_i*w2_i + 18.0*G2*u2_i - 9.0*G2*v2_i*w2_i + 5.0*G2 - 9.0*G2x_i*u2_i*v2_i - 9.0*G2x_i*u2_i*w2_i - 6.0*G2x_i*u2_i + 9.0*G2x_i*v2_i*w2_i - 6.0*G2x_i*v2_i - 6.0*G2x_i*w2_i - 5.0*G2x_i - 9.0*G2y_i*u2_i*v2_i - 9.0*G2y_i*u2_i*w2_i - 12.0*G2y_i*u2_i + 9.0*G2y_i*v2_i*w2_i + 6.0*G2y_i*w2_i - G2y_i - 9.0*G2z_i*u2_i*v2_i - 9.0*G2z_i*u2_i*w2_i - 12.0*G2z_i*u2_i + 9.0*G2z_i*v2_i*w2_i + 6.0*G2z_i*v2_i - G2z_i - 24.0*Gx_i*Gy_i*u_i*v_i - 24.0*Gx_i*Gz_i*u_i*w_i + 24.0*Gy_i*Gz_i*v_i*w_i)/(24.0*G);
-            k_pert[19] = -sigma*(9.0*G2*u2_i*v2_i - 9.0*G2*u2_i*w2_i + 9.0*G2*v2_i - 9.0*G2*w2_i - 9.0*G2x_i*u2_i*v2_i + 9.0*G2x_i*u2_i*w2_i - 9.0*G2x_i*v2_i + 9.0*G2x_i*w2_i - 9.0*G2y_i*u2_i*v2_i + 9.0*G2y_i*u2_i*w2_i - 6.0*G2y_i*u2_i - 3.0*G2y_i*v2_i + 3.0*G2y_i*w2_i - 2.0*G2y_i - 9.0*G2z_i*u2_i*v2_i + 9.0*G2z_i*u2_i*w2_i + 6.0*G2z_i*u2_i - 3.0*G2z_i*v2_i + 3.0*G2z_i*w2_i + 2.0*G2z_i - 24.0*Gx_i*Gy_i*u_i*v_i + 24.0*Gx_i*Gz_i*u_i*w_i)/(24.0*G);
-            k_pert[20] = -sigma*(9.0*G2*u2_i*v_i*w_i + 9.0*G2*v_i*w_i - 9.0*G2x_i*u2_i*v_i*w_i - 9.0*G2x_i*v_i*w_i - 9.0*G2y_i*u2_i*v_i*w_i - 3.0*G2y_i*v_i*w_i - 9.0*G2z_i*u2_i*v_i*w_i - 3.0*G2z_i*v_i*w_i - 12.0*Gx_i*Gy_i*u_i*w_i - 12.0*Gx_i*Gz_i*u_i*v_i - 6.0*Gy_i*Gz_i*u2_i - 2.0*Gy_i*Gz_i)/(24.0*G);
-            k_pert[21] = -sigma*(9.0*G2*u_i*v2_i*w_i + 9.0*G2*u_i*w_i - 9.0*G2x_i*u_i*v2_i*w_i - 3.0*G2x_i*u_i*w_i - 9.0*G2y_i*u_i*v2_i*w_i - 9.0*G2y_i*u_i*w_i - 9.0*G2z_i*u_i*v2_i*w_i - 3.0*G2z_i*u_i*w_i - 12.0*Gx_i*Gy_i*v_i*w_i - 6.0*Gx_i*Gz_i*v2_i - 2.0*Gx_i*Gz_i - 12.0*Gy_i*Gz_i*u_i*v_i)/(24.0*G);
-            k_pert[22] = -sigma*(9.0*G2*u_i*v_i*w2_i + 9.0*G2*u_i*v_i - 9.0*G2x_i*u_i*v_i*w2_i - 3.0*G2x_i*u_i*v_i - 9.0*G2y_i*u_i*v_i*w2_i - 3.0*G2y_i*u_i*v_i - 9.0*G2z_i*u_i*v_i*w2_i - 9.0*G2z_i*u_i*v_i - 6.0*Gx_i*Gy_i*w2_i - 2.0*Gx_i*Gy_i - 12.0*Gx_i*Gz_i*v_i*w_i - 12.0*Gy_i*Gz_i*u_i*w_i)/(24.0*G);
-            k_pert[23] = sigma*(9.0*G2*u_i*v2_i*w2_i + 9.0*G2*u_i*v2_i + 9.0*G2*u_i*w2_i + 5.0*G2*u_i - 9.0*G2x_i*u_i*v2_i*w2_i - 3.0*G2x_i*u_i*v2_i - 3.0*G2x_i*u_i*w2_i - G2x_i*u_i - 9.0*G2y_i*u_i*v2_i*w2_i - 3.0*G2y_i*u_i*v2_i - 9.0*G2y_i*u_i*w2_i - 3.0*G2y_i*u_i - 9.0*G2z_i*u_i*v2_i*w2_i - 9.0*G2z_i*u_i*v2_i - 3.0*G2z_i*u_i*w2_i - 3.0*G2z_i*u_i - 12.0*Gx_i*Gy_i*v_i*w2_i - 4.0*Gx_i*Gy_i*v_i - 12.0*Gx_i*Gz_i*v2_i*w_i - 4.0*Gx_i*Gz_i*w_i - 24.0*Gy_i*Gz_i*u_i*v_i*w_i)/(24.0*G);
-            k_pert[24] = sigma*(9.0*G2*u2_i*v_i*w2_i + 9.0*G2*u2_i*v_i + 9.0*G2*v_i*w2_i + 5.0*G2*v_i - 9.0*G2x_i*u2_i*v_i*w2_i - 3.0*G2x_i*u2_i*v_i - 9.0*G2x_i*v_i*w2_i - 3.0*G2x_i*v_i - 9.0*G2y_i*u2_i*v_i*w2_i - 3.0*G2y_i*u2_i*v_i - 3.0*G2y_i*v_i*w2_i - G2y_i*v_i - 9.0*G2z_i*u2_i*v_i*w2_i - 9.0*G2z_i*u2_i*v_i - 3.0*G2z_i*v_i*w2_i - 3.0*G2z_i*v_i - 12.0*Gx_i*Gy_i*u_i*w2_i - 4.0*Gx_i*Gy_i*u_i - 24.0*Gx_i*Gz_i*u_i*v_i*w_i - 12.0*Gy_i*Gz_i*u2_i*w_i - 4.0*Gy_i*Gz_i*w_i)/(24.0*G);
-            k_pert[25] = sigma*(9.0*G2*u2_i*v2_i*w_i + 9.0*G2*u2_i*w_i + 9.0*G2*v2_i*w_i + 5.0*G2*w_i - 9.0*G2x_i*u2_i*v2_i*w_i - 3.0*G2x_i*u2_i*w_i - 9.0*G2x_i*v2_i*w_i - 3.0*G2x_i*w_i - 9.0*G2y_i*u2_i*v2_i*w_i - 9.0*G2y_i*u2_i*w_i - 3.0*G2y_i*v2_i*w_i - 3.0*G2y_i*w_i - 9.0*G2z_i*u2_i*v2_i*w_i - 3.0*G2z_i*u2_i*w_i - 3.0*G2z_i*v2_i*w_i - G2z_i*w_i - 24.0*Gx_i*Gy_i*u_i*v_i*w_i - 12.0*Gx_i*Gz_i*u_i*v2_i - 4.0*Gx_i*Gz_i*u_i - 12.0*Gy_i*Gz_i*u2_i*v_i - 4.0*Gy_i*Gz_i*v_i)/(24.0*G);
-            k_pert[26] = -sigma*(27.0*G2*u2_i*v2_i*w2_i + 27.0*G2*u2_i*v2_i + 27.0*G2*u2_i*w2_i + 15.0*G2*u2_i + 27.0*G2*v2_i*w2_i + 15.0*G2*v2_i + 15.0*G2*w2_i + 7.0*G2 - 27.0*G2x_i*u2_i*v2_i*w2_i - 9.0*G2x_i*u2_i*v2_i - 9.0*G2x_i*u2_i*w2_i - 3.0*G2x_i*u2_i - 27.0*G2x_i*v2_i*w2_i - 9.0*G2x_i*v2_i - 9.0*G2x_i*w2_i - 3.0*G2x_i - 27.0*G2y_i*u2_i*v2_i*w2_i - 9.0*G2y_i*u2_i*v2_i - 27.0*G2y_i*u2_i*w2_i - 9.0*G2y_i*u2_i - 9.0*G2y_i*v2_i*w2_i - 3.0*G2y_i*v2_i - 9.0*G2y_i*w2_i - 3.0*G2y_i - 27.0*G2z_i*u2_i*v2_i*w2_i - 27.0*G2z_i*u2_i*v2_i - 9.0*G2z_i*u2_i*w2_i - 9.0*G2z_i*u2_i - 9.0*G2z_i*v2_i*w2_i - 9.0*G2z_i*v2_i - 3.0*G2z_i*w2_i - 3.0*G2z_i - 72.0*Gx_i*Gy_i*u_i*v_i*w2_i - 24.0*Gx_i*Gy_i*u_i*v_i - 72.0*Gx_i*Gz_i*u_i*v2_i*w_i - 24.0*Gx_i*Gz_i*u_i*w_i - 72.0*Gy_i*Gz_i*u2_i*v_i*w_i - 24.0*Gy_i*Gz_i*v_i*w_i)/(72.0*G);
+            k_pert[0] = -3.0 * sigma * (G2 - G2x_i - G2y_i - G2z_i) / (8.0 * G);
+            k_pert[1] = 3.0 * sigma * u_i * (G2 - G2x_i - G2y_i - G2z_i) / (8.0 * G);
+            k_pert[2] = 3.0 * sigma * v_i * (G2 - G2x_i - G2y_i - G2z_i) / (8.0 * G);
+            k_pert[3] = 3.0 * sigma * w_i * (G2 - G2x_i - G2y_i - G2z_i) / (8.0 * G);
+            k_pert[4] = -sigma * (3.0 * G2 * u_i * v_i - 3.0 * G2x_i * u_i * v_i - 3.0 * G2y_i * u_i * v_i - 3.0 * G2z_i * u_i * v_i - 2.0 * Gx_i * Gy_i) / (8.0 * G);
+            k_pert[5] = -sigma * (3.0 * G2 * u_i * w_i - 3.0 * G2x_i * u_i * w_i - 3.0 * G2y_i * u_i * w_i - 3.0 * G2z_i * u_i * w_i - 2.0 * Gx_i * Gz_i) / (8.0 * G);
+            k_pert[6] = -sigma * (3.0 * G2 * v_i * w_i - 3.0 * G2x_i * v_i * w_i - 3.0 * G2y_i * v_i * w_i - 3.0 * G2z_i * v_i * w_i - 2.0 * Gy_i * Gz_i) / (8.0 * G);
+            k_pert[7] = -sigma * (3.0 * G2 * u2_i - 3.0 * G2 * v2_i - 3.0 * G2x_i * u2_i + 3.0 * G2x_i * v2_i - 2.0 * G2x_i - 3.0 * G2y_i * u2_i + 3.0 * G2y_i * v2_i + 2.0 * G2y_i - 3.0 * G2z_i * u2_i + 3.0 * G2z_i * v2_i) / (8.0 * G);
+            k_pert[8] = -sigma * (3.0 * G2 * u2_i - 3.0 * G2 * w2_i - 3.0 * G2x_i * u2_i + 3.0 * G2x_i * w2_i - 2.0 * G2x_i - 3.0 * G2y_i * u2_i + 3.0 * G2y_i * w2_i - 3.0 * G2z_i * u2_i + 3.0 * G2z_i * w2_i + 2.0 * G2z_i) / (8.0 * G);
+            k_pert[9] = -sigma * (3.0 * G2 * u2_i + 3.0 * G2 * v2_i + 3.0 * G2 * w2_i + 9.0 * G2 - 3.0 * G2x_i * u2_i - 3.0 * G2x_i * v2_i - 3.0 * G2x_i * w2_i - 5.0 * G2x_i - 3.0 * G2y_i * u2_i - 3.0 * G2y_i * v2_i - 3.0 * G2y_i * w2_i - 5.0 * G2y_i - 3.0 * G2z_i * u2_i - 3.0 * G2z_i * v2_i - 3.0 * G2z_i * w2_i - 5.0 * G2z_i) / (8.0 * G);
+            k_pert[10] = sigma * (3.0 * G2 * u_i * v2_i + 3.0 * G2 * u_i * w2_i + 6.0 * G2 * u_i - 3.0 * G2x_i * u_i * v2_i - 3.0 * G2x_i * u_i * w2_i - 2.0 * G2x_i * u_i - 3.0 * G2y_i * u_i * v2_i - 3.0 * G2y_i * u_i * w2_i - 4.0 * G2y_i * u_i - 3.0 * G2z_i * u_i * v2_i - 3.0 * G2z_i * u_i * w2_i - 4.0 * G2z_i * u_i - 4.0 * Gx_i * Gy_i * v_i - 4.0 * Gx_i * Gz_i * w_i) / (8.0 * G);
+            k_pert[11] = sigma * (3.0 * G2 * u2_i * v_i + 3.0 * G2 * v_i * w2_i + 6.0 * G2 * v_i - 3.0 * G2x_i * u2_i * v_i - 3.0 * G2x_i * v_i * w2_i - 4.0 * G2x_i * v_i - 3.0 * G2y_i * u2_i * v_i - 3.0 * G2y_i * v_i * w2_i - 2.0 * G2y_i * v_i - 3.0 * G2z_i * u2_i * v_i - 3.0 * G2z_i * v_i * w2_i - 4.0 * G2z_i * v_i - 4.0 * Gx_i * Gy_i * u_i - 4.0 * Gy_i * Gz_i * w_i) / (8.0 * G);
+            k_pert[12] = sigma * (3.0 * G2 * u2_i * w_i + 3.0 * G2 * v2_i * w_i + 6.0 * G2 * w_i - 3.0 * G2x_i * u2_i * w_i - 3.0 * G2x_i * v2_i * w_i - 4.0 * G2x_i * w_i - 3.0 * G2y_i * u2_i * w_i - 3.0 * G2y_i * v2_i * w_i - 4.0 * G2y_i * w_i - 3.0 * G2z_i * u2_i * w_i - 3.0 * G2z_i * v2_i * w_i - 2.0 * G2z_i * w_i - 4.0 * Gx_i * Gz_i * u_i - 4.0 * Gy_i * Gz_i * v_i) / (8.0 * G);
+            k_pert[13] = sigma * (3.0 * G2 * u_i * v2_i - 3.0 * G2 * u_i * w2_i - 3.0 * G2x_i * u_i * v2_i + 3.0 * G2x_i * u_i * w2_i - 3.0 * G2y_i * u_i * v2_i + 3.0 * G2y_i * u_i * w2_i - 2.0 * G2y_i * u_i - 3.0 * G2z_i * u_i * v2_i + 3.0 * G2z_i * u_i * w2_i + 2.0 * G2z_i * u_i - 4.0 * Gx_i * Gy_i * v_i + 4.0 * Gx_i * Gz_i * w_i) / (8.0 * G);
+            k_pert[14] = sigma * (3.0 * G2 * u2_i * v_i - 3.0 * G2 * v_i * w2_i - 3.0 * G2x_i * u2_i * v_i + 3.0 * G2x_i * v_i * w2_i - 2.0 * G2x_i * v_i - 3.0 * G2y_i * u2_i * v_i + 3.0 * G2y_i * v_i * w2_i - 3.0 * G2z_i * u2_i * v_i + 3.0 * G2z_i * v_i * w2_i + 2.0 * G2z_i * v_i - 4.0 * Gx_i * Gy_i * u_i + 4.0 * Gy_i * Gz_i * w_i) / (8.0 * G);
+            k_pert[15] = sigma * (3.0 * G2 * u2_i * w_i - 3.0 * G2 * v2_i * w_i - 3.0 * G2x_i * u2_i * w_i + 3.0 * G2x_i * v2_i * w_i - 2.0 * G2x_i * w_i - 3.0 * G2y_i * u2_i * w_i + 3.0 * G2y_i * v2_i * w_i + 2.0 * G2y_i * w_i - 3.0 * G2z_i * u2_i * w_i + 3.0 * G2z_i * v2_i * w_i - 4.0 * Gx_i * Gz_i * u_i + 4.0 * Gy_i * Gz_i * v_i) / (8.0 * G);
+            k_pert[16] = sigma * (3.0 * G2 * u_i * v_i * w_i - 3.0 * G2x_i * u_i * v_i * w_i - 3.0 * G2y_i * u_i * v_i * w_i - 3.0 * G2z_i * u_i * v_i * w_i - 2.0 * Gx_i * Gy_i * w_i - 2.0 * Gx_i * Gz_i * v_i - 2.0 * Gy_i * Gz_i * u_i) / (8.0 * G);
+            k_pert[17] = -sigma * (9.0 * G2 * u2_i * v2_i + 9.0 * G2 * u2_i * w2_i + 18.0 * G2 * u2_i + 9.0 * G2 * v2_i * w2_i + 18.0 * G2 * v2_i + 18.0 * G2 * w2_i + 15.0 * G2 - 9.0 * G2x_i * u2_i * v2_i - 9.0 * G2x_i * u2_i * w2_i - 6.0 * G2x_i * u2_i - 9.0 * G2x_i * v2_i * w2_i - 12.0 * G2x_i * v2_i - 12.0 * G2x_i * w2_i - 7.0 * G2x_i - 9.0 * G2y_i * u2_i * v2_i - 9.0 * G2y_i * u2_i * w2_i - 12.0 * G2y_i * u2_i - 9.0 * G2y_i * v2_i * w2_i - 6.0 * G2y_i * v2_i - 12.0 * G2y_i * w2_i - 7.0 * G2y_i - 9.0 * G2z_i * u2_i * v2_i - 9.0 * G2z_i * u2_i * w2_i - 12.0 * G2z_i * u2_i - 9.0 * G2z_i * v2_i * w2_i - 12.0 * G2z_i * v2_i - 6.0 * G2z_i * w2_i - 7.0 * G2z_i - 24.0 * Gx_i * Gy_i * u_i * v_i - 24.0 * Gx_i * Gz_i * u_i * w_i - 24.0 * Gy_i * Gz_i * v_i * w_i) / (24.0 * G);
+            k_pert[18] = -sigma * (9.0 * G2 * u2_i * v2_i + 9.0 * G2 * u2_i * w2_i + 18.0 * G2 * u2_i - 9.0 * G2 * v2_i * w2_i + 5.0 * G2 - 9.0 * G2x_i * u2_i * v2_i - 9.0 * G2x_i * u2_i * w2_i - 6.0 * G2x_i * u2_i + 9.0 * G2x_i * v2_i * w2_i - 6.0 * G2x_i * v2_i - 6.0 * G2x_i * w2_i - 5.0 * G2x_i - 9.0 * G2y_i * u2_i * v2_i - 9.0 * G2y_i * u2_i * w2_i - 12.0 * G2y_i * u2_i + 9.0 * G2y_i * v2_i * w2_i + 6.0 * G2y_i * w2_i - G2y_i - 9.0 * G2z_i * u2_i * v2_i - 9.0 * G2z_i * u2_i * w2_i - 12.0 * G2z_i * u2_i + 9.0 * G2z_i * v2_i * w2_i + 6.0 * G2z_i * v2_i - G2z_i - 24.0 * Gx_i * Gy_i * u_i * v_i - 24.0 * Gx_i * Gz_i * u_i * w_i + 24.0 * Gy_i * Gz_i * v_i * w_i) / (24.0 * G);
+            k_pert[19] = -sigma * (9.0 * G2 * u2_i * v2_i - 9.0 * G2 * u2_i * w2_i + 9.0 * G2 * v2_i - 9.0 * G2 * w2_i - 9.0 * G2x_i * u2_i * v2_i + 9.0 * G2x_i * u2_i * w2_i - 9.0 * G2x_i * v2_i + 9.0 * G2x_i * w2_i - 9.0 * G2y_i * u2_i * v2_i + 9.0 * G2y_i * u2_i * w2_i - 6.0 * G2y_i * u2_i - 3.0 * G2y_i * v2_i + 3.0 * G2y_i * w2_i - 2.0 * G2y_i - 9.0 * G2z_i * u2_i * v2_i + 9.0 * G2z_i * u2_i * w2_i + 6.0 * G2z_i * u2_i - 3.0 * G2z_i * v2_i + 3.0 * G2z_i * w2_i + 2.0 * G2z_i - 24.0 * Gx_i * Gy_i * u_i * v_i + 24.0 * Gx_i * Gz_i * u_i * w_i) / (24.0 * G);
+            k_pert[20] = -sigma * (9.0 * G2 * u2_i * v_i * w_i + 9.0 * G2 * v_i * w_i - 9.0 * G2x_i * u2_i * v_i * w_i - 9.0 * G2x_i * v_i * w_i - 9.0 * G2y_i * u2_i * v_i * w_i - 3.0 * G2y_i * v_i * w_i - 9.0 * G2z_i * u2_i * v_i * w_i - 3.0 * G2z_i * v_i * w_i - 12.0 * Gx_i * Gy_i * u_i * w_i - 12.0 * Gx_i * Gz_i * u_i * v_i - 6.0 * Gy_i * Gz_i * u2_i - 2.0 * Gy_i * Gz_i) / (24.0 * G);
+            k_pert[21] = -sigma * (9.0 * G2 * u_i * v2_i * w_i + 9.0 * G2 * u_i * w_i - 9.0 * G2x_i * u_i * v2_i * w_i - 3.0 * G2x_i * u_i * w_i - 9.0 * G2y_i * u_i * v2_i * w_i - 9.0 * G2y_i * u_i * w_i - 9.0 * G2z_i * u_i * v2_i * w_i - 3.0 * G2z_i * u_i * w_i - 12.0 * Gx_i * Gy_i * v_i * w_i - 6.0 * Gx_i * Gz_i * v2_i - 2.0 * Gx_i * Gz_i - 12.0 * Gy_i * Gz_i * u_i * v_i) / (24.0 * G);
+            k_pert[22] = -sigma * (9.0 * G2 * u_i * v_i * w2_i + 9.0 * G2 * u_i * v_i - 9.0 * G2x_i * u_i * v_i * w2_i - 3.0 * G2x_i * u_i * v_i - 9.0 * G2y_i * u_i * v_i * w2_i - 3.0 * G2y_i * u_i * v_i - 9.0 * G2z_i * u_i * v_i * w2_i - 9.0 * G2z_i * u_i * v_i - 6.0 * Gx_i * Gy_i * w2_i - 2.0 * Gx_i * Gy_i - 12.0 * Gx_i * Gz_i * v_i * w_i - 12.0 * Gy_i * Gz_i * u_i * w_i) / (24.0 * G);
+            k_pert[23] = sigma * (9.0 * G2 * u_i * v2_i * w2_i + 9.0 * G2 * u_i * v2_i + 9.0 * G2 * u_i * w2_i + 5.0 * G2 * u_i - 9.0 * G2x_i * u_i * v2_i * w2_i - 3.0 * G2x_i * u_i * v2_i - 3.0 * G2x_i * u_i * w2_i - G2x_i * u_i - 9.0 * G2y_i * u_i * v2_i * w2_i - 3.0 * G2y_i * u_i * v2_i - 9.0 * G2y_i * u_i * w2_i - 3.0 * G2y_i * u_i - 9.0 * G2z_i * u_i * v2_i * w2_i - 9.0 * G2z_i * u_i * v2_i - 3.0 * G2z_i * u_i * w2_i - 3.0 * G2z_i * u_i - 12.0 * Gx_i * Gy_i * v_i * w2_i - 4.0 * Gx_i * Gy_i * v_i - 12.0 * Gx_i * Gz_i * v2_i * w_i - 4.0 * Gx_i * Gz_i * w_i - 24.0 * Gy_i * Gz_i * u_i * v_i * w_i) / (24.0 * G);
+            k_pert[24] = sigma * (9.0 * G2 * u2_i * v_i * w2_i + 9.0 * G2 * u2_i * v_i + 9.0 * G2 * v_i * w2_i + 5.0 * G2 * v_i - 9.0 * G2x_i * u2_i * v_i * w2_i - 3.0 * G2x_i * u2_i * v_i - 9.0 * G2x_i * v_i * w2_i - 3.0 * G2x_i * v_i - 9.0 * G2y_i * u2_i * v_i * w2_i - 3.0 * G2y_i * u2_i * v_i - 3.0 * G2y_i * v_i * w2_i - G2y_i * v_i - 9.0 * G2z_i * u2_i * v_i * w2_i - 9.0 * G2z_i * u2_i * v_i - 3.0 * G2z_i * v_i * w2_i - 3.0 * G2z_i * v_i - 12.0 * Gx_i * Gy_i * u_i * w2_i - 4.0 * Gx_i * Gy_i * u_i - 24.0 * Gx_i * Gz_i * u_i * v_i * w_i - 12.0 * Gy_i * Gz_i * u2_i * w_i - 4.0 * Gy_i * Gz_i * w_i) / (24.0 * G);
+            k_pert[25] = sigma * (9.0 * G2 * u2_i * v2_i * w_i + 9.0 * G2 * u2_i * w_i + 9.0 * G2 * v2_i * w_i + 5.0 * G2 * w_i - 9.0 * G2x_i * u2_i * v2_i * w_i - 3.0 * G2x_i * u2_i * w_i - 9.0 * G2x_i * v2_i * w_i - 3.0 * G2x_i * w_i - 9.0 * G2y_i * u2_i * v2_i * w_i - 9.0 * G2y_i * u2_i * w_i - 3.0 * G2y_i * v2_i * w_i - 3.0 * G2y_i * w_i - 9.0 * G2z_i * u2_i * v2_i * w_i - 3.0 * G2z_i * u2_i * w_i - 3.0 * G2z_i * v2_i * w_i - G2z_i * w_i - 24.0 * Gx_i * Gy_i * u_i * v_i * w_i - 12.0 * Gx_i * Gz_i * u_i * v2_i - 4.0 * Gx_i * Gz_i * u_i - 12.0 * Gy_i * Gz_i * u2_i * v_i - 4.0 * Gy_i * Gz_i * v_i) / (24.0 * G);
+            k_pert[26] = -sigma * (27.0 * G2 * u2_i * v2_i * w2_i + 27.0 * G2 * u2_i * v2_i + 27.0 * G2 * u2_i * w2_i + 15.0 * G2 * u2_i + 27.0 * G2 * v2_i * w2_i + 15.0 * G2 * v2_i + 15.0 * G2 * w2_i + 7.0 * G2 - 27.0 * G2x_i * u2_i * v2_i * w2_i - 9.0 * G2x_i * u2_i * v2_i - 9.0 * G2x_i * u2_i * w2_i - 3.0 * G2x_i * u2_i - 27.0 * G2x_i * v2_i * w2_i - 9.0 * G2x_i * v2_i - 9.0 * G2x_i * w2_i - 3.0 * G2x_i - 27.0 * G2y_i * u2_i * v2_i * w2_i - 9.0 * G2y_i * u2_i * v2_i - 27.0 * G2y_i * u2_i * w2_i - 9.0 * G2y_i * u2_i - 9.0 * G2y_i * v2_i * w2_i - 3.0 * G2y_i * v2_i - 9.0 * G2y_i * w2_i - 3.0 * G2y_i - 27.0 * G2z_i * u2_i * v2_i * w2_i - 27.0 * G2z_i * u2_i * v2_i - 9.0 * G2z_i * u2_i * w2_i - 9.0 * G2z_i * u2_i - 9.0 * G2z_i * v2_i * w2_i - 9.0 * G2z_i * v2_i - 3.0 * G2z_i * w2_i - 3.0 * G2z_i - 72.0 * Gx_i * Gy_i * u_i * v_i * w2_i - 24.0 * Gx_i * Gy_i * u_i * v_i - 72.0 * Gx_i * Gz_i * u_i * v2_i * w_i - 24.0 * Gx_i * Gz_i * u_i * w_i - 72.0 * Gy_i * Gz_i * u2_i * v_i * w_i - 24.0 * Gy_i * Gz_i * v_i * w_i) / (72.0 * G);
         }
 
         for (int n = 0; n < NCOMP; n++)
@@ -393,7 +393,7 @@ void collide(SimulationBag *sim)
 
             cs2_i = cs2[n];
             cs4_i = cs2_i * cs2_i;
-            cs8_i = cs4_i * cs4_i;
+            cs6_i = cs2_i * cs4_i;
 
             k4 = 0.0;
             k5 = 0.0;
@@ -440,7 +440,7 @@ void collide(SimulationBag *sim)
             k_star[23] = Fx_i * cs4_i / 2.0 + k_pert[23];
             k_star[24] = Fy_i * cs4_i / 2.0 + k_pert[24];
             k_star[25] = Fz_i * cs4_i / 2.0 + k_pert[25];
-            k_star[26] = cs8_i * rho_i + k_pert[26];
+            k_star[26] = cs6_i * rho_i + k_pert[26];
 
             raw[0] = k_star[0];
             raw[1] = k_star[0] * u_i + k_star[1];
@@ -536,34 +536,34 @@ void collide(SimulationBag *sim)
 
 void compute_stationary_equilibrium(double rho, double cs2, double *feq)
 {
-    double cs4 = cs2*cs2;
-    double cs8 = cs4*cs4;
+    double cs4 = cs2 * cs2;
+    double cs6 = cs2 * cs4;
 
-    feq[0] = -cs8*rho - 2.0*cs2*rho + rho;
-    feq[1] = cs8*rho/2.0 - cs4*rho/4.0 + cs2*rho/4.0;
-    feq[2] = cs8*rho/2.0 - cs4*rho/4.0 + cs2*rho/4.0;
-    feq[3] = cs8*rho/2.0 + cs4*rho/8.0 + cs2*rho/8.0;
-    feq[4] = cs8*rho/2.0 + cs4*rho/8.0 + cs2*rho/8.0;
-    feq[5] = cs8*rho/2.0 + cs4*rho/8.0 + cs2*rho/8.0;
-    feq[6] = cs8*rho/2.0 + cs4*rho/8.0 + cs2*rho/8.0;
-    feq[7] = -cs8*rho/4.0 + cs4*rho/16.0 + cs2*rho/16.0;
-    feq[8] = -cs8*rho/4.0 + cs4*rho/16.0 + cs2*rho/16.0;
-    feq[9] = -cs8*rho/4.0 + cs4*rho/16.0 + cs2*rho/16.0;
-    feq[10] = -cs8*rho/4.0 + cs4*rho/16.0 + cs2*rho/16.0;
-    feq[11] = -cs8*rho/4.0 + cs4*rho/16.0 + cs2*rho/16.0;
-    feq[12] = -cs8*rho/4.0 + cs4*rho/16.0 + cs2*rho/16.0;
-    feq[13] = -cs8*rho/4.0 + cs4*rho/16.0 + cs2*rho/16.0;
-    feq[14] = -cs8*rho/4.0 + cs4*rho/16.0 + cs2*rho/16.0;
-    feq[15] = -cs8*rho/4.0 - cs4*rho/8.0 + cs2*rho/8.0;
-    feq[16] = -cs8*rho/4.0 - cs4*rho/8.0 + cs2*rho/8.0;
-    feq[17] = -cs8*rho/4.0 - cs4*rho/8.0 + cs2*rho/8.0;
-    feq[18] = -cs8*rho/4.0 - cs4*rho/8.0 + cs2*rho/8.0;
-    feq[19] = cs8*rho/8.0;
-    feq[20] = cs8*rho/8.0;
-    feq[21] = cs8*rho/8.0;
-    feq[22] = cs8*rho/8.0;
-    feq[23] = cs8*rho/8.0;
-    feq[24] = cs8*rho/8.0;
-    feq[25] = cs8*rho/8.0;
-    feq[26] = cs8*rho/8.0;
+    feq[0] = rho * (-2.0 * cs2 - cs6 + 1.0);
+    feq[1] = rho * (cs2 - cs4 + 2.0 * cs6) / 4.0;
+    feq[2] = rho * (cs2 - cs4 + 2.0 * cs6) / 4.0;
+    feq[3] = rho * (cs2 + cs4 + 4.0 * cs6) / 8.0;
+    feq[4] = rho * (cs2 + cs4 + 4.0 * cs6) / 8.0;
+    feq[5] = rho * (cs2 + cs4 + 4.0 * cs6) / 8.0;
+    feq[6] = rho * (cs2 + cs4 + 4.0 * cs6) / 8.0;
+    feq[7] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
+    feq[8] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
+    feq[9] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
+    feq[10] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
+    feq[11] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
+    feq[12] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
+    feq[13] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
+    feq[14] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
+    feq[15] = rho * (cs2 - cs4 - 2.0 * cs6) / 8.0;
+    feq[16] = rho * (cs2 - cs4 - 2.0 * cs6) / 8.0;
+    feq[17] = rho * (cs2 - cs4 - 2.0 * cs6) / 8.0;
+    feq[18] = rho * (cs2 - cs4 - 2.0 * cs6) / 8.0;
+    feq[19] = cs6 * rho / 8.0;
+    feq[20] = cs6 * rho / 8.0;
+    feq[21] = cs6 * rho / 8.0;
+    feq[22] = cs6 * rho / 8.0;
+    feq[23] = cs6 * rho / 8.0;
+    feq[24] = cs6 * rho / 8.0;
+    feq[25] = cs6 * rho / 8.0;
+    feq[26] = cs6 * rho / 8.0;
 }
