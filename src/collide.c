@@ -12,8 +12,6 @@ void compute_equilibrium(double rho, double u, double v, double w, double cs2, d
     double u2 = u * u;
     double v2 = v * v;
     double w2 = w * w;
-    double cs4 = cs2 * cs2;
-    double cs6 = cs2 * cs4;
 
     raw[0] = rho;
     raw[1] = rho * u;
@@ -25,43 +23,42 @@ void compute_equilibrium(double rho, double u, double v, double w, double cs2, d
     raw[7] = rho * (u2 - v2);
     raw[8] = rho * (u2 - w2);
     raw[9] = rho * (3.0 * cs2 + u2 + v2 + w2);
-    raw[10] = rho * u * (2.0 * cs2 + v2 + w2);
-    raw[11] = rho * v * (2.0 * cs2 + u2 + w2);
-    raw[12] = rho * w * (2.0 * cs2 + u2 + v2);
-    raw[13] = rho * u * (v2 - w2);
-    raw[14] = rho * v * (u2 - w2);
-    raw[15] = rho * w * (u2 - v2);
+    raw[10] = rho * u * (cs2 + v2);
+    raw[11] = rho * u * (cs2 + w2);
+    raw[12] = rho * v * (cs2 + w2);
+    raw[13] = rho * v * (cs2 + u2);
+    raw[14] = rho * w * (cs2 + u2);
+    raw[15] = rho * w * (cs2 + v2);
     raw[16] = rho * u * v * w;
-    raw[17] = rho * (2.0 * cs2 * (u2 + v2 + w2) + cs2 + u2 * v2 + u2 * w2 + v2 * w2);
-    raw[18] = rho * (2.0 * cs2 * u2 + cs4 + u2 * v2 + u2 * w2 - v2 * w2);
-    raw[19] = rho * (cs2 + u2) * (v2 - w2);
+    raw[17] = rho * (cs2 * (u2 + v2) + cs2 / 3.0 + u2 * v2);
+    raw[18] = rho * (cs2 * (u2 + w2) + cs2 / 3.0 + u2 * w2);
+    raw[19] = rho * (cs2 * (v2 + w2) + cs2 / 3.0 + v2 * w2);
     raw[20] = rho * v * w * (cs2 + u2);
     raw[21] = rho * u * w * (cs2 + v2);
     raw[22] = rho * u * v * (cs2 + w2);
-    raw[23] = rho * u * (2.0 * cs2 * (v2 + w2) + cs2 - cs4 + 2.0 * v2 * w2) / 2.0;
-    raw[24] = rho * v * (4.0 * cs2 * (u2 + w2) + cs2 + cs4 + 4.0 * u2 * w2) / 4.0;
-    raw[25] = rho * w * (4.0 * cs2 * (u2 + v2) + cs2 + cs4 + 4.0 * u2 * v2) / 4.0;
-    raw[26] = rho * (cs2 * (2.0 * u2 + v2 + w2) + 4.0 * cs2 * (u2 * v2 + u2 * w2 + v2 * w2) + cs4 * (-2.0 * u2 + v2 + w2) + 4.0 * cs6 + 4.0 * u2 * v2 * w2) / 4.0;
+    raw[23] = rho * u * (cs2 * (v2 + w2) + cs2 / 3.0 + v2 * w2);
+    raw[24] = rho * v * (cs2 * (u2 + w2) + cs2 / 3.0 + u2 * w2);
+    raw[25] = rho * w * (cs2 * (u2 + v2) + cs2 / 3.0 + u2 * v2);
 
-    feq[0] = raw[0] + raw[17] - raw[26] - raw[9];
-    feq[1] = -raw[10] / 2.0 - raw[17] / 4.0 - raw[18] / 4.0 + raw[1] / 2.0 + raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
-    feq[2] = raw[10] / 2.0 - raw[17] / 4.0 - raw[18] / 4.0 - raw[1] / 2.0 - raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
-    feq[3] = -raw[11] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 - raw[19] / 4.0 + raw[24] / 2.0 + raw[26] / 2.0 + raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
-    feq[4] = raw[11] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 - raw[19] / 4.0 - raw[24] / 2.0 + raw[26] / 2.0 - raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
-    feq[5] = -raw[12] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 + raw[19] / 4.0 + raw[25] / 2.0 + raw[26] / 2.0 + raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
-    feq[6] = raw[12] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 + raw[19] / 4.0 - raw[25] / 2.0 + raw[26] / 2.0 - raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
-    feq[7] = raw[10] / 8.0 + raw[11] / 8.0 + raw[13] / 8.0 + raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 - raw[22] / 4.0 - raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
-    feq[8] = -raw[10] / 8.0 + raw[11] / 8.0 - raw[13] / 8.0 + raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 + raw[22] / 4.0 + raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
-    feq[9] = raw[10] / 8.0 - raw[11] / 8.0 + raw[13] / 8.0 - raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 + raw[22] / 4.0 - raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
-    feq[10] = -raw[10] / 8.0 - raw[11] / 8.0 - raw[13] / 8.0 - raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 - raw[22] / 4.0 + raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
-    feq[11] = raw[10] / 8.0 + raw[12] / 8.0 - raw[13] / 8.0 + raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 - raw[21] / 4.0 - raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
-    feq[12] = -raw[10] / 8.0 + raw[12] / 8.0 + raw[13] / 8.0 + raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 + raw[21] / 4.0 + raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
-    feq[13] = raw[10] / 8.0 - raw[12] / 8.0 - raw[13] / 8.0 - raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 + raw[21] / 4.0 - raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
-    feq[14] = -raw[10] / 8.0 - raw[12] / 8.0 + raw[13] / 8.0 - raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 - raw[21] / 4.0 + raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
-    feq[15] = raw[11] / 8.0 + raw[12] / 8.0 - raw[14] / 8.0 - raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 - raw[20] / 4.0 - raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
-    feq[16] = -raw[11] / 8.0 + raw[12] / 8.0 + raw[14] / 8.0 - raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 + raw[20] / 4.0 + raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
-    feq[17] = raw[11] / 8.0 - raw[12] / 8.0 - raw[14] / 8.0 + raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 + raw[20] / 4.0 - raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
-    feq[18] = -raw[11] / 8.0 - raw[12] / 8.0 + raw[14] / 8.0 + raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 - raw[20] / 4.0 + raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
+    feq[0] = raw[0] + raw[17] + raw[18] + raw[19] - raw[26] - raw[9];
+    feq[1] = -raw[10] / 2.0 - raw[11] / 2.0 - raw[17] / 2.0 - raw[18] / 2.0 + raw[1] / 2.0 + raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
+    feq[2] = raw[10] / 2.0 + raw[11] / 2.0 - raw[17] / 2.0 - raw[18] / 2.0 - raw[1] / 2.0 - raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
+    feq[3] = -raw[12] / 2.0 - raw[13] / 2.0 - raw[17] / 2.0 - raw[19] / 2.0 + raw[24] / 2.0 + raw[26] / 2.0 + raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
+    feq[4] = raw[12] / 2.0 + raw[13] / 2.0 - raw[17] / 2.0 - raw[19] / 2.0 - raw[24] / 2.0 + raw[26] / 2.0 - raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
+    feq[5] = -raw[14] / 2.0 - raw[15] / 2.0 - raw[18] / 2.0 - raw[19] / 2.0 + raw[25] / 2.0 + raw[26] / 2.0 + raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
+    feq[6] = raw[14] / 2.0 + raw[15] / 2.0 - raw[18] / 2.0 - raw[19] / 2.0 - raw[25] / 2.0 + raw[26] / 2.0 - raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
+    feq[7] = raw[10] / 4.0 + raw[13] / 4.0 + raw[17] / 4.0 - raw[22] / 4.0 - raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
+    feq[8] = -raw[10] / 4.0 + raw[13] / 4.0 + raw[17] / 4.0 + raw[22] / 4.0 + raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
+    feq[9] = raw[10] / 4.0 - raw[13] / 4.0 + raw[17] / 4.0 + raw[22] / 4.0 - raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
+    feq[10] = -raw[10] / 4.0 - raw[13] / 4.0 + raw[17] / 4.0 - raw[22] / 4.0 + raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
+    feq[11] = raw[11] / 4.0 + raw[14] / 4.0 + raw[18] / 4.0 - raw[21] / 4.0 - raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
+    feq[12] = -raw[11] / 4.0 + raw[14] / 4.0 + raw[18] / 4.0 + raw[21] / 4.0 + raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
+    feq[13] = raw[11] / 4.0 - raw[14] / 4.0 + raw[18] / 4.0 + raw[21] / 4.0 - raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
+    feq[14] = -raw[11] / 4.0 - raw[14] / 4.0 + raw[18] / 4.0 - raw[21] / 4.0 + raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
+    feq[15] = raw[12] / 4.0 + raw[15] / 4.0 + raw[19] / 4.0 - raw[20] / 4.0 - raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
+    feq[16] = -raw[12] / 4.0 + raw[15] / 4.0 + raw[19] / 4.0 + raw[20] / 4.0 + raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
+    feq[17] = raw[12] / 4.0 - raw[15] / 4.0 + raw[19] / 4.0 + raw[20] / 4.0 - raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
+    feq[18] = -raw[12] / 4.0 - raw[15] / 4.0 + raw[19] / 4.0 - raw[20] / 4.0 + raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
     feq[19] = raw[16] / 8.0 + raw[20] / 8.0 + raw[21] / 8.0 + raw[22] / 8.0 + raw[23] / 8.0 + raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
     feq[20] = -raw[16] / 8.0 + raw[20] / 8.0 - raw[21] / 8.0 - raw[22] / 8.0 - raw[23] / 8.0 + raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
     feq[21] = -raw[16] / 8.0 - raw[20] / 8.0 + raw[21] / 8.0 - raw[22] / 8.0 + raw[23] / 8.0 - raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
@@ -99,6 +96,11 @@ void evaluate_color_gradients(SimulationBag *sim)
 #ifdef THETA_C
     double nhat_norm, Gn;
     double theta = THETA_C / 360.0 * 2.0 * DS_PI;
+    double n_star_x, n_star_y, n_star_z;
+    double n_plus_x, n_plus_y, n_plus_z;
+    double n_min_x, n_min_y, n_min_z;
+    double theta_prime;
+    double dnx, dny, dnz, D_plus, D_min;
 #endif
 
     int *flag = glob_fields->flag;
@@ -152,6 +154,8 @@ void evaluate_color_gradients(SimulationBag *sim)
         Gy_i *= 3.0;
         Gz_i *= 3.0;
 
+        G_i = sqrt(Gx_i * Gx_i + Gy_i * Gy_i + Gz_i * Gz_i);
+
 #ifdef THETA_C
         nhat_norm = sqrt(nhat_x * nhat_x + nhat_y * nhat_y + nhat_z * nhat_z);
 
@@ -160,6 +164,43 @@ void evaluate_color_gradients(SimulationBag *sim)
             nhat_x /= nhat_norm;
             nhat_y /= nhat_norm;
             nhat_z /= nhat_norm;
+
+            // n_star_x = -Gx_i / G_i;
+            // n_star_y = -Gy_i / G_i;
+            // n_star_z = -Gz_i / G_i;
+
+            // theta_prime = acos(nhat_x * n_star_x + nhat_y * n_star_y + nhat_z * n_star_z);
+
+            // n_plus_x = (cos(theta) - sin(theta) * cos(theta_prime) / sin(theta_prime)) * nhat_x + sin(theta) / sin(theta_prime) * n_star_x;
+            // n_plus_y = (cos(theta) - sin(theta) * cos(theta_prime) / sin(theta_prime)) * nhat_y + sin(theta) / sin(theta_prime) * n_star_y;
+            // n_plus_z = (cos(theta) - sin(theta) * cos(theta_prime) / sin(theta_prime)) * nhat_z + sin(theta) / sin(theta_prime) * n_star_z;
+
+            // n_min_x = (cos(-theta) - sin(-theta) * cos(theta_prime) / sin(theta_prime)) * nhat_x + sin(-theta) / sin(theta_prime) * n_star_x;
+            // n_min_y = (cos(-theta) - sin(-theta) * cos(theta_prime) / sin(theta_prime)) * nhat_y + sin(-theta) / sin(theta_prime) * n_star_y;
+            // n_min_z = (cos(-theta) - sin(-theta) * cos(theta_prime) / sin(theta_prime)) * nhat_z + sin(-theta) / sin(theta_prime) * n_star_z;
+
+            // dnx = n_plus_x - nhat_x;
+            // dny = n_plus_y - nhat_y;
+            // dnz = n_plus_z - nhat_z;
+            // D_plus = sqrt(dnx * dnx + dny * dny + dnz * dnz);
+
+            // dnx = n_min_x - nhat_x;
+            // dny = n_min_y - nhat_y;
+            // dnz = n_min_z - nhat_z;
+            // D_min = sqrt(dnx * dnx + dny * dny + dnz * dnz);
+
+            // if (D_plus <= D_min)
+            // {
+            //     Gx_i = -G_i * n_plus_x;
+            //     Gy_i = -G_i * n_plus_y;
+            //     Gz_i = -G_i * n_plus_z;
+            // }
+            // else
+            // {
+            //     Gx_i = -G_i * n_min_x;
+            //     Gy_i = -G_i * n_min_y;
+            //     Gz_i = -G_i * n_min_z;
+            // }
 
             Gn = nhat_x * Gx_i + nhat_y * Gy_i + nhat_z * Gz_i;
             Gx_i -= Gn * nhat_x;
@@ -171,10 +212,10 @@ void evaluate_color_gradients(SimulationBag *sim)
             Gx_i += Gn * nhat_x;
             Gy_i += Gn * nhat_y;
             Gz_i += Gn * nhat_z;
+
+            G_i = sqrt(Gx_i * Gx_i + Gy_i * Gy_i + Gz_i * Gz_i);
         }
 #endif
-
-        G_i = sqrt(Gx_i * Gx_i + Gy_i * Gy_i + Gz_i * Gz_i);
 
         G_norm[INDEX_GLOB(i, j, k)] = G_i;
         Gx[INDEX_GLOB(i, j, k)] = Gx_i;
@@ -256,10 +297,11 @@ void collide(SimulationBag *sim)
     double Fx_i, Fy_i, Fz_i;
     double k4, k5, k6, k7, k8;
     double cx_bar, cy_bar, cz_bar;
-    double cs2_i, cs4_i, cs6_i;
+    double cs2_i;
     double rho_N_i, omega;
     double f_star, rho_RED_i, rho_BLUE_i;
     double Gc, cos_phi, p_rec;
+    double Qx_i, Qy_i, Qz_i;
 
     int i_start = params->i_start;
     int i_end = params->i_end;
@@ -301,6 +343,9 @@ void collide(SimulationBag *sim)
     double *Fx = comp_fields->Fx;
     double *Fy = comp_fields->Fy;
     double *Fz = comp_fields->Fz;
+    double *Qx = comp_fields->Qx;
+    double *Qy = comp_fields->Qy;
+    double *Qz = comp_fields->Qz;
 
     double *k_pert = dists->k_pert;
     double *k_star = dists->k_star;
@@ -309,6 +354,8 @@ void collide(SimulationBag *sim)
 
     double *f1 = dists->f1;
     double *f2 = dists->f2;
+
+    compute_Q_corrections(sim);
 
     FOR_DOMAIN
     {
@@ -364,16 +411,16 @@ void collide(SimulationBag *sim)
             k_pert[7] = -sigma * (3.0 * G2 * u2_i - 3.0 * G2 * v2_i - 3.0 * G2x_i * u2_i + 3.0 * G2x_i * v2_i - 2.0 * G2x_i - 3.0 * G2y_i * u2_i + 3.0 * G2y_i * v2_i + 2.0 * G2y_i - 3.0 * G2z_i * u2_i + 3.0 * G2z_i * v2_i) / (8.0 * G);
             k_pert[8] = -sigma * (3.0 * G2 * u2_i - 3.0 * G2 * w2_i - 3.0 * G2x_i * u2_i + 3.0 * G2x_i * w2_i - 2.0 * G2x_i - 3.0 * G2y_i * u2_i + 3.0 * G2y_i * w2_i - 3.0 * G2z_i * u2_i + 3.0 * G2z_i * w2_i + 2.0 * G2z_i) / (8.0 * G);
             k_pert[9] = -sigma * (3.0 * G2 * u2_i + 3.0 * G2 * v2_i + 3.0 * G2 * w2_i + 9.0 * G2 - 3.0 * G2x_i * u2_i - 3.0 * G2x_i * v2_i - 3.0 * G2x_i * w2_i - 5.0 * G2x_i - 3.0 * G2y_i * u2_i - 3.0 * G2y_i * v2_i - 3.0 * G2y_i * w2_i - 5.0 * G2y_i - 3.0 * G2z_i * u2_i - 3.0 * G2z_i * v2_i - 3.0 * G2z_i * w2_i - 5.0 * G2z_i) / (8.0 * G);
-            k_pert[10] = sigma * (3.0 * G2 * u_i * v2_i + 3.0 * G2 * u_i * w2_i + 6.0 * G2 * u_i - 3.0 * G2x_i * u_i * v2_i - 3.0 * G2x_i * u_i * w2_i - 2.0 * G2x_i * u_i - 3.0 * G2y_i * u_i * v2_i - 3.0 * G2y_i * u_i * w2_i - 4.0 * G2y_i * u_i - 3.0 * G2z_i * u_i * v2_i - 3.0 * G2z_i * u_i * w2_i - 4.0 * G2z_i * u_i - 4.0 * Gx_i * Gy_i * v_i - 4.0 * Gx_i * Gz_i * w_i) / (8.0 * G);
-            k_pert[11] = sigma * (3.0 * G2 * u2_i * v_i + 3.0 * G2 * v_i * w2_i + 6.0 * G2 * v_i - 3.0 * G2x_i * u2_i * v_i - 3.0 * G2x_i * v_i * w2_i - 4.0 * G2x_i * v_i - 3.0 * G2y_i * u2_i * v_i - 3.0 * G2y_i * v_i * w2_i - 2.0 * G2y_i * v_i - 3.0 * G2z_i * u2_i * v_i - 3.0 * G2z_i * v_i * w2_i - 4.0 * G2z_i * v_i - 4.0 * Gx_i * Gy_i * u_i - 4.0 * Gy_i * Gz_i * w_i) / (8.0 * G);
-            k_pert[12] = sigma * (3.0 * G2 * u2_i * w_i + 3.0 * G2 * v2_i * w_i + 6.0 * G2 * w_i - 3.0 * G2x_i * u2_i * w_i - 3.0 * G2x_i * v2_i * w_i - 4.0 * G2x_i * w_i - 3.0 * G2y_i * u2_i * w_i - 3.0 * G2y_i * v2_i * w_i - 4.0 * G2y_i * w_i - 3.0 * G2z_i * u2_i * w_i - 3.0 * G2z_i * v2_i * w_i - 2.0 * G2z_i * w_i - 4.0 * Gx_i * Gz_i * u_i - 4.0 * Gy_i * Gz_i * v_i) / (8.0 * G);
-            k_pert[13] = sigma * (3.0 * G2 * u_i * v2_i - 3.0 * G2 * u_i * w2_i - 3.0 * G2x_i * u_i * v2_i + 3.0 * G2x_i * u_i * w2_i - 3.0 * G2y_i * u_i * v2_i + 3.0 * G2y_i * u_i * w2_i - 2.0 * G2y_i * u_i - 3.0 * G2z_i * u_i * v2_i + 3.0 * G2z_i * u_i * w2_i + 2.0 * G2z_i * u_i - 4.0 * Gx_i * Gy_i * v_i + 4.0 * Gx_i * Gz_i * w_i) / (8.0 * G);
-            k_pert[14] = sigma * (3.0 * G2 * u2_i * v_i - 3.0 * G2 * v_i * w2_i - 3.0 * G2x_i * u2_i * v_i + 3.0 * G2x_i * v_i * w2_i - 2.0 * G2x_i * v_i - 3.0 * G2y_i * u2_i * v_i + 3.0 * G2y_i * v_i * w2_i - 3.0 * G2z_i * u2_i * v_i + 3.0 * G2z_i * v_i * w2_i + 2.0 * G2z_i * v_i - 4.0 * Gx_i * Gy_i * u_i + 4.0 * Gy_i * Gz_i * w_i) / (8.0 * G);
-            k_pert[15] = sigma * (3.0 * G2 * u2_i * w_i - 3.0 * G2 * v2_i * w_i - 3.0 * G2x_i * u2_i * w_i + 3.0 * G2x_i * v2_i * w_i - 2.0 * G2x_i * w_i - 3.0 * G2y_i * u2_i * w_i + 3.0 * G2y_i * v2_i * w_i + 2.0 * G2y_i * w_i - 3.0 * G2z_i * u2_i * w_i + 3.0 * G2z_i * v2_i * w_i - 4.0 * Gx_i * Gz_i * u_i + 4.0 * Gy_i * Gz_i * v_i) / (8.0 * G);
+            k_pert[10] = sigma * (3.0 * G2 * u_i * v2_i + 3.0 * G2 * u_i - 3.0 * G2x_i * u_i * v2_i - G2x_i * u_i - 3.0 * G2y_i * u_i * v2_i - 3.0 * G2y_i * u_i - 3.0 * G2z_i * u_i * v2_i - G2z_i * u_i - 4.0 * Gx_i * Gy_i * v_i) / (8.0 * G);
+            k_pert[11] = sigma * (3.0 * G2 * u_i * w2_i + 3.0 * G2 * u_i - 3.0 * G2x_i * u_i * w2_i - G2x_i * u_i - 3.0 * G2y_i * u_i * w2_i - G2y_i * u_i - 3.0 * G2z_i * u_i * w2_i - 3.0 * G2z_i * u_i - 4.0 * Gx_i * Gz_i * w_i) / (8.0 * G);
+            k_pert[12] = sigma * (3.0 * G2 * v_i * w2_i + 3.0 * G2 * v_i - 3.0 * G2x_i * v_i * w2_i - G2x_i * v_i - 3.0 * G2y_i * v_i * w2_i - G2y_i * v_i - 3.0 * G2z_i * v_i * w2_i - 3.0 * G2z_i * v_i - 4.0 * Gy_i * Gz_i * w_i) / (8.0 * G);
+            k_pert[13] = sigma * (3.0 * G2 * u2_i * v_i + 3.0 * G2 * v_i - 3.0 * G2x_i * u2_i * v_i - 3.0 * G2x_i * v_i - 3.0 * G2y_i * u2_i * v_i - G2y_i * v_i - 3.0 * G2z_i * u2_i * v_i - G2z_i * v_i - 4.0 * Gx_i * Gy_i * u_i) / (8.0 * G);
+            k_pert[14] = sigma * (3.0 * G2 * u2_i * w_i + 3.0 * G2 * w_i - 3.0 * G2x_i * u2_i * w_i - 3.0 * G2x_i * w_i - 3.0 * G2y_i * u2_i * w_i - G2y_i * w_i - 3.0 * G2z_i * u2_i * w_i - G2z_i * w_i - 4.0 * Gx_i * Gz_i * u_i) / (8.0 * G);
+            k_pert[15] = sigma * (3.0 * G2 * v2_i * w_i + 3.0 * G2 * w_i - 3.0 * G2x_i * v2_i * w_i - G2x_i * w_i - 3.0 * G2y_i * v2_i * w_i - 3.0 * G2y_i * w_i - 3.0 * G2z_i * v2_i * w_i - G2z_i * w_i - 4.0 * Gy_i * Gz_i * v_i) / (8.0 * G);
             k_pert[16] = sigma * (3.0 * G2 * u_i * v_i * w_i - 3.0 * G2x_i * u_i * v_i * w_i - 3.0 * G2y_i * u_i * v_i * w_i - 3.0 * G2z_i * u_i * v_i * w_i - 2.0 * Gx_i * Gy_i * w_i - 2.0 * Gx_i * Gz_i * v_i - 2.0 * Gy_i * Gz_i * u_i) / (8.0 * G);
-            k_pert[17] = -sigma * (9.0 * G2 * u2_i * v2_i + 9.0 * G2 * u2_i * w2_i + 18.0 * G2 * u2_i + 9.0 * G2 * v2_i * w2_i + 18.0 * G2 * v2_i + 18.0 * G2 * w2_i + 15.0 * G2 - 9.0 * G2x_i * u2_i * v2_i - 9.0 * G2x_i * u2_i * w2_i - 6.0 * G2x_i * u2_i - 9.0 * G2x_i * v2_i * w2_i - 12.0 * G2x_i * v2_i - 12.0 * G2x_i * w2_i - 7.0 * G2x_i - 9.0 * G2y_i * u2_i * v2_i - 9.0 * G2y_i * u2_i * w2_i - 12.0 * G2y_i * u2_i - 9.0 * G2y_i * v2_i * w2_i - 6.0 * G2y_i * v2_i - 12.0 * G2y_i * w2_i - 7.0 * G2y_i - 9.0 * G2z_i * u2_i * v2_i - 9.0 * G2z_i * u2_i * w2_i - 12.0 * G2z_i * u2_i - 9.0 * G2z_i * v2_i * w2_i - 12.0 * G2z_i * v2_i - 6.0 * G2z_i * w2_i - 7.0 * G2z_i - 24.0 * Gx_i * Gy_i * u_i * v_i - 24.0 * Gx_i * Gz_i * u_i * w_i - 24.0 * Gy_i * Gz_i * v_i * w_i) / (24.0 * G);
-            k_pert[18] = -sigma * (9.0 * G2 * u2_i * v2_i + 9.0 * G2 * u2_i * w2_i + 18.0 * G2 * u2_i - 9.0 * G2 * v2_i * w2_i + 5.0 * G2 - 9.0 * G2x_i * u2_i * v2_i - 9.0 * G2x_i * u2_i * w2_i - 6.0 * G2x_i * u2_i + 9.0 * G2x_i * v2_i * w2_i - 6.0 * G2x_i * v2_i - 6.0 * G2x_i * w2_i - 5.0 * G2x_i - 9.0 * G2y_i * u2_i * v2_i - 9.0 * G2y_i * u2_i * w2_i - 12.0 * G2y_i * u2_i + 9.0 * G2y_i * v2_i * w2_i + 6.0 * G2y_i * w2_i - G2y_i - 9.0 * G2z_i * u2_i * v2_i - 9.0 * G2z_i * u2_i * w2_i - 12.0 * G2z_i * u2_i + 9.0 * G2z_i * v2_i * w2_i + 6.0 * G2z_i * v2_i - G2z_i - 24.0 * Gx_i * Gy_i * u_i * v_i - 24.0 * Gx_i * Gz_i * u_i * w_i + 24.0 * Gy_i * Gz_i * v_i * w_i) / (24.0 * G);
-            k_pert[19] = -sigma * (9.0 * G2 * u2_i * v2_i - 9.0 * G2 * u2_i * w2_i + 9.0 * G2 * v2_i - 9.0 * G2 * w2_i - 9.0 * G2x_i * u2_i * v2_i + 9.0 * G2x_i * u2_i * w2_i - 9.0 * G2x_i * v2_i + 9.0 * G2x_i * w2_i - 9.0 * G2y_i * u2_i * v2_i + 9.0 * G2y_i * u2_i * w2_i - 6.0 * G2y_i * u2_i - 3.0 * G2y_i * v2_i + 3.0 * G2y_i * w2_i - 2.0 * G2y_i - 9.0 * G2z_i * u2_i * v2_i + 9.0 * G2z_i * u2_i * w2_i + 6.0 * G2z_i * u2_i - 3.0 * G2z_i * v2_i + 3.0 * G2z_i * w2_i + 2.0 * G2z_i - 24.0 * Gx_i * Gy_i * u_i * v_i + 24.0 * Gx_i * Gz_i * u_i * w_i) / (24.0 * G);
+            k_pert[17] = -sigma * (9.0 * G2 * u2_i * v2_i + 9.0 * G2 * u2_i + 9.0 * G2 * v2_i + 5.0 * G2 - 9.0 * G2x_i * u2_i * v2_i - 3.0 * G2x_i * u2_i - 9.0 * G2x_i * v2_i - 3.0 * G2x_i - 9.0 * G2y_i * u2_i * v2_i - 9.0 * G2y_i * u2_i - 3.0 * G2y_i * v2_i - 3.0 * G2y_i - 9.0 * G2z_i * u2_i * v2_i - 3.0 * G2z_i * u2_i - 3.0 * G2z_i * v2_i - G2z_i - 24.0 * Gx_i * Gy_i * u_i * v_i) / (24.0 * G);
+            k_pert[18] = -sigma * (9.0 * G2 * u2_i * w2_i + 9.0 * G2 * u2_i + 9.0 * G2 * w2_i + 5.0 * G2 - 9.0 * G2x_i * u2_i * w2_i - 3.0 * G2x_i * u2_i - 9.0 * G2x_i * w2_i - 3.0 * G2x_i - 9.0 * G2y_i * u2_i * w2_i - 3.0 * G2y_i * u2_i - 3.0 * G2y_i * w2_i - G2y_i - 9.0 * G2z_i * u2_i * w2_i - 9.0 * G2z_i * u2_i - 3.0 * G2z_i * w2_i - 3.0 * G2z_i - 24.0 * Gx_i * Gz_i * u_i * w_i) / (24.0 * G);
+            k_pert[19] = -sigma * (9.0 * G2 * v2_i * w2_i + 9.0 * G2 * v2_i + 9.0 * G2 * w2_i + 5.0 * G2 - 9.0 * G2x_i * v2_i * w2_i - 3.0 * G2x_i * v2_i - 3.0 * G2x_i * w2_i - G2x_i - 9.0 * G2y_i * v2_i * w2_i - 3.0 * G2y_i * v2_i - 9.0 * G2y_i * w2_i - 3.0 * G2y_i - 9.0 * G2z_i * v2_i * w2_i - 9.0 * G2z_i * v2_i - 3.0 * G2z_i * w2_i - 3.0 * G2z_i - 24.0 * Gy_i * Gz_i * v_i * w_i) / (24.0 * G);
             k_pert[20] = -sigma * (9.0 * G2 * u2_i * v_i * w_i + 9.0 * G2 * v_i * w_i - 9.0 * G2x_i * u2_i * v_i * w_i - 9.0 * G2x_i * v_i * w_i - 9.0 * G2y_i * u2_i * v_i * w_i - 3.0 * G2y_i * v_i * w_i - 9.0 * G2z_i * u2_i * v_i * w_i - 3.0 * G2z_i * v_i * w_i - 12.0 * Gx_i * Gy_i * u_i * w_i - 12.0 * Gx_i * Gz_i * u_i * v_i - 6.0 * Gy_i * Gz_i * u2_i - 2.0 * Gy_i * Gz_i) / (24.0 * G);
             k_pert[21] = -sigma * (9.0 * G2 * u_i * v2_i * w_i + 9.0 * G2 * u_i * w_i - 9.0 * G2x_i * u_i * v2_i * w_i - 3.0 * G2x_i * u_i * w_i - 9.0 * G2y_i * u_i * v2_i * w_i - 9.0 * G2y_i * u_i * w_i - 9.0 * G2z_i * u_i * v2_i * w_i - 3.0 * G2z_i * u_i * w_i - 12.0 * Gx_i * Gy_i * v_i * w_i - 6.0 * Gx_i * Gz_i * v2_i - 2.0 * Gx_i * Gz_i - 12.0 * Gy_i * Gz_i * u_i * v_i) / (24.0 * G);
             k_pert[22] = -sigma * (9.0 * G2 * u_i * v_i * w2_i + 9.0 * G2 * u_i * v_i - 9.0 * G2x_i * u_i * v_i * w2_i - 3.0 * G2x_i * u_i * v_i - 9.0 * G2y_i * u_i * v_i * w2_i - 3.0 * G2y_i * u_i * v_i - 9.0 * G2z_i * u_i * v_i * w2_i - 9.0 * G2z_i * u_i * v_i - 6.0 * Gx_i * Gy_i * w2_i - 2.0 * Gx_i * Gy_i - 12.0 * Gx_i * Gz_i * v_i * w_i - 12.0 * Gy_i * Gz_i * u_i * w_i) / (24.0 * G);
@@ -387,13 +434,18 @@ void collide(SimulationBag *sim)
         {
             rho_i = rho_comp[INDEX(i, j, k, n)];
 
+            if (rho_i < 1e-15)
+                continue;
+
             Fx_i = Fx[INDEX(i, j, k, n)];
             Fy_i = Fy[INDEX(i, j, k, n)];
             Fz_i = Fz[INDEX(i, j, k, n)];
 
             cs2_i = cs2[n];
-            cs4_i = cs2_i * cs2_i;
-            cs6_i = cs2_i * cs4_i;
+
+            Qx_i = Qx[INDEX(i, j, k, n)];
+            Qy_i = Qy[INDEX(i, j, k, n)];
+            Qz_i = Qz[INDEX(i, j, k, n)];
 
             k4 = 0.0;
             k5 = 0.0;
@@ -418,29 +470,29 @@ void collide(SimulationBag *sim)
             k_star[1] = Fx_i / 2.0 + k_pert[1];
             k_star[2] = Fy_i / 2.0 + k_pert[2];
             k_star[3] = Fz_i / 2.0 + k_pert[3];
-            k_star[4] = (1.0 - omega) * k4 + k_pert[4] * omega;
-            k_star[5] = (1.0 - omega) * k5 + k_pert[5] * omega;
-            k_star[6] = (1.0 - omega) * k6 + k_pert[6] * omega;
-            k_star[7] = (1.0 - omega) * k7 + k_pert[7] * omega;
-            k_star[8] = (1.0 - omega) * k8 + k_pert[8] * omega;
-            k_star[9] = 3.0 * cs2_i * rho_i + k_pert[9];
-            k_star[10] = Fx_i * cs2_i + k_pert[10];
-            k_star[11] = Fy_i * cs2_i + k_pert[11];
-            k_star[12] = Fz_i * cs2_i + k_pert[12];
-            k_star[13] = k_pert[13];
-            k_star[14] = k_pert[14];
-            k_star[15] = k_pert[15];
+            k_star[4] = -k4 * omega + k4 + k_pert[4] * omega;
+            k_star[5] = -k5 * omega + k5 + k_pert[5] * omega;
+            k_star[6] = -k6 * omega + k6 + k_pert[6] * omega;
+            k_star[7] = -Qx_i * omega / 2.0 + Qx_i + Qy_i * omega / 2.0 - Qy_i - k7 * omega + k7 + k_pert[7] * omega;
+            k_star[8] = -Qx_i * omega / 2.0 + Qx_i + Qz_i * omega / 2.0 - Qz_i - k8 * omega + k8 + k_pert[8] * omega;
+            k_star[9] = Qx_i / 2.0 + Qy_i / 2.0 + Qz_i / 2.0 + 3.0 * cs2_i * rho_i + k_pert[9];
+            k_star[10] = Fx_i / 6.0 + k_pert[10];
+            k_star[11] = Fx_i / 6.0 + k_pert[11];
+            k_star[12] = Fy_i / 6.0 + k_pert[12];
+            k_star[13] = Fy_i / 6.0 + k_pert[13];
+            k_star[14] = Fz_i / 6.0 + k_pert[14];
+            k_star[15] = Fz_i / 6.0 + k_pert[15];
             k_star[16] = k_pert[16];
-            k_star[17] = cs2_i * rho_i + k_pert[17];
-            k_star[18] = cs4_i * rho_i + k_pert[18];
-            k_star[19] = k_pert[19];
+            k_star[17] = cs2_i * rho_i / 3.0 + k_pert[17];
+            k_star[18] = cs2_i * rho_i / 3.0 + k_pert[18];
+            k_star[19] = cs2_i * rho_i / 3.0 + k_pert[19];
             k_star[20] = k_pert[20];
             k_star[21] = k_pert[21];
             k_star[22] = k_pert[22];
-            k_star[23] = Fx_i * cs4_i / 2.0 + k_pert[23];
-            k_star[24] = Fy_i * cs4_i / 2.0 + k_pert[24];
-            k_star[25] = Fz_i * cs4_i / 2.0 + k_pert[25];
-            k_star[26] = cs6_i * rho_i + k_pert[26];
+            k_star[23] = Fx_i / 18.0 + k_pert[23];
+            k_star[24] = Fy_i / 18.0 + k_pert[24];
+            k_star[25] = Fz_i / 18.0 + k_pert[25];
+            k_star[26] = cs2_i * rho_i / 9.0 + k_pert[26];
 
             raw[0] = k_star[0];
             raw[1] = k_star[0] * u_i + k_star[1];
@@ -452,43 +504,43 @@ void collide(SimulationBag *sim)
             raw[7] = k_star[0] * (u2_i - v2_i) + 2.0 * k_star[1] * u_i - 2.0 * k_star[2] * v_i + k_star[7];
             raw[8] = k_star[0] * (u2_i - w2_i) + 2.0 * k_star[1] * u_i - 2.0 * k_star[3] * w_i + k_star[8];
             raw[9] = k_star[0] * (u2_i + v2_i + w2_i) + 2.0 * k_star[1] * u_i + 2.0 * k_star[2] * v_i + 2.0 * k_star[3] * w_i + k_star[9];
-            raw[10] = k_star[0] * u_i * (v2_i + w2_i) + k_star[10] + k_star[1] * (v2_i + w2_i) + 2.0 * k_star[2] * u_i * v_i + 2.0 * k_star[3] * u_i * w_i + 2.0 * k_star[4] * v_i + 2.0 * k_star[5] * w_i - k_star[7] * u_i / 3.0 - k_star[8] * u_i / 3.0 + 2.0 * k_star[9] * u_i / 3.0;
-            raw[11] = k_star[0] * v_i * (u2_i + w2_i) + k_star[11] + 2.0 * k_star[1] * u_i * v_i + k_star[2] * (u2_i + w2_i) + 2.0 * k_star[3] * v_i * w_i + 2.0 * k_star[4] * u_i + 2.0 * k_star[6] * w_i + 2.0 * k_star[7] * v_i / 3.0 - k_star[8] * v_i / 3.0 + 2.0 * k_star[9] * v_i / 3.0;
-            raw[12] = k_star[0] * w_i * (u2_i + v2_i) + k_star[12] + 2.0 * k_star[1] * u_i * w_i + 2.0 * k_star[2] * v_i * w_i + k_star[3] * (u2_i + v2_i) + 2.0 * k_star[5] * u_i + 2.0 * k_star[6] * v_i - k_star[7] * w_i / 3.0 + 2.0 * k_star[8] * w_i / 3.0 + 2.0 * k_star[9] * w_i / 3.0;
-            raw[13] = k_star[0] * u_i * (v2_i - w2_i) + k_star[13] + k_star[1] * (v2_i - w2_i) + 2.0 * k_star[2] * u_i * v_i - 2.0 * k_star[3] * u_i * w_i + 2.0 * k_star[4] * v_i - 2.0 * k_star[5] * w_i - k_star[7] * u_i + k_star[8] * u_i;
-            raw[14] = k_star[0] * v_i * (u2_i - w2_i) + k_star[14] + 2.0 * k_star[1] * u_i * v_i + k_star[2] * (u2_i - w2_i) - 2.0 * k_star[3] * v_i * w_i + 2.0 * k_star[4] * u_i - 2.0 * k_star[6] * w_i + k_star[8] * v_i;
-            raw[15] = k_star[0] * w_i * (u2_i - v2_i) + k_star[15] + 2.0 * k_star[1] * u_i * w_i - 2.0 * k_star[2] * v_i * w_i + k_star[3] * (u2_i - v2_i) + 2.0 * k_star[5] * u_i - 2.0 * k_star[6] * v_i + k_star[7] * w_i;
+            raw[10] = k_star[0] * u_i * v2_i + k_star[10] + k_star[1] * v2_i + 2.0 * k_star[2] * u_i * v_i + 2.0 * k_star[4] * v_i - 2.0 * k_star[7] * u_i / 3.0 + k_star[8] * u_i / 3.0 + k_star[9] * u_i / 3.0;
+            raw[11] = k_star[0] * u_i * w2_i + k_star[11] + k_star[1] * w2_i + 2.0 * k_star[3] * u_i * w_i + 2.0 * k_star[5] * w_i + k_star[7] * u_i / 3.0 - 2.0 * k_star[8] * u_i / 3.0 + k_star[9] * u_i / 3.0;
+            raw[12] = k_star[0] * v_i * w2_i + k_star[12] + k_star[2] * w2_i + 2.0 * k_star[3] * v_i * w_i + 2.0 * k_star[6] * w_i + k_star[7] * v_i / 3.0 - 2.0 * k_star[8] * v_i / 3.0 + k_star[9] * v_i / 3.0;
+            raw[13] = k_star[0] * u2_i * v_i + k_star[13] + 2.0 * k_star[1] * u_i * v_i + k_star[2] * u2_i + 2.0 * k_star[4] * u_i + k_star[7] * v_i / 3.0 + k_star[8] * v_i / 3.0 + k_star[9] * v_i / 3.0;
+            raw[14] = k_star[0] * u2_i * w_i + k_star[14] + 2.0 * k_star[1] * u_i * w_i + k_star[3] * u2_i + 2.0 * k_star[5] * u_i + k_star[7] * w_i / 3.0 + k_star[8] * w_i / 3.0 + k_star[9] * w_i / 3.0;
+            raw[15] = k_star[0] * v2_i * w_i + k_star[15] + 2.0 * k_star[2] * v_i * w_i + k_star[3] * v2_i + 2.0 * k_star[6] * v_i - 2.0 * k_star[7] * w_i / 3.0 + k_star[8] * w_i / 3.0 + k_star[9] * w_i / 3.0;
             raw[16] = k_star[0] * u_i * v_i * w_i + k_star[16] + k_star[1] * v_i * w_i + k_star[2] * u_i * w_i + k_star[3] * u_i * v_i + k_star[4] * w_i + k_star[5] * v_i + k_star[6] * u_i;
-            raw[17] = k_star[0] * (u2_i * v2_i + u2_i * w2_i + v2_i * w2_i) + 2.0 * k_star[10] * u_i + 2.0 * k_star[11] * v_i + 2.0 * k_star[12] * w_i + k_star[17] + 2.0 * k_star[1] * u_i * (v2_i + w2_i) + 2.0 * k_star[2] * v_i * (u2_i + w2_i) + 2.0 * k_star[3] * w_i * (u2_i + v2_i) + 4.0 * k_star[4] * u_i * v_i + 4.0 * k_star[5] * u_i * w_i + 4.0 * k_star[6] * v_i * w_i + k_star[7] * (-u2_i / 3.0 + 2.0 * v2_i / 3.0 - w2_i / 3.0) + k_star[8] * (-u2_i / 3.0 - v2_i / 3.0 + 2.0 * w2_i / 3.0) + k_star[9] * (2.0 * u2_i / 3.0 + 2.0 * v2_i / 3.0 + 2.0 * w2_i / 3.0);
-            raw[18] = k_star[0] * (u2_i * v2_i + u2_i * w2_i - v2_i * w2_i) + 2.0 * k_star[10] * u_i + 2.0 * k_star[14] * v_i + 2.0 * k_star[15] * w_i + k_star[18] + 2.0 * k_star[1] * u_i * (v2_i + w2_i) + 2.0 * k_star[2] * v_i * (u2_i - w2_i) + 2.0 * k_star[3] * w_i * (u2_i - v2_i) + 4.0 * k_star[4] * u_i * v_i + 4.0 * k_star[5] * u_i * w_i - 4.0 * k_star[6] * v_i * w_i + k_star[7] * (-u2_i / 3.0 + w2_i) + k_star[8] * (-u2_i / 3.0 + v2_i) + 2.0 * k_star[9] * u2_i / 3.0;
-            raw[19] = k_star[0] * u2_i * (v2_i - w2_i) + k_star[11] * v_i - k_star[12] * w_i + 2.0 * k_star[13] * u_i + k_star[14] * v_i - k_star[15] * w_i + k_star[19] + 2.0 * k_star[1] * u_i * (v2_i - w2_i) + 2.0 * k_star[2] * u2_i * v_i - 2.0 * k_star[3] * u2_i * w_i + 4.0 * k_star[4] * u_i * v_i - 4.0 * k_star[5] * u_i * w_i + k_star[7] * (-u2_i + v2_i / 3.0 - w2_i / 3.0) + k_star[8] * (u2_i + v2_i / 3.0 - w2_i / 3.0) + k_star[9] * (v2_i / 3.0 - w2_i / 3.0);
-            raw[20] = k_star[0] * u2_i * v_i * w_i + k_star[11] * w_i / 2.0 + k_star[12] * v_i / 2.0 + k_star[14] * w_i / 2.0 + k_star[15] * v_i / 2.0 + 2.0 * k_star[16] * u_i + 2.0 * k_star[1] * u_i * v_i * w_i + k_star[20] + k_star[2] * u2_i * w_i + k_star[3] * u2_i * v_i + 2.0 * k_star[4] * u_i * w_i + 2.0 * k_star[5] * u_i * v_i + k_star[6] * u2_i + k_star[7] * v_i * w_i / 3.0 + k_star[8] * v_i * w_i / 3.0 + k_star[9] * v_i * w_i / 3.0;
-            raw[21] = k_star[0] * u_i * v2_i * w_i + k_star[10] * w_i / 2.0 + k_star[12] * u_i / 2.0 + k_star[13] * w_i / 2.0 - k_star[15] * u_i / 2.0 + 2.0 * k_star[16] * v_i + k_star[1] * v2_i * w_i + k_star[21] + 2.0 * k_star[2] * u_i * v_i * w_i + k_star[3] * u_i * v2_i + 2.0 * k_star[4] * v_i * w_i + k_star[5] * v2_i + 2.0 * k_star[6] * u_i * v_i - 2.0 * k_star[7] * u_i * w_i / 3.0 + k_star[8] * u_i * w_i / 3.0 + k_star[9] * u_i * w_i / 3.0;
-            raw[22] = k_star[0] * u_i * v_i * w2_i + k_star[10] * v_i / 2.0 + k_star[11] * u_i / 2.0 - k_star[13] * v_i / 2.0 - k_star[14] * u_i / 2.0 + 2.0 * k_star[16] * w_i + k_star[1] * v_i * w2_i + k_star[22] + k_star[2] * u_i * w2_i + 2.0 * k_star[3] * u_i * v_i * w_i + k_star[4] * w2_i + 2.0 * k_star[5] * v_i * w_i + 2.0 * k_star[6] * u_i * w_i + k_star[7] * u_i * v_i / 3.0 - 2.0 * k_star[8] * u_i * v_i / 3.0 + k_star[9] * u_i * v_i / 3.0;
-            raw[23] = k_star[0] * u_i * v2_i * w2_i + k_star[10] * (v2_i / 2.0 + w2_i / 2.0) + k_star[11] * u_i * v_i + k_star[12] * u_i * w_i + k_star[13] * (-v2_i / 2.0 + w2_i / 2.0) - k_star[14] * u_i * v_i - k_star[15] * u_i * w_i + 4.0 * k_star[16] * v_i * w_i + k_star[17] * u_i / 2.0 - k_star[18] * u_i / 2.0 + k_star[1] * v2_i * w2_i + 2.0 * k_star[21] * w_i + 2.0 * k_star[22] * v_i + k_star[23] + 2.0 * k_star[2] * u_i * v_i * w2_i + 2.0 * k_star[3] * u_i * v2_i * w_i + 2.0 * k_star[4] * v_i * w2_i + 2.0 * k_star[5] * v2_i * w_i + 4.0 * k_star[6] * u_i * v_i * w_i + k_star[7] * u_i * (v2_i - 2.0 * w2_i) / 3.0 - k_star[8] * u_i * (2.0 * v2_i - w2_i) / 3.0 + k_star[9] * u_i * (v2_i + w2_i) / 3.0;
-            raw[24] = k_star[0] * u2_i * v_i * w2_i + k_star[10] * u_i * v_i + k_star[11] * (u2_i / 2.0 + w2_i / 2.0) + k_star[12] * v_i * w_i - k_star[13] * u_i * v_i + k_star[14] * (-u2_i / 2.0 + w2_i / 2.0) + k_star[15] * v_i * w_i + 4.0 * k_star[16] * u_i * w_i + k_star[17] * v_i / 4.0 + k_star[18] * v_i / 4.0 - k_star[19] * v_i / 2.0 + 2.0 * k_star[1] * u_i * v_i * w2_i + 2.0 * k_star[20] * w_i + 2.0 * k_star[22] * u_i + k_star[24] + k_star[2] * u2_i * w2_i + 2.0 * k_star[3] * u2_i * v_i * w_i + 2.0 * k_star[4] * u_i * w2_i + 4.0 * k_star[5] * u_i * v_i * w_i + 2.0 * k_star[6] * u2_i * w_i + k_star[7] * v_i * (u2_i + w2_i) / 3.0 - k_star[8] * v_i * (2.0 * u2_i - w2_i) / 3.0 + k_star[9] * v_i * (u2_i + w2_i) / 3.0;
-            raw[25] = k_star[0] * u2_i * v2_i * w_i + k_star[10] * u_i * w_i + k_star[11] * v_i * w_i + k_star[12] * (u2_i / 2.0 + v2_i / 2.0) + k_star[13] * u_i * w_i + k_star[14] * v_i * w_i + k_star[15] * (-u2_i / 2.0 + v2_i / 2.0) + 4.0 * k_star[16] * u_i * v_i + k_star[17] * w_i / 4.0 + k_star[18] * w_i / 4.0 + k_star[19] * w_i / 2.0 + 2.0 * k_star[1] * u_i * v2_i * w_i + 2.0 * k_star[20] * v_i + 2.0 * k_star[21] * u_i + k_star[25] + 2.0 * k_star[2] * u2_i * v_i * w_i + k_star[3] * u2_i * v2_i + 4.0 * k_star[4] * u_i * v_i * w_i + 2.0 * k_star[5] * u_i * v2_i + 2.0 * k_star[6] * u2_i * v_i - k_star[7] * w_i * (2.0 * u2_i - v2_i) / 3.0 + k_star[8] * w_i * (u2_i + v2_i) / 3.0 + k_star[9] * w_i * (u2_i + v2_i) / 3.0;
-            raw[26] = k_star[0] * u2_i * v2_i * w2_i + k_star[10] * u_i * (v2_i + w2_i) + k_star[11] * v_i * (u2_i + w2_i) + k_star[12] * w_i * (u2_i + v2_i) - k_star[13] * u_i * (v2_i - w2_i) - k_star[14] * v_i * (u2_i - w2_i) - k_star[15] * w_i * (u2_i - v2_i) + 8.0 * k_star[16] * u_i * v_i * w_i + k_star[17] * (u2_i / 2.0 + v2_i / 4.0 + w2_i / 4.0) + k_star[18] * (-u2_i / 2.0 + v2_i / 4.0 + w2_i / 4.0) + k_star[19] * (-v2_i / 2.0 + w2_i / 2.0) + 2.0 * k_star[1] * u_i * v2_i * w2_i + 4.0 * k_star[20] * v_i * w_i + 4.0 * k_star[21] * u_i * w_i + 4.0 * k_star[22] * u_i * v_i + 2.0 * k_star[23] * u_i + 2.0 * k_star[24] * v_i + 2.0 * k_star[25] * w_i + k_star[26] + 2.0 * k_star[2] * u2_i * v_i * w2_i + 2.0 * k_star[3] * u2_i * v2_i * w_i + 4.0 * k_star[4] * u_i * v_i * w2_i + 4.0 * k_star[5] * u_i * v2_i * w_i + 4.0 * k_star[6] * u2_i * v_i * w_i + k_star[7] * (u2_i * v2_i / 3.0 - 2.0 * u2_i * w2_i / 3.0 + v2_i * w2_i / 3.0) + k_star[8] * (-2.0 * u2_i * v2_i / 3.0 + u2_i * w2_i / 3.0 + v2_i * w2_i / 3.0) + k_star[9] * (u2_i * v2_i / 3.0 + u2_i * w2_i / 3.0 + v2_i * w2_i / 3.0);
+            raw[17] = k_star[0] * u2_i * v2_i + 2.0 * k_star[10] * u_i + 2.0 * k_star[13] * v_i + k_star[17] + 2.0 * k_star[1] * u_i * v2_i + 2.0 * k_star[2] * u2_i * v_i + 4.0 * k_star[4] * u_i * v_i + k_star[7] * (-2.0 * u2_i / 3.0 + v2_i / 3.0) + k_star[8] * (u2_i / 3.0 + v2_i / 3.0) + k_star[9] * (u2_i / 3.0 + v2_i / 3.0);
+            raw[18] = k_star[0] * u2_i * w2_i + 2.0 * k_star[11] * u_i + 2.0 * k_star[14] * w_i + k_star[18] + 2.0 * k_star[1] * u_i * w2_i + 2.0 * k_star[3] * u2_i * w_i + 4.0 * k_star[5] * u_i * w_i + k_star[7] * (u2_i / 3.0 + w2_i / 3.0) + k_star[8] * (-2.0 * u2_i / 3.0 + w2_i / 3.0) + k_star[9] * (u2_i / 3.0 + w2_i / 3.0);
+            raw[19] = k_star[0] * v2_i * w2_i + 2.0 * k_star[12] * v_i + 2.0 * k_star[15] * w_i + k_star[19] + 2.0 * k_star[2] * v_i * w2_i + 2.0 * k_star[3] * v2_i * w_i + 4.0 * k_star[6] * v_i * w_i + k_star[7] * (v2_i / 3.0 - 2.0 * w2_i / 3.0) + k_star[8] * (-2.0 * v2_i / 3.0 + w2_i / 3.0) + k_star[9] * (v2_i / 3.0 + w2_i / 3.0);
+            raw[20] = k_star[0] * u2_i * v_i * w_i + k_star[13] * w_i + k_star[14] * v_i + 2.0 * k_star[16] * u_i + 2.0 * k_star[1] * u_i * v_i * w_i + k_star[20] + k_star[2] * u2_i * w_i + k_star[3] * u2_i * v_i + 2.0 * k_star[4] * u_i * w_i + 2.0 * k_star[5] * u_i * v_i + k_star[6] * u2_i + k_star[7] * v_i * w_i / 3.0 + k_star[8] * v_i * w_i / 3.0 + k_star[9] * v_i * w_i / 3.0;
+            raw[21] = k_star[0] * u_i * v2_i * w_i + k_star[10] * w_i + k_star[15] * u_i + 2.0 * k_star[16] * v_i + k_star[1] * v2_i * w_i + k_star[21] + 2.0 * k_star[2] * u_i * v_i * w_i + k_star[3] * u_i * v2_i + 2.0 * k_star[4] * v_i * w_i + k_star[5] * v2_i + 2.0 * k_star[6] * u_i * v_i - 2.0 * k_star[7] * u_i * w_i / 3.0 + k_star[8] * u_i * w_i / 3.0 + k_star[9] * u_i * w_i / 3.0;
+            raw[22] = k_star[0] * u_i * v_i * w2_i + k_star[11] * v_i + k_star[12] * u_i + 2.0 * k_star[16] * w_i + k_star[1] * v_i * w2_i + k_star[22] + k_star[2] * u_i * w2_i + 2.0 * k_star[3] * u_i * v_i * w_i + k_star[4] * w2_i + 2.0 * k_star[5] * v_i * w_i + 2.0 * k_star[6] * u_i * w_i + k_star[7] * u_i * v_i / 3.0 - 2.0 * k_star[8] * u_i * v_i / 3.0 + k_star[9] * u_i * v_i / 3.0;
+            raw[23] = k_star[0] * u_i * v2_i * w2_i + k_star[10] * w2_i + k_star[11] * v2_i + 2.0 * k_star[12] * u_i * v_i + 2.0 * k_star[15] * u_i * w_i + 4.0 * k_star[16] * v_i * w_i + k_star[19] * u_i + k_star[1] * v2_i * w2_i + 2.0 * k_star[21] * w_i + 2.0 * k_star[22] * v_i + k_star[23] + 2.0 * k_star[2] * u_i * v_i * w2_i + 2.0 * k_star[3] * u_i * v2_i * w_i + 2.0 * k_star[4] * v_i * w2_i + 2.0 * k_star[5] * v2_i * w_i + 4.0 * k_star[6] * u_i * v_i * w_i + k_star[7] * u_i * (v2_i - 2.0 * w2_i) / 3.0 - k_star[8] * u_i * (2.0 * v2_i - w2_i) / 3.0 + k_star[9] * u_i * (v2_i + w2_i) / 3.0;
+            raw[24] = k_star[0] * u2_i * v_i * w2_i + 2.0 * k_star[11] * u_i * v_i + k_star[12] * u2_i + k_star[13] * w2_i + 2.0 * k_star[14] * v_i * w_i + 4.0 * k_star[16] * u_i * w_i + k_star[18] * v_i + 2.0 * k_star[1] * u_i * v_i * w2_i + 2.0 * k_star[20] * w_i + 2.0 * k_star[22] * u_i + k_star[24] + k_star[2] * u2_i * w2_i + 2.0 * k_star[3] * u2_i * v_i * w_i + 2.0 * k_star[4] * u_i * w2_i + 4.0 * k_star[5] * u_i * v_i * w_i + 2.0 * k_star[6] * u2_i * w_i + k_star[7] * v_i * (u2_i + w2_i) / 3.0 - k_star[8] * v_i * (2.0 * u2_i - w2_i) / 3.0 + k_star[9] * v_i * (u2_i + w2_i) / 3.0;
+            raw[25] = k_star[0] * u2_i * v2_i * w_i + 2.0 * k_star[10] * u_i * w_i + 2.0 * k_star[13] * v_i * w_i + k_star[14] * v2_i + k_star[15] * u2_i + 4.0 * k_star[16] * u_i * v_i + k_star[17] * w_i + 2.0 * k_star[1] * u_i * v2_i * w_i + 2.0 * k_star[20] * v_i + 2.0 * k_star[21] * u_i + k_star[25] + 2.0 * k_star[2] * u2_i * v_i * w_i + k_star[3] * u2_i * v2_i + 4.0 * k_star[4] * u_i * v_i * w_i + 2.0 * k_star[5] * u_i * v2_i + 2.0 * k_star[6] * u2_i * v_i - k_star[7] * w_i * (2.0 * u2_i - v2_i) / 3.0 + k_star[8] * w_i * (u2_i + v2_i) / 3.0 + k_star[9] * w_i * (u2_i + v2_i) / 3.0;
+            raw[26] = k_star[0] * u2_i * v2_i * w2_i + 2.0 * k_star[10] * u_i * w2_i + 2.0 * k_star[11] * u_i * v2_i + 2.0 * k_star[12] * u2_i * v_i + 2.0 * k_star[13] * v_i * w2_i + 2.0 * k_star[14] * v2_i * w_i + 2.0 * k_star[15] * u2_i * w_i + 8.0 * k_star[16] * u_i * v_i * w_i + k_star[17] * w2_i + k_star[18] * v2_i + k_star[19] * u2_i + 2.0 * k_star[1] * u_i * v2_i * w2_i + 4.0 * k_star[20] * v_i * w_i + 4.0 * k_star[21] * u_i * w_i + 4.0 * k_star[22] * u_i * v_i + 2.0 * k_star[23] * u_i + 2.0 * k_star[24] * v_i + 2.0 * k_star[25] * w_i + k_star[26] + 2.0 * k_star[2] * u2_i * v_i * w2_i + 2.0 * k_star[3] * u2_i * v2_i * w_i + 4.0 * k_star[4] * u_i * v_i * w2_i + 4.0 * k_star[5] * u_i * v2_i * w_i + 4.0 * k_star[6] * u2_i * v_i * w_i + k_star[7] * (u2_i * v2_i / 3.0 - 2.0 * u2_i * w2_i / 3.0 + v2_i * w2_i / 3.0) + k_star[8] * (-2.0 * u2_i * v2_i / 3.0 + u2_i * w2_i / 3.0 + v2_i * w2_i / 3.0) + k_star[9] * (u2_i * v2_i / 3.0 + u2_i * w2_i / 3.0 + v2_i * w2_i / 3.0);
 
-            f2[INDEX_F(i, j, k, 0, n)] = raw[0] + raw[17] - raw[26] - raw[9];
-            f2[INDEX_F(i, j, k, 1, n)] = -raw[10] / 2.0 - raw[17] / 4.0 - raw[18] / 4.0 + raw[1] / 2.0 + raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
-            f2[INDEX_F(i, j, k, 2, n)] = raw[10] / 2.0 - raw[17] / 4.0 - raw[18] / 4.0 - raw[1] / 2.0 - raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
-            f2[INDEX_F(i, j, k, 3, n)] = -raw[11] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 - raw[19] / 4.0 + raw[24] / 2.0 + raw[26] / 2.0 + raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
-            f2[INDEX_F(i, j, k, 4, n)] = raw[11] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 - raw[19] / 4.0 - raw[24] / 2.0 + raw[26] / 2.0 - raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
-            f2[INDEX_F(i, j, k, 5, n)] = -raw[12] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 + raw[19] / 4.0 + raw[25] / 2.0 + raw[26] / 2.0 + raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
-            f2[INDEX_F(i, j, k, 6, n)] = raw[12] / 2.0 - 3.0 * raw[17] / 8.0 + raw[18] / 8.0 + raw[19] / 4.0 - raw[25] / 2.0 + raw[26] / 2.0 - raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
-            f2[INDEX_F(i, j, k, 7, n)] = raw[10] / 8.0 + raw[11] / 8.0 + raw[13] / 8.0 + raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 - raw[22] / 4.0 - raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
-            f2[INDEX_F(i, j, k, 8, n)] = -raw[10] / 8.0 + raw[11] / 8.0 - raw[13] / 8.0 + raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 + raw[22] / 4.0 + raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
-            f2[INDEX_F(i, j, k, 9, n)] = raw[10] / 8.0 - raw[11] / 8.0 + raw[13] / 8.0 - raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 + raw[22] / 4.0 - raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
-            f2[INDEX_F(i, j, k, 10, n)] = -raw[10] / 8.0 - raw[11] / 8.0 - raw[13] / 8.0 - raw[14] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 + raw[19] / 8.0 - raw[22] / 4.0 + raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
-            f2[INDEX_F(i, j, k, 11, n)] = raw[10] / 8.0 + raw[12] / 8.0 - raw[13] / 8.0 + raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 - raw[21] / 4.0 - raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
-            f2[INDEX_F(i, j, k, 12, n)] = -raw[10] / 8.0 + raw[12] / 8.0 + raw[13] / 8.0 + raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 + raw[21] / 4.0 + raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
-            f2[INDEX_F(i, j, k, 13, n)] = raw[10] / 8.0 - raw[12] / 8.0 - raw[13] / 8.0 - raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 + raw[21] / 4.0 - raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
-            f2[INDEX_F(i, j, k, 14, n)] = -raw[10] / 8.0 - raw[12] / 8.0 + raw[13] / 8.0 - raw[15] / 8.0 + raw[17] / 16.0 + raw[18] / 16.0 - raw[19] / 8.0 - raw[21] / 4.0 + raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
-            f2[INDEX_F(i, j, k, 15, n)] = raw[11] / 8.0 + raw[12] / 8.0 - raw[14] / 8.0 - raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 - raw[20] / 4.0 - raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
-            f2[INDEX_F(i, j, k, 16, n)] = -raw[11] / 8.0 + raw[12] / 8.0 + raw[14] / 8.0 - raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 + raw[20] / 4.0 + raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
-            f2[INDEX_F(i, j, k, 17, n)] = raw[11] / 8.0 - raw[12] / 8.0 - raw[14] / 8.0 + raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 + raw[20] / 4.0 - raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
-            f2[INDEX_F(i, j, k, 18, n)] = -raw[11] / 8.0 - raw[12] / 8.0 + raw[14] / 8.0 + raw[15] / 8.0 + raw[17] / 8.0 - raw[18] / 8.0 - raw[20] / 4.0 + raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
+            f2[INDEX_F(i, j, k, 0, n)] = raw[0] + raw[17] + raw[18] + raw[19] - raw[26] - raw[9];
+            f2[INDEX_F(i, j, k, 1, n)] = -raw[10] / 2.0 - raw[11] / 2.0 - raw[17] / 2.0 - raw[18] / 2.0 + raw[1] / 2.0 + raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
+            f2[INDEX_F(i, j, k, 2, n)] = raw[10] / 2.0 + raw[11] / 2.0 - raw[17] / 2.0 - raw[18] / 2.0 - raw[1] / 2.0 - raw[23] / 2.0 + raw[26] / 2.0 + raw[7] / 6.0 + raw[8] / 6.0 + raw[9] / 6.0;
+            f2[INDEX_F(i, j, k, 3, n)] = -raw[12] / 2.0 - raw[13] / 2.0 - raw[17] / 2.0 - raw[19] / 2.0 + raw[24] / 2.0 + raw[26] / 2.0 + raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
+            f2[INDEX_F(i, j, k, 4, n)] = raw[12] / 2.0 + raw[13] / 2.0 - raw[17] / 2.0 - raw[19] / 2.0 - raw[24] / 2.0 + raw[26] / 2.0 - raw[2] / 2.0 - raw[7] / 3.0 + raw[8] / 6.0 + raw[9] / 6.0;
+            f2[INDEX_F(i, j, k, 5, n)] = -raw[14] / 2.0 - raw[15] / 2.0 - raw[18] / 2.0 - raw[19] / 2.0 + raw[25] / 2.0 + raw[26] / 2.0 + raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
+            f2[INDEX_F(i, j, k, 6, n)] = raw[14] / 2.0 + raw[15] / 2.0 - raw[18] / 2.0 - raw[19] / 2.0 - raw[25] / 2.0 + raw[26] / 2.0 - raw[3] / 2.0 + raw[7] / 6.0 - raw[8] / 3.0 + raw[9] / 6.0;
+            f2[INDEX_F(i, j, k, 7, n)] = raw[10] / 4.0 + raw[13] / 4.0 + raw[17] / 4.0 - raw[22] / 4.0 - raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
+            f2[INDEX_F(i, j, k, 8, n)] = -raw[10] / 4.0 + raw[13] / 4.0 + raw[17] / 4.0 + raw[22] / 4.0 + raw[23] / 4.0 - raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
+            f2[INDEX_F(i, j, k, 9, n)] = raw[10] / 4.0 - raw[13] / 4.0 + raw[17] / 4.0 + raw[22] / 4.0 - raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 - raw[4] / 4.0;
+            f2[INDEX_F(i, j, k, 10, n)] = -raw[10] / 4.0 - raw[13] / 4.0 + raw[17] / 4.0 - raw[22] / 4.0 + raw[23] / 4.0 + raw[24] / 4.0 - raw[26] / 4.0 + raw[4] / 4.0;
+            f2[INDEX_F(i, j, k, 11, n)] = raw[11] / 4.0 + raw[14] / 4.0 + raw[18] / 4.0 - raw[21] / 4.0 - raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
+            f2[INDEX_F(i, j, k, 12, n)] = -raw[11] / 4.0 + raw[14] / 4.0 + raw[18] / 4.0 + raw[21] / 4.0 + raw[23] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
+            f2[INDEX_F(i, j, k, 13, n)] = raw[11] / 4.0 - raw[14] / 4.0 + raw[18] / 4.0 + raw[21] / 4.0 - raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[5] / 4.0;
+            f2[INDEX_F(i, j, k, 14, n)] = -raw[11] / 4.0 - raw[14] / 4.0 + raw[18] / 4.0 - raw[21] / 4.0 + raw[23] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[5] / 4.0;
+            f2[INDEX_F(i, j, k, 15, n)] = raw[12] / 4.0 + raw[15] / 4.0 + raw[19] / 4.0 - raw[20] / 4.0 - raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
+            f2[INDEX_F(i, j, k, 16, n)] = -raw[12] / 4.0 + raw[15] / 4.0 + raw[19] / 4.0 + raw[20] / 4.0 + raw[24] / 4.0 - raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
+            f2[INDEX_F(i, j, k, 17, n)] = raw[12] / 4.0 - raw[15] / 4.0 + raw[19] / 4.0 + raw[20] / 4.0 - raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 - raw[6] / 4.0;
+            f2[INDEX_F(i, j, k, 18, n)] = -raw[12] / 4.0 - raw[15] / 4.0 + raw[19] / 4.0 - raw[20] / 4.0 + raw[24] / 4.0 + raw[25] / 4.0 - raw[26] / 4.0 + raw[6] / 4.0;
             f2[INDEX_F(i, j, k, 19, n)] = raw[16] / 8.0 + raw[20] / 8.0 + raw[21] / 8.0 + raw[22] / 8.0 + raw[23] / 8.0 + raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
             f2[INDEX_F(i, j, k, 20, n)] = -raw[16] / 8.0 + raw[20] / 8.0 - raw[21] / 8.0 - raw[22] / 8.0 - raw[23] / 8.0 + raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
             f2[INDEX_F(i, j, k, 21, n)] = -raw[16] / 8.0 - raw[20] / 8.0 + raw[21] / 8.0 - raw[22] / 8.0 + raw[23] / 8.0 - raw[24] / 8.0 + raw[25] / 8.0 + raw[26] / 8.0;
@@ -536,34 +588,181 @@ void collide(SimulationBag *sim)
 
 void compute_stationary_equilibrium(double rho, double cs2, double *feq)
 {
-    double cs4 = cs2 * cs2;
-    double cs6 = cs2 * cs4;
+    feq[0] = rho * (1.0 - 19.0 * cs2 / 9.0);
+    feq[1] = 2.0 * cs2 * rho / 9.0;
+    feq[2] = 2.0 * cs2 * rho / 9.0;
+    feq[3] = 2.0 * cs2 * rho / 9.0;
+    feq[4] = 2.0 * cs2 * rho / 9.0;
+    feq[5] = 2.0 * cs2 * rho / 9.0;
+    feq[6] = 2.0 * cs2 * rho / 9.0;
+    feq[7] = cs2 * rho / 18.0;
+    feq[8] = cs2 * rho / 18.0;
+    feq[9] = cs2 * rho / 18.0;
+    feq[10] = cs2 * rho / 18.0;
+    feq[11] = cs2 * rho / 18.0;
+    feq[12] = cs2 * rho / 18.0;
+    feq[13] = cs2 * rho / 18.0;
+    feq[14] = cs2 * rho / 18.0;
+    feq[15] = cs2 * rho / 18.0;
+    feq[16] = cs2 * rho / 18.0;
+    feq[17] = cs2 * rho / 18.0;
+    feq[18] = cs2 * rho / 18.0;
+    feq[19] = cs2 * rho / 72.0;
+    feq[20] = cs2 * rho / 72.0;
+    feq[21] = cs2 * rho / 72.0;
+    feq[22] = cs2 * rho / 72.0;
+    feq[23] = cs2 * rho / 72.0;
+    feq[24] = cs2 * rho / 72.0;
+    feq[25] = cs2 * rho / 72.0;
+    feq[26] = cs2 * rho / 72.0;
+}
 
-    feq[0] = rho * (-2.0 * cs2 - cs6 + 1.0);
-    feq[1] = rho * (cs2 - cs4 + 2.0 * cs6) / 4.0;
-    feq[2] = rho * (cs2 - cs4 + 2.0 * cs6) / 4.0;
-    feq[3] = rho * (cs2 + cs4 + 4.0 * cs6) / 8.0;
-    feq[4] = rho * (cs2 + cs4 + 4.0 * cs6) / 8.0;
-    feq[5] = rho * (cs2 + cs4 + 4.0 * cs6) / 8.0;
-    feq[6] = rho * (cs2 + cs4 + 4.0 * cs6) / 8.0;
-    feq[7] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
-    feq[8] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
-    feq[9] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
-    feq[10] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
-    feq[11] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
-    feq[12] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
-    feq[13] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
-    feq[14] = rho * (cs2 + cs4 - 4.0 * cs6) / 16.0;
-    feq[15] = rho * (cs2 - cs4 - 2.0 * cs6) / 8.0;
-    feq[16] = rho * (cs2 - cs4 - 2.0 * cs6) / 8.0;
-    feq[17] = rho * (cs2 - cs4 - 2.0 * cs6) / 8.0;
-    feq[18] = rho * (cs2 - cs4 - 2.0 * cs6) / 8.0;
-    feq[19] = cs6 * rho / 8.0;
-    feq[20] = cs6 * rho / 8.0;
-    feq[21] = cs6 * rho / 8.0;
-    feq[22] = cs6 * rho / 8.0;
-    feq[23] = cs6 * rho / 8.0;
-    feq[24] = cs6 * rho / 8.0;
-    feq[25] = cs6 * rho / 8.0;
-    feq[26] = cs6 * rho / 8.0;
+void compute_Q_corrections(SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+    GlobalFieldBag *glob_fields = sim->glob_fields;
+    Stencil *stencil = sim->stencil;
+
+    double Qx_i, Qy_i, Qz_i;
+    double qx, qy, qz;
+    double cs2_i;
+
+    int ic, jc, kc;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+    int NP = stencil->NP;
+
+    int *flag = glob_fields->flag;
+
+    int i_start = params->i_start;
+    int i_end = params->i_end;
+
+    int *cx = stencil->cx;
+    int *cy = stencil->cy;
+    int *cz = stencil->cz;
+    double *wp = stencil->wp;
+    double *cs2 = stencil->cs2;
+
+    double *rho_comp = comp_fields->rho_comp;
+    double *Qx = comp_fields->Qx;
+    double *Qy = comp_fields->Qy;
+    double *Qz = comp_fields->Qz;
+
+    double *u = glob_fields->u;
+    double *v = glob_fields->v;
+    double *w = glob_fields->w;
+
+    FOR_DOMAIN
+    {
+        for (int n = 0; n < NCOMP; n++)
+        {
+            Qx_i = 0.0;
+            Qy_i = 0.0;
+            Qz_i = 0.0;
+
+            cs2_i = cs2[n];
+
+            for (int p = 0; p < NP; p++)
+            {
+                ic = i + cx[p];
+                jc = j + cy[p];
+                kc = k + cz[p];
+
+#ifdef YPERIODIC
+                jc = mod(jc, NY);
+#endif
+#ifdef ZPERIODIC
+                kc = mod(kc, NZ);
+#endif
+
+                if (flag[INDEX_FLAG(ic, jc, kc)] > 0)
+                {
+                    qx = extrapolate_wall_q(ic, jc, kc, n, 0, sim);
+                    qy = extrapolate_wall_q(ic, jc, kc, n, 1, sim);
+                    qz = extrapolate_wall_q(ic, jc, kc, n, 2, sim);
+                    goto skip;
+                }
+
+                qx = rho_comp[INDEX(ic, jc, kc, n)] * u[INDEX_GLOB(ic, jc, kc)];
+                qy = rho_comp[INDEX(ic, jc, kc, n)] * v[INDEX_GLOB(ic, jc, kc)];
+                qz = rho_comp[INDEX(ic, jc, kc, n)] * w[INDEX_GLOB(ic, jc, kc)];
+
+            skip:
+
+                Qx_i += wp[p] * qx * (double)cx[p];
+                Qy_i += wp[p] * qy * (double)cy[p];
+                Qz_i += wp[p] * qz * (double)cz[p];
+            }
+
+            Qx[INDEX(i, j, k, n)] = -9.0 * (cs2_i - 1.0/3.0) * Qx_i;
+            Qy[INDEX(i, j, k, n)] = -9.0 * (cs2_i - 1.0/3.0) * Qy_i;
+            Qz[INDEX(i, j, k, n)] = -9.0 * (cs2_i - 1.0/3.0) * Qz_i;
+        }
+    }
+}
+
+double extrapolate_wall_q(int i, int j, int k, int n, int alpha, SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    Stencil *stencil = sim->stencil;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+    GlobalFieldBag *glob_fields = sim->glob_fields;
+
+    int ic, jc, kc;
+    double sum_q, sum_wp;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+
+    int i_start = params->i_start;
+
+    int NP = stencil->NP;
+    int *cx = stencil->cx;
+    int *cy = stencil->cy;
+    int *cz = stencil->cz;
+    double *wp = stencil->wp;
+
+    double *rho_comp = comp_fields->rho_comp;
+
+    double *u = glob_fields->u;
+    double *v = glob_fields->v;
+    double *w = glob_fields->w;
+    double *u_vec[3] = {u, v, w};
+
+    sum_q = 0.0;
+    sum_wp = 0.0;
+
+    for (int p = 1; p < NP; p++)
+    {
+        ic = i + cx[p];
+        jc = j + cy[p];
+        kc = k + cz[p];
+
+#ifndef XPERIODIC
+        if ((ic < 0) || (ic > params->NX - 1))
+            continue;
+#endif
+#ifndef YPERIODIC
+        if ((jc < 0) || (jc > NY - 1))
+            continue;
+#else
+        jc = mod(jc, NY);
+#endif
+#ifndef ZPERIODIC
+        if ((kc < 0) || (kc > NZ - 1))
+            continue;
+#else
+        kc = mod(kc, NZ);
+#endif
+
+        sum_q += wp[p] * (rho_comp[INDEX(ic, jc, kc, n)] * u_vec[alpha][INDEX_GLOB(ic, jc, kc)]);
+        sum_wp += wp[p];
+    }
+
+    if (sum_wp == 0.0)
+        return 0.0;
+    else
+        return sum_q / sum_wp;
 }

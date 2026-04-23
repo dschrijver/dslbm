@@ -6,15 +6,15 @@
 static inline void set_params(ParamBag *params)
 {
     // General parameters
-    params->NTIME   = 10;
-    params->NSTORE  = 1;
-    params->NLOG    = 1;
+    params->NTIME   = 10000;
+    params->NSTORE  = 100;
+    params->NLOG    = 10;
     params->NX      = 100;
     params->NY      = 100;
     params->NZ      = 1;
 
     // Initial denities
-    params->rho_0_RED   = 1.0;
+    params->rho_0_RED   = 10.0;
     params->rho_0_BLUE  = 1.0;
 
     // Kinematic viscosities

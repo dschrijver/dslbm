@@ -12,11 +12,19 @@ void communicate_fields(SimulationBag *sim)
         return;
 
     GlobalFieldBag *glob_fields = sim->glob_fields;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
 
     double *send_buffer = glob_fields->send_buffer;
     double *recv_buffer = glob_fields->recv_buffer;
 
+    double *send_buffer_comp = comp_fields->send_buffer;
+    double *recv_buffer_comp = comp_fields->recv_buffer;
+
     communicate_field(glob_fields->rho_N, send_buffer, recv_buffer, 0, sim);
+    communicate_field(glob_fields->u, send_buffer, recv_buffer, 0, sim);
+    communicate_field(glob_fields->v, send_buffer, recv_buffer, 0, sim);
+    communicate_field(glob_fields->w, send_buffer, recv_buffer, 0, sim);
+    communicate_comp_field(comp_fields->rho_comp, send_buffer_comp, recv_buffer_comp, 0, sim);
 }
 
 void communicate_field(double *field, double *send_buffer, double *recv_buffer, int tag, SimulationBag *sim)
@@ -53,6 +61,43 @@ void communicate_field(double *field, double *send_buffer, double *recv_buffer, 
     if (process_neighbors[0] != MPI_PROC_NULL)
     {
         memcpy(&field[INDEX_GLOB(i_start - 2, 0, 0)], recv_buffer, buffer_size);
+    }
+}
+
+void communicate_comp_field(double *field, double *send_buffer, double *recv_buffer, int tag, SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+
+    int NY = params->NY;
+    int NZ = params->NZ;
+    int i_start = params->i_start;
+    int i_end = params->i_end;
+    int *process_neighbors = params->process_neighbors;
+    MPI_Comm comm_xslices = params->comm_xslices;
+
+    MPI_Status status_first;
+
+    int buffer_size = 2 * NY * NZ * NCOMP * sizeof(double);
+    int buffer_number = 2 * NY * NZ * NCOMP;
+
+    if (process_neighbors[0] != MPI_PROC_NULL)
+    {
+        memcpy(send_buffer, &field[INDEX(i_start, 0, 0, 0)], buffer_size);
+    }
+    MPI_Sendrecv(send_buffer, buffer_number, MPI_DOUBLE, process_neighbors[0], tag, recv_buffer, buffer_number, MPI_DOUBLE, process_neighbors[1], tag, comm_xslices, &status_first);
+    if (process_neighbors[1] != MPI_PROC_NULL)
+    {
+        memcpy(&field[INDEX(i_end, 0, 0, 0)], recv_buffer, buffer_size);
+    }
+
+    if (process_neighbors[1] != MPI_PROC_NULL)
+    {
+        memcpy(send_buffer, &field[INDEX(i_end - 2, 0, 0, 0)], buffer_size);
+    }
+    MPI_Sendrecv(send_buffer, buffer_number, MPI_DOUBLE, process_neighbors[1], tag + 1, recv_buffer, buffer_number, MPI_DOUBLE, process_neighbors[0], tag + 1, comm_xslices, &status_first);
+    if (process_neighbors[0] != MPI_PROC_NULL)
+    {
+        memcpy(&field[INDEX(i_start - 2, 0, 0, 0)], recv_buffer, buffer_size);
     }
 }
 

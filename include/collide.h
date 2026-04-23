@@ -8,5 +8,7 @@ void evaluate_color_gradients(SimulationBag *sim);
 double extrapolate_wall_rho_N(int i, int j, int k, SimulationBag *sim);
 void collide(SimulationBag *sim);
 void compute_stationary_equilibrium(double rho, double cs2, double *feq);
+void compute_Q_corrections(SimulationBag *sim);
+double extrapolate_wall_q(int i, int j, int k, int n, int alpha, SimulationBag *sim);
 
 #endif

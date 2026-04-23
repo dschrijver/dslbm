@@ -119,6 +119,15 @@ typedef struct ComponentFieldBag
     double *u_comp;
     double *v_comp;
     double *w_comp;
+
+    // Wen's correction
+    double *Qx;
+    double *Qy;
+    double *Qz;
+
+    // Communication
+    double *send_buffer;
+    double *recv_buffer;
 } ComponentFieldBag;
 
 typedef struct Stencil

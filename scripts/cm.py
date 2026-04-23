@@ -5,6 +5,9 @@ class DotZeroPrinter(StrPrinter):
     def _print_Integer(self, expr):
         return f"{expr}.0"
 
+def t(a, b, c):
+    return CX**a * CY**b * CZ**c
+
 U = Symbol("u_i")
 U2 = Symbol("u2_i")
 U3 = Symbol("u3_i")
@@ -36,6 +39,7 @@ G2y = Symbol("G2y_i")
 Gz = Symbol("Gz_i")
 G2z = Symbol("G2z_i")
 sigma = Symbol("sigma")
+alpha = 1-19/9*cs2
 
 NP = 27
 
@@ -45,15 +49,41 @@ cy = [0, 0, 0, 1, -1, 0, 0, 1, 1, -1, -1, 0, 0, 0, 0, 1, -1, 1, -1, 1, 1, -1, -1
 cz = [0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1]
 wp = [8 / 27, 2 / 27, 2 / 27, 2 / 27, 2 / 27, 2 / 27, 2 / 27, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216]
 B = [-16 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 2 / 81, 7 / 648, 7 / 648, 7 / 648, 7 / 648, 7 / 648, 7 / 648, 7 / 648, 7 / 648]
+phi = [alpha, 2/19*(1-alpha), 2/19*(1-alpha), 2/19*(1-alpha), 2/19*(1-alpha), 2/19*(1-alpha), 2/19*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha)]
 
 freq = diag(*[1, 1, 1, 1, omega, omega, omega, omega, omega, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
 T = zeros(NP, NP)
+T_natural = zeros(NP, NP)
 M = zeros(NP, NP)
+feq_wen = zeros(NP, 1)
 
 for p in range(NP):
-    # M Matrix
+    # Wen 2019, 10.1103/PhysRevE.100.023301
+    uc = U*cx[p] + V*cy[p] + W*cz[p]
+    u2 = U*U + V*V + W*W
+    c2 = cx[p]*cx[p] + cy[p]*cy[p] + cz[p]*cz[p]
 
+    first_order = (U*cx[p]+V*cy[p]+W*cz[p])/(1/3)
+    second_order = (U*cx[p]+V*cy[p]+W*cz[p])**2/(2*(1/9)) - (U*U+V*V+W*W)/(2*(1/3))
+    third_order = ((cx[p]**2-(1/3))*cy[p]*U*U*V + (cx[p]**2-(1/3))*cz[p]*U*U*W + 
+                   (cy[p]**2-(1/3))*cx[p]*U*V*V + (cz[p]**2-(1/3))*cx[p]*U*W*W + 
+                   (cz[p]**2-(1/3))*cy[p]*V*W*W + (cy[p]**2-(1/3))*cz[p]*V*V*W + 
+                   2*( cx[p]*cy[p]*cz[p]*U*V*W)) / (2*(1/27))
+    fourth_order = ((cx[p]**2-(1/3))*(cy[p]**2-(1/3))*U*U*V*V + 
+                    (cx[p]**2-(1/3))*(cz[p]**2-(1/3))*U*U*W*W + 
+                    (cy[p]**2-(1/3))*(cz[p]**2-(1/3))*V*V*W*W + 
+                  2*(cx[p]*cy[p]*(cz[p]**2-(1/3))*U*V*W*W + 
+                     cx[p]*(cy[p]**2-(1/3))*cz[p]*U*V*V*W + 
+                     (cx[p]**2-(1/3))*cy[p]*cz[p]*U*U*V*W))/(4*(1/81))
+    fifth_order = ((cx[p]**2-(1/3))*cy[p]*(cz[p]**2-(1/3))*U*U*V*W*W + 
+                   (cx[p]**2-(1/3))*(cy[p]**2-(1/3))*cz[p]*U*U*V*V*W + 
+                   cx[p]*(cy[p]**2-(1/3))*(cz[p]**2-(1/3))*U*V*V*W*W) / (4*(1/243))
+    sixth_order = ((cx[p]**2-(1/3))*(cy[p]**2-(1/3))*(cz[p]**2-(1/3))*U*U*V*V*W*W) / (8*(1/729))
+
+    feq_wen[p,0] = rho*(phi[p] + wp[p]*(first_order + second_order + third_order + fourth_order + fifth_order + sixth_order + 3/2*uc*(3*cs2 - 1)*(3*c2 - 5)))
+
+    # M Matrix
     M[p,0] = 1
     M[p,1] = cx[p]
     M[p,2] = cy[p]
@@ -119,6 +149,41 @@ for p in range(NP):
     T[p,25] = CX2*CY2*CZ
     T[p,26] = CX2*CY2*CZ2
 
+    T_natural[p,0] = 1
+
+    T_natural[p,1] = t(1,0,0)
+    T_natural[p,2] = t(0,1,0)
+    T_natural[p,3] = t(0,0,1)
+
+    T_natural[p,4] = t(1,1,0)
+    T_natural[p,5] = t(0,1,1)
+    T_natural[p,6] = t(1,0,1)
+    T_natural[p,7] = t(2,0,0)
+    T_natural[p,8] = t(0,2,0)
+    T_natural[p,9] = t(0,0,2)
+
+    T_natural[p,10] = t(1,2,0)
+    T_natural[p,11] = t(1,0,2)
+    T_natural[p,12] = t(0,1,2)
+    T_natural[p,13] = t(2,1,0)
+    T_natural[p,14] = t(2,0,1)
+    T_natural[p,15] = t(0,2,1)
+    T_natural[p,16] = t(1,1,1)
+
+    T_natural[p,17] = t(2,2,0)
+    T_natural[p,18] = t(2,0,2)
+    T_natural[p,19] = t(0,2,2)
+    T_natural[p,20] = t(2,1,1)
+    T_natural[p,21] = t(1,2,1)
+    T_natural[p,22] = t(1,1,2)
+
+    T_natural[p,23] = t(1,2,2)
+    T_natural[p,24] = t(2,1,2)
+    T_natural[p,25] = t(2,2,1)
+
+    T_natural[p,26] = t(2,2,2) 
+
+
 printer = DotZeroPrinter()
 
 T = simplify(T)
@@ -148,12 +213,21 @@ sneq = nsimplify(simplify(sneq), tolerance=1e-12)
 for p in range(NP):
     print("sneq[%d] = "%(p) + str(printer.doprint(sneq[p,0])) + ";")
 
+# My equilibrium
 keq = zeros(NP, 1)
 keq[0,0] = rho
 keq[9,0] = 3*rho*cs2
 keq[17,0] = rho*cs2
 keq[18,0] = rho*cs2**2
 keq[26,0] = rho*cs2**3
+
+# Wen 2019, 10.1103/PhysRevE.100.023301
+feq_wen = nsimplify(simplify(feq_wen), tolerance=1e-12)
+keq_wen = T_natural.T*feq_wen
+keq_wen = nsimplify(simplify(keq_wen), tolerance=1e-12)
+keq_wen = keq_wen.subs([(U**2, U2), (V**2, V2), (W**2, W2), (cs2**2, cs4), (cs2**3, cs6), (cs2**4, cs8)])
+for p in range(NP):
+    print("keq_wen[%d] = "%(p) + str(printer.doprint(keq_wen[p,0])) + ";")
 
 eq = (T.T).inv()*keq
 eq = eq.subs([(U, 0), (V, 0), (W, 0), (cs2**2, cs4), (cs2**3, cs6), (cs2**4, cs8)])

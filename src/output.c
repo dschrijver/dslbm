@@ -49,6 +49,9 @@ void output_data(SimulationBag *sim)
     output_comp_field(Fx, "Fx", file_id, sim);
     output_comp_field(Fy, "Fy", file_id, sim);
     output_comp_field(Fz, "Fz", file_id, sim);
+    output_comp_field(comp_fields->Qx, "Qx", file_id, sim);
+    output_comp_field(comp_fields->Qy, "Qy", file_id, sim);
+    output_comp_field(comp_fields->Qz, "Qz", file_id, sim);
 
     // Close file
     H5Fflush(file_id, H5F_SCOPE_GLOBAL);

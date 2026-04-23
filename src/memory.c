@@ -91,6 +91,13 @@ void allocate_fields(SimulationBag *sim)
     comp_fields->u_comp = (double *)malloc(component_malloc_size);
     comp_fields->v_comp = (double *)malloc(component_malloc_size);
     comp_fields->w_comp = (double *)malloc(component_malloc_size);
+    comp_fields->Qx = (double *)malloc(component_malloc_size);
+    comp_fields->Qy = (double *)malloc(component_malloc_size);
+    comp_fields->Qz = (double *)malloc(component_malloc_size);
+
+    malloc_size = 2 * NY * NZ * NCOMP * sizeof(double);
+    comp_fields->send_buffer = (double *)malloc(malloc_size);
+    comp_fields->recv_buffer = (double *)malloc(malloc_size);
 }
 
 void free_all(SimulationBag *sim)
@@ -131,6 +138,11 @@ void free_all(SimulationBag *sim)
     free(comp_fields->u_comp);
     free(comp_fields->v_comp);
     free(comp_fields->w_comp);
+    free(comp_fields->Qx);
+    free(comp_fields->Qy);
+    free(comp_fields->Qz);
+    free(comp_fields->send_buffer);
+    free(comp_fields->recv_buffer);
 
     free(stencil->cx);
     free(stencil->cy);
