@@ -30,9 +30,9 @@ typedef struct ParamBag
     double nu_RED;
     double nu_BLUE;
 
-    // Speed of sound parameters
-    double alpha_RED;
-    double alpha_BLUE;
+    // Speeds of sound squared
+    double cs2_RED;
+    double cs2_BLUE;
 
     // Surface tension
     double sigma;
@@ -44,6 +44,11 @@ typedef struct ParamBag
     double gx;
     double gy;
     double gz;
+
+    // Constant body forces
+    double Fb_x;
+    double Fb_y;
+    double Fb_z;
 
     // MPI
     int number_of_processes;  ///< Stores number of processes
@@ -69,10 +74,11 @@ typedef struct DistributionBag
 {
     double *f1;
     double *f2;
-    double *raw;
-    double *k_pert;
-    double *k_star;
-    double *feq;
+
+    double *meq;
+    double *t_star;
+    double *m_star;
+    double *f_star;
 
     // Communication
     double *send_buffer;
@@ -96,6 +102,19 @@ typedef struct GlobalFieldBag
     double *Gx;
     double *Gy;
     double *Gz;
+    double *nx;
+    double *ny;
+    double *nz;
+
+    // Wen's correction
+    double *Qx;
+    double *Qy;
+    double *Qz;
+
+    // Forces
+    double *Fx;
+    double *Fy;
+    double *Fz;
 
     // Boundaries
     int *flag;
@@ -110,31 +129,14 @@ typedef struct ComponentFieldBag
     // Densities of components
     double *rho_comp;
 
-    // Forces on components
-    double *Fx;
-    double *Fy;
-    double *Fz;
-
     // Component velocities
     double *u_comp;
     double *v_comp;
     double *w_comp;
-
-    // Wen's correction
-    double *Qx;
-    double *Qy;
-    double *Qz;
-
-    // Communication
-    double *send_buffer;
-    double *recv_buffer;
 } ComponentFieldBag;
 
 typedef struct Stencil
 {
-    double cs2[2];
-    double tau[2];
-
     // Stencil
     int NP;
     int *cx;

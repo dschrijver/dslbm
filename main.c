@@ -49,6 +49,14 @@ int main(int argc, char **argv)
     
     initialize_fields(sim);
 
+    communicate_fields(sim);
+
+    compute_Q_corrections(sim);
+
+    evaluate_color_gradients(sim);
+
+    communicate_surface_vector(sim);
+
     evaluate_forces(sim);
 
     initialize_distributions(sim);
@@ -83,12 +91,7 @@ int main(int argc, char **argv)
             )
         }
 
-        TIME("> Communicate fields...",
-            communicate_fields(sim);
-        )
-
         TIME("> Collision...",
-            evaluate_color_gradients(sim);
             collide(sim);
         )
 
@@ -100,12 +103,17 @@ int main(int argc, char **argv)
             stream_distributions(sim);
         )
 
-        TIME("> Wetnode boundary conditions...",
-            wetnode_boundary_conditions(sim);
-        )
+        // TIME("> Wetnode boundary conditions...",
+        //     wetnode_boundary_conditions(sim);
+        // )
 
         TIME("> Computing macroscopic fields...",
             extract_moments(sim);
+            evaluate_pressure(sim);
+            communicate_fields(sim);
+            compute_Q_corrections(sim);
+            evaluate_color_gradients(sim);
+            communicate_surface_vector(sim);
             evaluate_forces(sim);
             update_final_velocity(sim);
             M_RED = evaluate_mass(RED, sim);

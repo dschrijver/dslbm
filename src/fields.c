@@ -24,13 +24,10 @@ void extract_moments(SimulationBag *sim)
     int *cy = stencil->cy;
     int *cz = stencil->cz;
 
-    double *cs2 = stencil->cs2;
-
     double rho_0_RED = params->rho_0_RED;
     double rho_0_BLUE = params->rho_0_BLUE;
 
     double *rho = glob_fields->rho;
-    double *pressure = glob_fields->pressure;
     double *u = glob_fields->u;
     double *v = glob_fields->v;
     double *w = glob_fields->w;
@@ -67,8 +64,7 @@ void extract_moments(SimulationBag *sim)
         w[INDEX_GLOB(i, j, k)] = w_i / rho_i;
 
         // De Rosis 2019, 10.1063/1.5124719
-        rho_N[INDEX_GLOB(i, j, k)] = (rho_RED_i/rho_0_RED - rho_BLUE_i/rho_0_BLUE) / (rho_RED_i/rho_0_RED + rho_BLUE_i/rho_0_BLUE);
-        pressure[INDEX_GLOB(i, j, k)] = cs2[RED] * rho_comp[INDEX(i, j, k, RED)] + cs2[BLUE] * rho_comp[INDEX(i, j, k, BLUE)];
+        rho_N[INDEX_GLOB(i, j, k)] = (rho_RED_i / rho_0_RED - rho_BLUE_i / rho_0_BLUE) / (rho_RED_i / rho_0_RED + rho_BLUE_i / rho_0_BLUE);
     }
 }
 
@@ -76,7 +72,6 @@ void update_final_velocity(SimulationBag *sim)
 {
     ParamBag *params = sim->params;
     GlobalFieldBag *glob_fields = sim->glob_fields;
-    ComponentFieldBag *comp_fields = sim->comp_fields;
 
     double rho_i, Fx_i, Fy_i, Fz_i;
 
@@ -91,21 +86,21 @@ void update_final_velocity(SimulationBag *sim)
     double *v = glob_fields->v;
     double *w = glob_fields->w;
 
-    double *Fx = comp_fields->Fx;
-    double *Fy = comp_fields->Fy;
-    double *Fz = comp_fields->Fz;
+    double *Fx = glob_fields->Fx;
+    double *Fy = glob_fields->Fy;
+    double *Fz = glob_fields->Fz;
 
     FOR_DOMAIN
     {
         rho_i = rho[INDEX_GLOB(i, j, k)];
 
-        Fx_i = Fx[INDEX(i, j, k, RED)] + Fx[INDEX(i, j, k, BLUE)];
-        Fy_i = Fy[INDEX(i, j, k, RED)] + Fy[INDEX(i, j, k, BLUE)];
-        Fz_i = Fz[INDEX(i, j, k, RED)] + Fz[INDEX(i, j, k, BLUE)];
+        Fx_i = Fx[INDEX_GLOB(i, j, k)];
+        Fy_i = Fy[INDEX_GLOB(i, j, k)];
+        Fz_i = Fz[INDEX_GLOB(i, j, k)];
 
-        u[INDEX_GLOB(i, j, k)] += 1.0 / (2.0 * rho_i) * Fx_i;
-        v[INDEX_GLOB(i, j, k)] += 1.0 / (2.0 * rho_i) * Fy_i;
-        w[INDEX_GLOB(i, j, k)] += 1.0 / (2.0 * rho_i) * Fz_i;
+        u[INDEX_GLOB(i, j, k)] += 0.5 * Fx_i / rho_i;
+        v[INDEX_GLOB(i, j, k)] += 0.5 * Fy_i / rho_i;
+        w[INDEX_GLOB(i, j, k)] += 0.5 * Fz_i / rho_i;
     }
 }
 
@@ -176,7 +171,6 @@ void evaluate_velocity(int i, int j, int k, SimulationBag *sim)
     ParamBag *params = sim->params;
     DistributionBag *dists = sim->dists;
     GlobalFieldBag *glob_fields = sim->glob_fields;
-    ComponentFieldBag *comp_fields = sim->comp_fields;
     Stencil *stencil = sim->stencil;
 
     double rho_i, u_i, v_i, w_i;
@@ -195,9 +189,9 @@ void evaluate_velocity(int i, int j, int k, SimulationBag *sim)
     double *v = glob_fields->v;
     double *w = glob_fields->w;
 
-    double *Fx = comp_fields->Fx;
-    double *Fy = comp_fields->Fy;
-    double *Fz = comp_fields->Fz;
+    double *Fx = glob_fields->Fx;
+    double *Fy = glob_fields->Fy;
+    double *Fz = glob_fields->Fz;
 
     double *f1 = dists->f1;
 
@@ -216,7 +210,38 @@ void evaluate_velocity(int i, int j, int k, SimulationBag *sim)
 
     evaluate_force(i, j, k, sim);
 
-    u[INDEX_GLOB(i, j, k)] = (u_i + 0.5 * (Fx[INDEX(i, j, k, RED)] + Fx[INDEX(i, j, k, BLUE)])) / rho_i;
-    v[INDEX_GLOB(i, j, k)] = (v_i + 0.5 * (Fy[INDEX(i, j, k, RED)] + Fy[INDEX(i, j, k, BLUE)])) / rho_i;
-    w[INDEX_GLOB(i, j, k)] = (w_i + 0.5 * (Fz[INDEX(i, j, k, RED)] + Fz[INDEX(i, j, k, BLUE)])) / rho_i;
+    u[INDEX_GLOB(i, j, k)] = (u_i + 0.5 * Fx[INDEX_GLOB(i, j, k)]) / rho_i;
+    v[INDEX_GLOB(i, j, k)] = (v_i + 0.5 * Fy[INDEX_GLOB(i, j, k)]) / rho_i;
+    w[INDEX_GLOB(i, j, k)] = (w_i + 0.5 * Fz[INDEX_GLOB(i, j, k)]) / rho_i;
+}
+
+void evaluate_pressure(SimulationBag *sim)
+{
+    ParamBag *params = sim->params;
+    GlobalFieldBag *glob_fields = sim->glob_fields;
+    ComponentFieldBag *comp_fields = sim->comp_fields;
+
+    double rho_RED_i, rho_BLUE_i;
+
+    int i_start = params->i_start;
+    int i_end = params->i_end;
+    int NY = params->NY;
+    int NZ = params->NZ;
+
+    double cs2_RED = params->cs2_RED;
+    double cs2_BLUE = params->cs2_BLUE;
+
+    double rho_0_RED = params->rho_0_RED;
+    double rho_0_BLUE = params->rho_0_BLUE;
+    double p_star_RED = rho_0_RED * cs2_RED - rho_0_BLUE * cs2_BLUE;
+
+    double *pressure = glob_fields->pressure;
+    double *rho_comp = comp_fields->rho_comp;
+
+    FOR_DOMAIN
+    {
+        rho_RED_i = rho_comp[INDEX(i, j, k, RED)];
+        rho_BLUE_i = rho_comp[INDEX(i, j, k, BLUE)];
+        pressure[INDEX_GLOB(i, j, k)] = rho_RED_i * cs2_RED - p_star_RED + rho_BLUE_i * cs2_BLUE;
+    }
 }

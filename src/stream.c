@@ -30,32 +30,33 @@ void stream_distributions(SimulationBag *sim)
 
     FOR_DOMAIN
     {
-        for (int p = 0; p < NP; p++)
+        for (int n = 0; n < NCOMP; n++)
         {
-            ic = i - cx[p];
-            jc = j - cy[p];
-            kc = k - cz[p];
+            for (int p = 0; p < NP; p++)
+            {
+                ic = i - cx[p];
+                jc = j - cy[p];
+                kc = k - cz[p];
 
 #ifdef YPERIODIC
-            jc = mod(jc, NY);
+                jc = mod(jc, NY);
 #endif
 #ifdef ZPERIODIC
-            kc = mod(kc, NZ);
+                kc = mod(kc, NZ);
 #endif
 
-            if (flag[INDEX_FLAG(ic, jc, kc)] == WETNODE)
-                continue;
+                if (flag[INDEX_FLAG(ic, jc, kc)] == WETNODE)
+                    continue;
 
-            if (flag[INDEX_FLAG(ic, jc, kc)] == BOUNDARY)
-            {
-                p_bb = p_bounceback[p];
-                f1[INDEX_F(i, j, k, p, RED)] = f2[INDEX_F(i, j, k, p_bb, RED)];
-                f1[INDEX_F(i, j, k, p, BLUE)] = f2[INDEX_F(i, j, k, p_bb, BLUE)];
-                continue;
+                if (flag[INDEX_FLAG(ic, jc, kc)] == BOUNDARY)
+                {
+                    p_bb = p_bounceback[p];
+                    f1[INDEX_F(i, j, k, p, n)] = f2[INDEX_F(i, j, k, p_bb, n)];
+                    continue;
+                }
+
+                f1[INDEX_F(i, j, k, p, n)] = f2[INDEX_F(ic, jc, kc, p, n)];
             }
-
-            f1[INDEX_F(i, j, k, p, RED)] = f2[INDEX_F(ic, jc, kc, p, RED)];
-            f1[INDEX_F(i, j, k, p, BLUE)] = f2[INDEX_F(ic, jc, kc, p, BLUE)];
         }
     }
 }

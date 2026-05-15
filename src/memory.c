@@ -46,10 +46,10 @@ void allocate_distributions(SimulationBag *sim)
 
     dists->f1 = (double *)malloc(malloc_size);
     dists->f2 = (double *)malloc(malloc_size);
-    dists->raw = (double *)malloc(NP * sizeof(double));
-    dists->k_pert = (double *)malloc(NP * sizeof(double));
-    dists->k_star = (double *)malloc(NP * sizeof(double));
-    dists->feq = (double *)malloc(NP * sizeof(double));
+    dists->meq = (double *)malloc(NP * sizeof(double));
+    dists->t_star = (double *)malloc(NP * sizeof(double));
+    dists->m_star = (double *)malloc(NP * sizeof(double));
+    dists->f_star = (double *)malloc(NP * sizeof(double));
 
     malloc_size = NCOMP * NY * NZ * NP * sizeof(double);
     dists->send_buffer = (double *)malloc(malloc_size);
@@ -78,6 +78,15 @@ void allocate_fields(SimulationBag *sim)
     glob_fields->Gx = (double *)malloc(global_malloc_size);
     glob_fields->Gy = (double *)malloc(global_malloc_size);
     glob_fields->Gz = (double *)malloc(global_malloc_size);
+    glob_fields->nx = (double *)malloc(global_malloc_size);
+    glob_fields->ny = (double *)malloc(global_malloc_size);
+    glob_fields->nz = (double *)malloc(global_malloc_size);
+    glob_fields->Qx = (double *)malloc(global_malloc_size);
+    glob_fields->Qy = (double *)malloc(global_malloc_size);
+    glob_fields->Qz = (double *)malloc(global_malloc_size);
+    glob_fields->Fx = (double *)malloc(global_malloc_size);
+    glob_fields->Fy = (double *)malloc(global_malloc_size);
+    glob_fields->Fz = (double *)malloc(global_malloc_size);
     glob_fields->flag = (int *)malloc((NX_proc + 4) * (NY + 4) * (NZ + 4) * sizeof(int));
 
     int malloc_size = 2 * NY * NZ * sizeof(double);
@@ -85,19 +94,9 @@ void allocate_fields(SimulationBag *sim)
     glob_fields->recv_buffer = (double *)malloc(malloc_size);
 
     comp_fields->rho_comp = (double *)malloc(component_malloc_size);
-    comp_fields->Fx = (double *)malloc(component_malloc_size);
-    comp_fields->Fy = (double *)malloc(component_malloc_size);
-    comp_fields->Fz = (double *)malloc(component_malloc_size);
     comp_fields->u_comp = (double *)malloc(component_malloc_size);
     comp_fields->v_comp = (double *)malloc(component_malloc_size);
     comp_fields->w_comp = (double *)malloc(component_malloc_size);
-    comp_fields->Qx = (double *)malloc(component_malloc_size);
-    comp_fields->Qy = (double *)malloc(component_malloc_size);
-    comp_fields->Qz = (double *)malloc(component_malloc_size);
-
-    malloc_size = 2 * NY * NZ * NCOMP * sizeof(double);
-    comp_fields->send_buffer = (double *)malloc(malloc_size);
-    comp_fields->recv_buffer = (double *)malloc(malloc_size);
 }
 
 void free_all(SimulationBag *sim)
@@ -110,10 +109,10 @@ void free_all(SimulationBag *sim)
 
     free(dists->f1);
     free(dists->f2);
-    free(dists->raw);
-    free(dists->k_pert);
-    free(dists->k_star);
-    free(dists->feq);
+    free(dists->meq);
+    free(dists->t_star);
+    free(dists->m_star);
+    free(dists->f_star);
     free(dists->send_buffer);
     free(dists->recv_buffer);
 
@@ -127,22 +126,23 @@ void free_all(SimulationBag *sim)
     free(glob_fields->Gx);
     free(glob_fields->Gy);
     free(glob_fields->Gz);
+    free(glob_fields->nx);
+    free(glob_fields->ny);
+    free(glob_fields->nz);
+    free(glob_fields->Qx);
+    free(glob_fields->Qy);
+    free(glob_fields->Qz);
+    free(glob_fields->Fx);
+    free(glob_fields->Fy);
+    free(glob_fields->Fz);
     free(glob_fields->flag);
     free(glob_fields->send_buffer);
     free(glob_fields->recv_buffer);
 
     free(comp_fields->rho_comp);
-    free(comp_fields->Fx);
-    free(comp_fields->Fy);
-    free(comp_fields->Fz);
     free(comp_fields->u_comp);
     free(comp_fields->v_comp);
     free(comp_fields->w_comp);
-    free(comp_fields->Qx);
-    free(comp_fields->Qy);
-    free(comp_fields->Qz);
-    free(comp_fields->send_buffer);
-    free(comp_fields->recv_buffer);
 
     free(stencil->cx);
     free(stencil->cy);

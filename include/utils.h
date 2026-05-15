@@ -20,7 +20,7 @@ enum flags
 #define INDEX(i, j, k, n) (NY * NZ * NCOMP * (i + 2 - i_start) + NZ * NCOMP * (j) + NCOMP * (k) + (n))
 #define INDEX_F(i, j, k, p, n) (NY * NZ * NP * NCOMP * (i + 1 - i_start) + NZ * NP * NCOMP * (j) + NP * NCOMP * (k) + NP * (n) + (p))
 #define INDEX_FLAG(i, j, k) ((NY + 4)*(NZ + 4)*(i + 2 - i_start) + (NZ + 4)*(j + 2) + (k + 2))
-#define f(p) f1[INDEX_F(i, j, k, p, n)]
+#define f(p) (f1[INDEX_F(i, j, k, p, RED)] + f1[INDEX_F(i, j, k, p, BLUE)])
 
 inline int mod(int x, int n)
 {

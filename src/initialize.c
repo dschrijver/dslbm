@@ -3,10 +3,12 @@
 #include <mpi.h>
 #include <math.h>
 #include <hdf5.h>
+#include <string.h>
 
 #include "../include/datatypes.h"
 #include "../definitions.h"
 #include "../include/collide.h"
+#include "../include/fields.h"
 #include "../include/initialize.h"
 
 void initialize_MPI(ParamBag *params)
@@ -78,7 +80,6 @@ void initialize_fields(SimulationBag *sim)
     ParamBag *params = sim->params;
     GlobalFieldBag *glob_fields = sim->glob_fields;
     ComponentFieldBag *comp_fields = sim->comp_fields;
-    Stencil *stencil = sim->stencil;
 
     int NX = params->NX;
     int NY = params->NY;
@@ -94,12 +95,7 @@ void initialize_fields(SimulationBag *sim)
 
     (void)rho_0_BLUE;
 
-    double zeta = stencil->zeta;
-    double alpha_RED = params->alpha_RED;
-    double alpha_BLUE = params->alpha_BLUE;
-
     double *rho = glob_fields->rho;
-    double *pressure = glob_fields->pressure;
     double *u = glob_fields->u;
     double *v = glob_fields->v;
     double *w = glob_fields->w;
@@ -141,7 +137,7 @@ void initialize_fields(SimulationBag *sim)
     double width = physlx(params);
     FOR_DOMAIN
     {
-        x = physx(i) - 0.5*width;
+        x = physx(i) - 0.5 * width;
         r = fabs(x);
 
         rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 + tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_TWOCOMPONENT_POISEUILLE_SF));
@@ -159,8 +155,8 @@ void initialize_fields(SimulationBag *sim)
     {
         x = physx(i);
 
-        rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 - tanh((x - 0.5*width) / INI_TWOCOMPONENT_COUETTE_SF));
-        rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5*width) / INI_TWOCOMPONENT_COUETTE_SF));
+        rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 - tanh((x - 0.5 * width) / INI_TWOCOMPONENT_COUETTE_SF));
+        rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5 * width) / INI_TWOCOMPONENT_COUETTE_SF));
 
         u[INDEX_GLOB(i, j, k)] = 0.0;
         v[INDEX_GLOB(i, j, k)] = INI_TWOCOMPONENT_COUETTE_V_LEFT;
@@ -172,8 +168,9 @@ void initialize_fields(SimulationBag *sim)
     {
         rho[INDEX_GLOB(i, j, k)] = rho_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)];
         rho_N[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] / params->rho_0_RED - rho_comp[INDEX(i, j, k, BLUE)] / params->rho_0_BLUE) / (rho_comp[INDEX(i, j, k, RED)] / params->rho_0_RED + rho_comp[INDEX(i, j, k, BLUE)] / params->rho_0_BLUE);
-        pressure[INDEX_GLOB(i, j, k)] = rho_comp[INDEX(i, j, k, RED)] * zeta * (1.0 - alpha_RED) + rho_comp[INDEX(i, j, k, BLUE)] * zeta * (1.0 - alpha_BLUE);
     }
+
+    evaluate_pressure(sim);
 }
 
 void initialize_flags(SimulationBag *sim)
@@ -329,8 +326,8 @@ void initialize_distributions(SimulationBag *sim)
     ComponentFieldBag *comp_fields = sim->comp_fields;
     Stencil *stencil = sim->stencil;
 
-    double rho_i, u_i, v_i, w_i;
-    double cs2_i;
+    double rho_i, u_i, v_i, w_i, pressure_i;
+    double rho_c_i;
 
     int NY = params->NY;
     int NZ = params->NZ;
@@ -339,33 +336,37 @@ void initialize_distributions(SimulationBag *sim)
     int i_start = params->i_start;
     int i_end = params->i_end;
 
-    double *cs2 = stencil->cs2;
-
     double *rho = glob_fields->rho;
     double *u = glob_fields->u;
     double *v = glob_fields->v;
     double *w = glob_fields->w;
+    double *Fx = glob_fields->Fx;
+    double *Fy = glob_fields->Fy;
+    double *Fz = glob_fields->Fz;
+    double *pressure = glob_fields->pressure;
 
     double *rho_comp = comp_fields->rho_comp;
-    double *Fx = comp_fields->Fx;
-    double *Fy = comp_fields->Fy;
-    double *Fz = comp_fields->Fz;
 
     double *f1 = dists->f1;
 
     FOR_DOMAIN
     {
         rho_i = rho[INDEX_GLOB(i, j, k)];
-        u_i = u[INDEX_GLOB(i, j, k)] - 1.0 / (2.0 * rho_i) * (Fx[INDEX(i, j, k, RED)] + Fx[INDEX(i, j, k, BLUE)]);
-        v_i = v[INDEX_GLOB(i, j, k)] - 1.0 / (2.0 * rho_i) * (Fy[INDEX(i, j, k, RED)] + Fy[INDEX(i, j, k, BLUE)]);
-        w_i = w[INDEX_GLOB(i, j, k)] - 1.0 / (2.0 * rho_i) * (Fz[INDEX(i, j, k, RED)] + Fz[INDEX(i, j, k, BLUE)]);
+        pressure_i = pressure[INDEX_GLOB(i, j, k)];
+        u_i = u[INDEX_GLOB(i, j, k)] - 0.5 * Fx[INDEX_GLOB(i, j, k)] / rho_i;
+        v_i = v[INDEX_GLOB(i, j, k)] - 0.5 * Fy[INDEX_GLOB(i, j, k)] / rho_i;
+        w_i = w[INDEX_GLOB(i, j, k)] - 0.5 * Fz[INDEX_GLOB(i, j, k)] / rho_i;
+
+        compute_equilibrium(rho_i, u_i, v_i, w_i, pressure_i, &f1[INDEX_F(i, j, k, 0, RED)], sim);
+        memcpy(&f1[INDEX_F(i, j, k, 0, BLUE)], &f1[INDEX_F(i, j, k, 0, RED)], NP * sizeof(double));
 
         for (int n = 0; n < NCOMP; n++)
         {
-            rho_i = rho_comp[INDEX(i, j, k, n)];
-            cs2_i = cs2[n];
-
-            compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, &f(0), sim);
+            rho_c_i = rho_comp[INDEX(i, j, k, n)];
+            for (int p = 0; p < NP; p++)
+            {
+                f1[INDEX_F(i, j, k, p, n)] *= rho_c_i / rho_i;
+            }
         }
     }
 }
