@@ -81,6 +81,10 @@ void evaluate_surface_force(int i, int j, int k, SimulationBag *sim)
 
     double sigma = params->sigma;
 
+    double *Gx = glob_fields->Gx;
+    double *Gy = glob_fields->Gy;
+    double *Gz = glob_fields->Gz;
+
     double *nx = glob_fields->nx;
     double *ny = glob_fields->ny;
     double *nz = glob_fields->nz;
@@ -149,9 +153,9 @@ void evaluate_surface_force(int i, int j, int k, SimulationBag *sim)
         }
     }
 
-    Fx[INDEX_GLOB(i, j, k)] = 0.5 * sigma * kappa * n_i[0];
-    Fy[INDEX_GLOB(i, j, k)] = 0.5 * sigma * kappa * n_i[1];
-    Fz[INDEX_GLOB(i, j, k)] = 0.5 * sigma * kappa * n_i[2];
+    Fx[INDEX_GLOB(i, j, k)] += 0.5 * sigma * kappa * Gx[INDEX_GLOB(i, j, k)];
+    Fy[INDEX_GLOB(i, j, k)] += 0.5 * sigma * kappa * Gy[INDEX_GLOB(i, j, k)];
+    Fz[INDEX_GLOB(i, j, k)] += 0.5 * sigma * kappa * Gz[INDEX_GLOB(i, j, k)];
 }
 
 double extrapolate_wall_n(int i, int j, int k, int alpha, SimulationBag *sim)

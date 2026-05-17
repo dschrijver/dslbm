@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "../include/datatypes.h"
 #include "../definitions.h"
 #include "../include/forcing.h"
@@ -222,6 +224,7 @@ void evaluate_pressure(SimulationBag *sim)
     ComponentFieldBag *comp_fields = sim->comp_fields;
 
     double rho_RED_i, rho_BLUE_i;
+    double b;
 
     int i_start = params->i_start;
     int i_end = params->i_end;
@@ -242,6 +245,9 @@ void evaluate_pressure(SimulationBag *sim)
     {
         rho_RED_i = rho_comp[INDEX(i, j, k, RED)];
         rho_BLUE_i = rho_comp[INDEX(i, j, k, BLUE)];
-        pressure[INDEX_GLOB(i, j, k)] = rho_RED_i * cs2_RED - p_star_RED + rho_BLUE_i * cs2_BLUE;
+
+        b = rho_RED_i * cs2_RED + rho_BLUE_i * cs2_BLUE - p_star_RED;
+
+        pressure[INDEX_GLOB(i, j, k)] = 0.5 * (b + sqrt(b * b + 4.0 * rho_BLUE_i * cs2_BLUE * p_star_RED));
     }
 }

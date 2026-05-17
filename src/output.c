@@ -19,13 +19,18 @@ void output_data(SimulationBag *sim)
     double *u = glob_fields->u;
     double *v = glob_fields->v;
     double *w = glob_fields->w;
-    double *rho_N = glob_fields->rho_N;
     double *Fx = glob_fields->Fx;
     double *Fy = glob_fields->Fy;
     double *Fz = glob_fields->Fz;
+
+    double *rho_N = glob_fields->rho_N;
     double *Gx = glob_fields->Gx;
     double *Gy = glob_fields->Gy;
     double *Gz = glob_fields->Gz;
+    double *nx = glob_fields->nx;
+    double *ny = glob_fields->ny;
+    double *nz = glob_fields->nz;
+
     double *Qx = glob_fields->Qx;
     double *Qy = glob_fields->Qy;
     double *Qz = glob_fields->Qz;
@@ -41,23 +46,38 @@ void output_data(SimulationBag *sim)
     H5Dwrite(dset_scalar, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, &t);
     H5Dclose(dset_scalar);
 
-    output_global_field(rho, "rho", file_id, sim);
-    output_global_field(pressure, "pressure", file_id, sim);
-    output_global_field(u, "u", file_id, sim);
-    output_global_field(v, "v", file_id, sim);
-    output_global_field(w, "w", file_id, sim);
-    output_global_field(rho_N, "rho_N", file_id, sim);
-    output_global_field(Gx, "Gx", file_id, sim);
-    output_global_field(Gy, "Gy", file_id, sim);
-    output_global_field(Gz, "Gz", file_id, sim);
-    output_global_field(Fx, "Fx", file_id, sim);
-    output_global_field(Fy, "Fy", file_id, sim);
-    output_global_field(Fz, "Fz", file_id, sim);
-    output_global_field(Qx, "Qx", file_id, sim);
-    output_global_field(Qy, "Qy", file_id, sim);
-    output_global_field(Qz, "Qz", file_id, sim);
+    // Create groups
+    hid_t hydro = H5Gcreate2(file_id, "/hydro", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    hid_t cg = H5Gcreate2(file_id, "/cg", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    hid_t other = H5Gcreate2(file_id, "/other", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-    output_comp_field(rho_comp, "rho", file_id, sim);
+
+    output_global_field(rho, "rho", hydro, sim);
+    output_comp_field(rho_comp, "rho", hydro, sim);
+    output_global_field(pressure, "pressure", hydro, sim);
+    output_global_field(u, "u", hydro, sim);
+    output_global_field(v, "v", hydro, sim);
+    output_global_field(w, "w", hydro, sim);
+    output_global_field(Fx, "Fx", hydro, sim);
+    output_global_field(Fy, "Fy", hydro, sim);
+    output_global_field(Fz, "Fz", hydro, sim);
+
+    output_global_field(rho_N, "rho_N", cg, sim);
+    output_global_field(Gx, "Gx", cg, sim);
+    output_global_field(Gy, "Gy", cg, sim);
+    output_global_field(Gz, "Gz", cg, sim);
+    output_global_field(nx, "nx", cg, sim);
+    output_global_field(ny, "ny", cg, sim);
+    output_global_field(nz, "nz", cg, sim);
+
+    output_global_field(Qx, "Qx", other, sim);
+    output_global_field(Qy, "Qy", other, sim);
+    output_global_field(Qz, "Qz", other, sim);
+
+    // Close groups
+    H5Gclose(other);
+    H5Gclose(cg);
+    H5Gclose(hydro);
 
     // Close file
     H5Fflush(file_id, H5F_SCOPE_GLOBAL);
