@@ -14,12 +14,12 @@ static inline void set_params(ParamBag *params)
     params->NZ      = 1;
 
     // Initial denities
-    params->rho_0_RED   = 1000.0;
-    params->rho_0_BLUE  = 1.0;
+    params->rho_0_RED   = 1.0;
+    params->rho_0_BLUE  = 0.001;
 
     // Kinematic viscosities
-    params->nu_RED  = 1.0/6.0;
-    params->nu_BLUE = 1.0/6.0;
+    params->nu_RED  = 0.1;
+    params->nu_BLUE = 0.1;
 
     // Speeds of sound squared
     params->cs2_RED = 1.0/3.0/1000.0;
@@ -38,7 +38,7 @@ static inline void set_params(ParamBag *params)
 
     // Constant body forces
     params->Fb_x = 0.0;
-    params->Fb_y = 1e-8;
+    params->Fb_y = 1e-5;
     params->Fb_z = 0.0;
 }
 

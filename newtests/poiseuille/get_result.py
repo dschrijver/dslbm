@@ -7,9 +7,9 @@ import sys
 import os
 
 def analytical_solution(y, t, H, n_max=1000):
-    nu = 1/6
-    rho = 1000
-    dpdx = -1e-8
+    nu = 0.1
+    rho = 1
+    dpdx = -1e-5
     u_particular = -1/(2*nu*rho)*dpdx*y*(H-y)
     u_homogeneous = 0
     for n in range(1, n_max+1):
