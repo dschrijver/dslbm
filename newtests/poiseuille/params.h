@@ -6,20 +6,20 @@
 static inline void set_params(ParamBag *params)
 {
     // General parameters
-    params->NTIME   = 6000;
-    params->NSTORE  = 60;
-    params->NLOG    = 6;
+    params->NTIME   = 6000000;
+    params->NSTORE  = 60000;
+    params->NLOG    = 6000;
     params->NX      = 33;
     params->NY      = 1;
     params->NZ      = 1;
 
     // Initial denities
-    params->rho_0_RED   = 1.0;
-    params->rho_0_BLUE  = 0.001;
+    params->rho_0_RED   = 1000.0;
+    params->rho_0_BLUE  = 1.0;
 
     // Kinematic viscosities
-    params->nu_RED  = 0.1;
-    params->nu_BLUE = 0.1;
+    params->mu_RED  = 0.001;
+    params->mu_BLUE = 0.1;
 
     // Speeds of sound squared
     params->cs2_RED = 1.0/3.0/1000.0;

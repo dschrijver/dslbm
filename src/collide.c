@@ -313,8 +313,14 @@ void collide(SimulationBag *sim)
     int *cy = stencil->cy;
     int *cz = stencil->cz;
 
-    double nu_RED = params->nu_RED;
-    double nu_BLUE = params->nu_BLUE;
+    double rho_0_RED = params->rho_0_RED;
+    double rho_0_BLUE = params->rho_0_BLUE;
+
+    double mu_RED = params->mu_RED;
+    double mu_BLUE = params->mu_BLUE;
+
+    double nu_RED = mu_RED / rho_0_RED;
+    double nu_BLUE = mu_BLUE / rho_0_BLUE;
 
     double beta = params->beta;
 

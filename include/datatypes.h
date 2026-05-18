@@ -26,9 +26,9 @@ typedef struct ParamBag
     double rho_0_RED;
     double rho_0_BLUE;
 
-    // Kinematic viscosities
-    double nu_RED;
-    double nu_BLUE;
+    // Dynamic viscosities
+    double mu_RED;
+    double mu_BLUE;
 
     // Speeds of sound squared
     double cs2_RED;

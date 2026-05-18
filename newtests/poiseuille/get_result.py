@@ -7,14 +7,14 @@ import sys
 import os
 
 def analytical_solution(y, t, H, n_max=1000):
-    nu = 0.1
-    rho = 1
+    mu = 0.001
+    rho = 1000
     dpdx = -1e-5
-    u_particular = -1/(2*nu*rho)*dpdx*y*(H-y)
+    u_particular = -1/(2*mu)*dpdx*y*(H-y)
     u_homogeneous = 0
     for n in range(1, n_max+1):
-        A_n = 1/(2*nu*rho)*dpdx*(-2*(-2 + 2*np.cos(n*np.pi) + n*np.pi*np.sin(n*np.pi))/((n*np.pi)**3))
-        u_homogeneous += A_n * H**2 * np.exp(-n**2 * np.pi**2 / H**2 * nu * t)*np.sin(n*np.pi*y/H)
+        A_n = 1/(2*mu)*dpdx*(-2*(-2 + 2*np.cos(n*np.pi) + n*np.pi*np.sin(n*np.pi))/((n*np.pi)**3))
+        u_homogeneous += A_n * H**2 * np.exp(-n**2 * np.pi**2 / H**2 * mu/rho * t)*np.sin(n*np.pi*y/H)
     return u_particular + u_homogeneous
 
 store_data = False
