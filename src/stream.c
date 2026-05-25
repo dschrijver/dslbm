@@ -5,58 +5,47 @@
 
 void stream_distributions(SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    DistributionBag *dists = sim->dists;
-    Stencil *stencil = sim->stencil;
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    int ic, jc, kc, p_bb;
+    READ_DIST(f2_RED)
+    READ_DIST(f2_BLUE)
 
-    int NY = params->NY;
-    int NZ = params->NZ;
-    int NP = stencil->NP;
+    WRITE_DIST(f1_RED)
+    WRITE_DIST(f1_BLUE)
 
-    int *flag = sim->glob_fields->flag;
-
-    int i_start = params->i_start;
-    int i_end = params->i_end;
-
-    int *cx = stencil->cx;
-    int *cy = stencil->cy;
-    int *cz = stencil->cz;
-    int *p_bounceback = stencil->p_bounceback;
-
-    double *f1 = dists->f1;
-    double *f2 = dists->f2;
+    const int * restrict const flag = fields->flag;
 
     FOR_DOMAIN
     {
-        for (int n = 0; n < NCOMP; n++)
+        for (int p = 0; p < NP; p++)
         {
-            for (int p = 0; p < NP; p++)
-            {
-                ic = i - cx[p];
-                jc = j - cy[p];
-                kc = k - cz[p];
+            int ic = i - cx[p];
+            int jc = j - cy[p];
+            int kc = k - cz[p];
 
 #ifdef YPERIODIC
-                jc = mod(jc, NY);
+            jc = mod(jc, NY);
 #endif
 #ifdef ZPERIODIC
-                kc = mod(kc, NZ);
+            kc = mod(kc, NZ);
 #endif
 
-                if (flag[INDEX_FLAG(ic, jc, kc)] == WETNODE)
-                    continue;
+            if (flag[INDEX_FLAG(ic, jc, kc)] == WETNODE)
+                continue;
 
-                if (flag[INDEX_FLAG(ic, jc, kc)] == BOUNDARY)
-                {
-                    p_bb = p_bounceback[p];
-                    f1[INDEX_F(i, j, k, p, n)] = f2[INDEX_F(i, j, k, p_bb, n)];
-                    continue;
-                }
+            if (flag[INDEX_FLAG(ic, jc, kc)] == BOUNDARY)
+            {
+                const int p_bb = p_bounceback[p];
 
-                f1[INDEX_F(i, j, k, p, n)] = f2[INDEX_F(ic, jc, kc, p, n)];
+                f1_RED[INDEX_F(i, j, k, p)] = f2_RED[INDEX_F(i, j, k, p_bb)];
+                f1_BLUE[INDEX_F(i, j, k, p)] = f2_BLUE[INDEX_F(i, j, k, p_bb)];
+                continue;
             }
+
+            f1_RED[INDEX_F(i, j, k, p)] = f2_RED[INDEX_F(ic, jc, kc, p)];
+            f1_BLUE[INDEX_F(i, j, k, p)] = f2_BLUE[INDEX_F(ic, jc, kc, p)];
         }
     }
 }

@@ -64,16 +64,18 @@ typedef struct ParamBag
     hid_t fapl_id;
     hid_t scalar_space;
     hid_t filespace;
-    hid_t memspace_glob;
-    hid_t memspace_comp;
+    hid_t memspace;
     hid_t dcpl_id;
     hid_t dxpl_id;
 } ParamBag;
 
 typedef struct DistributionBag
 {
-    double *f1;
-    double *f2;
+    double *f1_RED;
+    double *f2_RED;
+
+    double *f1_BLUE;
+    double *f2_BLUE;
 
     double *meq;
     double *t_star;
@@ -85,10 +87,14 @@ typedef struct DistributionBag
     double *recv_buffer;
 } DistributionBag;
 
-typedef struct GlobalFieldBag
+typedef struct FieldBag
 {
     // Densities and pressure
     double *rho;
+
+    double *rho_RED;
+    double *rho_BLUE;
+
     double *pressure;
 
     // Velocities
@@ -122,18 +128,7 @@ typedef struct GlobalFieldBag
     // Communication
     double *send_buffer;
     double *recv_buffer;
-} GlobalFieldBag;
-
-typedef struct ComponentFieldBag
-{
-    // Densities of components
-    double *rho_comp;
-
-    // Component velocities
-    double *u_comp;
-    double *v_comp;
-    double *w_comp;
-} ComponentFieldBag;
+} FieldBag;
 
 typedef struct Stencil
 {
@@ -144,17 +139,13 @@ typedef struct Stencil
     int *cz;
     double *wp;
     int *p_bounceback;
-
-    // Color-Gradient
-    double zeta;
 } Stencil;
 
 typedef struct SimulationBag
 {
     struct ParamBag *params;
     struct DistributionBag *dists;
-    struct GlobalFieldBag *glob_fields;
-    struct ComponentFieldBag *comp_fields;
+    struct FieldBag *fields;
     struct Stencil *stencil;
 } SimulationBag;
 

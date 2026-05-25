@@ -3,14 +3,15 @@
 
 #include "datatypes.h"
 
-void compute_equilibrium(double rho, double u, double v, double w, double P, double *feq, SimulationBag *sim);
+void compute_equilibrium(const double rho, const double u, const double v, const double w, const double P, double * restrict const feq, SimulationBag *sim);
+void compute_equilibrium_comp(const double rho_comp, const double rho_tot, const double u, const double v, const double w, const double P_tot, double * restrict const feq, SimulationBag *sim);
 void evaluate_color_gradients(SimulationBag *sim);
 void compute_Q_corrections(SimulationBag *sim);
 
 void collide(SimulationBag *sim);
 
-double extrapolate_wall_rho_N(int i, int j, int k, SimulationBag *sim);
-double extrapolate_wall_q(int i, int j, int k, int alpha, SimulationBag *sim);
+double extrapolate_wall_rho_N(const int i, const int j, const int k, SimulationBag *sim);
+double extrapolate_wall_q(const int i, const int j, const int k, const int alpha, SimulationBag *sim);
 
 static inline void raw_to_pop(const double *restrict raw, double *restrict pop)
 {

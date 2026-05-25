@@ -74,37 +74,6 @@
 #define FRONT_PRESSURE_RED (1.0 / 3.0)
 #define FRONT_PRESSURE_BLUE 0.0
 
-// --- Regularized Non-Equilibrium Extrapolation ---
-#define LEFT_REGNEE_VELOCITY
-#define LEFT_U_VELOCITY 0.0
-#define LEFT_V_VELOCITY 0.0
-#define LEFT_W_VELOCITY 0.0
-
-#define RIGHT_REGNEE_VELOCITY
-#define RIGHT_U_VELOCITY 0.0
-#define RIGHT_V_VELOCITY 0.0
-#define RIGHT_W_VELOCITY 0.0
-
-#define BOTTOM_REGNEE_VELOCITY
-#define BOTTOM_U_VELOCITY 0.0
-#define BOTTOM_V_VELOCITY 0.0
-#define BOTTOM_W_VELOCITY 0.0
-
-#define TOP_REGNEE_VELOCITY
-#define TOP_U_VELOCITY 0.0
-#define TOP_V_VELOCITY 0.0
-#define TOP_W_VELOCITY 0.0
-
-#define BACK_REGNEE_VELOCITY
-#define BACK_U_VELOCITY 0.0
-#define BACK_V_VELOCITY 0.0
-#define BACK_W_VELOCITY 0.0
-
-#define FRONT_REGNEE_VELOCITY
-#define FRONT_U_VELOCITY 0.0
-#define FRONT_V_VELOCITY 0.0
-#define FRONT_W_VELOCITY 0.0
-
 // --------------------------
 //     Initial conditions
 // --------------------------

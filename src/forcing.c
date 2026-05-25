@@ -7,13 +7,8 @@
 
 void evaluate_forces(SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-
-    int NY = params->NY;
-    int NZ = params->NZ;
-
-    int i_start = params->i_start;
-    int i_end = params->i_end;
+    UNPACK_BAGS
+    UNPACK_GRID
 
     FOR_DOMAIN
     {
@@ -23,77 +18,60 @@ void evaluate_forces(SimulationBag *sim)
 
 void evaluate_force(int i, int j, int k, SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
+    UNPACK_BAGS
+    UNPACK_GRID
 
-    double rho_i;
+    READ_FIELD(rho)
 
-    int NY = params->NY;
-    int NZ = params->NZ;
+    WRITE_FIELD(Fx)
+    WRITE_FIELD(Fy)
+    WRITE_FIELD(Fz)
 
-    int i_start = params->i_start;
+    PARAM(gx)
+    PARAM(gy)
+    PARAM(gz)
 
-    double gx = params->gx;
-    double gy = params->gy;
-    double gz = params->gz;
+    PARAM(Fb_x)
+    PARAM(Fb_y)
+    PARAM(Fb_z)
 
-    double Fb_x = params->Fb_x;
-    double Fb_y = params->Fb_y;
-    double Fb_z = params->Fb_z;
+    const double rho_i = rho[INDEX(i, j, k)];
 
-    double *rho = glob_fields->rho;
+    const int idx = INDEX(i, j, k);
 
-    double *Fx = glob_fields->Fx;
-    double *Fy = glob_fields->Fy;
-    double *Fz = glob_fields->Fz;
-
-    rho_i = rho[INDEX_GLOB(i, j, k)];
-
-    Fx[INDEX_GLOB(i, j, k)] = rho_i * gx + Fb_x;
-    Fy[INDEX_GLOB(i, j, k)] = rho_i * gy + Fb_y;
-    Fz[INDEX_GLOB(i, j, k)] = rho_i * gz + Fb_z;
+    Fx[idx] = rho_i * gx + Fb_x;
+    Fy[idx] = rho_i * gy + Fb_y;
+    Fz[idx] = rho_i * gz + Fb_z;
 
     evaluate_surface_force(i, j, k, sim);
 }
 
 void evaluate_surface_force(int i, int j, int k, SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
-    Stencil *stencil = sim->stencil;
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    double kappa;
+    READ_FIELD(nx)
+    READ_FIELD(ny)
+    READ_FIELD(nz)
+    READ_FIELD(Gx)
+    READ_FIELD(Gy)
+    READ_FIELD(Gz)
+
+    WRITE_FIELD(Fx)
+    WRITE_FIELD(Fy)
+    WRITE_FIELD(Fz)
+
+    PARAM(sigma)
+
+    int *c_vec[3] = {cx, cy, cz};
+
+    const int * restrict const flag = fields->flag;
+
     double n_i[3];
     double n_local[3];
     double dn[3][3];
-    int ic, jc, kc;
-
-    int i_start = params->i_start;
-    int NY = params->NY;
-    int NZ = params->NZ;
-
-    double NP = stencil->NP;
-    int *cx = stencil->cx;
-    int *cy = stencil->cy;
-    int *cz = stencil->cz;
-    double *wp = stencil->wp;
-    int *c_vec[3] = {cx, cy, cz};
-
-    double sigma = params->sigma;
-
-    double *Gx = glob_fields->Gx;
-    double *Gy = glob_fields->Gy;
-    double *Gz = glob_fields->Gz;
-
-    double *nx = glob_fields->nx;
-    double *ny = glob_fields->ny;
-    double *nz = glob_fields->nz;
-
-    double *Fx = glob_fields->Fx;
-    double *Fy = glob_fields->Fy;
-    double *Fz = glob_fields->Fz;
-
-    int *flag = glob_fields->flag;
 
     for (int alpha = 0; alpha < 3; alpha++)
     {
@@ -105,9 +83,9 @@ void evaluate_surface_force(int i, int j, int k, SimulationBag *sim)
 
     for (int p = 0; p < NP; p++)
     {
-        ic = i + cx[p];
-        jc = j + cy[p];
-        kc = k + cz[p];
+        int ic = i + cx[p];
+        int jc = j + cy[p];
+        int kc = k + cz[p];
 
 #ifdef YPERIODIC
         jc = mod(jc, NY);
@@ -124,9 +102,9 @@ void evaluate_surface_force(int i, int j, int k, SimulationBag *sim)
             goto skip;
         }
 
-        n_local[0] = nx[INDEX_GLOB(ic, jc, kc)];
-        n_local[1] = ny[INDEX_GLOB(ic, jc, kc)];
-        n_local[2] = nz[INDEX_GLOB(ic, jc, kc)];
+        n_local[0] = nx[INDEX(ic, jc, kc)];
+        n_local[1] = ny[INDEX(ic, jc, kc)];
+        n_local[2] = nz[INDEX(ic, jc, kc)];
 
     skip:
 
@@ -139,11 +117,13 @@ void evaluate_surface_force(int i, int j, int k, SimulationBag *sim)
         }
     }
 
-    n_i[0] = nx[INDEX_GLOB(i, j, k)];
-    n_i[1] = ny[INDEX_GLOB(i, j, k)];
-    n_i[2] = nz[INDEX_GLOB(i, j, k)];
+    const int idx = INDEX(i, j, k);
 
-    kappa = 0.0;
+    n_i[0] = nx[idx];
+    n_i[1] = ny[idx];
+    n_i[2] = nz[idx];
+
+    double kappa = 0.0;
     for (int alpha = 0; alpha < 3; alpha++)
     {
         kappa += -dn[alpha][alpha];
@@ -153,44 +133,31 @@ void evaluate_surface_force(int i, int j, int k, SimulationBag *sim)
         }
     }
 
-    Fx[INDEX_GLOB(i, j, k)] += 0.5 * sigma * kappa * Gx[INDEX_GLOB(i, j, k)];
-    Fy[INDEX_GLOB(i, j, k)] += 0.5 * sigma * kappa * Gy[INDEX_GLOB(i, j, k)];
-    Fz[INDEX_GLOB(i, j, k)] += 0.5 * sigma * kappa * Gz[INDEX_GLOB(i, j, k)];
+    Fx[idx] += 0.5 * sigma * kappa * Gx[idx];
+    Fy[idx] += 0.5 * sigma * kappa * Gy[idx];
+    Fz[idx] += 0.5 * sigma * kappa * Gz[idx];
 }
 
-double extrapolate_wall_n(int i, int j, int k, int alpha, SimulationBag *sim)
+double extrapolate_wall_n(const int i, const int j, const int k, const int alpha, SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    Stencil *stencil = sim->stencil;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    int ic, jc, kc;
-    double sum_n, sum_wp;
+    READ_FIELD(nx)
+    READ_FIELD(ny)
+    READ_FIELD(nz)
 
-    int NY = params->NY;
-    int NZ = params->NZ;
-
-    int i_start = params->i_start;
-
-    int NP = stencil->NP;
-    int *cx = stencil->cx;
-    int *cy = stencil->cy;
-    int *cz = stencil->cz;
-    double *wp = stencil->wp;
-
-    double *nx = glob_fields->nx;
-    double *ny = glob_fields->ny;
-    double *nz = glob_fields->nz;
     double *n_vec[3] = {nx, ny, nz};
 
-    sum_n = 0.0;
-    sum_wp = 0.0;
+    double sum_n = 0.0;
+    double sum_wp = 0.0;
 
     for (int p = 1; p < NP; p++)
     {
-        ic = i + cx[p];
-        jc = j + cy[p];
-        kc = k + cz[p];
+        int ic = i + cx[p];
+        int jc = j + cy[p];
+        int kc = k + cz[p];
 
 #ifndef XPERIODIC
         if ((ic < 0) || (ic > params->NX - 1))
@@ -209,7 +176,7 @@ double extrapolate_wall_n(int i, int j, int k, int alpha, SimulationBag *sim)
         kc = mod(kc, NZ);
 #endif
 
-        sum_n += wp[p] * n_vec[alpha][INDEX_GLOB(ic, jc, kc)];
+        sum_n += wp[p] * n_vec[alpha][INDEX(ic, jc, kc)];
         sum_wp += wp[p];
     }
 

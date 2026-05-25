@@ -18,13 +18,12 @@ static inline void set_params(ParamBag *params)
     params->rho_0_BLUE  = 0.5;
 
     // Kinematic viscosities
-    params->nu_RED  = 1.0/6.0;
-    params->nu_BLUE = 1.0/6.0;
+    params->mu_RED  = 0.1;
+    params->mu_BLUE = 0.05;
 
-    // Speed of sound parameters
-    double gamma = params->rho_0_RED / params->rho_0_BLUE;
-    params->alpha_BLUE  = 0.2;
-    params->alpha_RED   = 1.0 - (1.0 - params->alpha_BLUE) / gamma;
+    // Speeds of sound squared
+    params->cs2_RED = 1.0/3.0/2.0;
+    params->cs2_BLUE = 1.0/3.0;
 
     // Surface tension
     params->sigma = 1e-2;
@@ -32,9 +31,15 @@ static inline void set_params(ParamBag *params)
     // Recoloring parameter
     params->beta = 0.7;
 
+    // Gravitational accelerations
     params->gx = 0.0;
     params->gy = 0.0;
     params->gz = 0.0;
+
+    // Constant body forces
+    params->Fb_x = 0.0;
+    params->Fb_y = 0.0;
+    params->Fb_z = 0.0;
 }
 
 #endif

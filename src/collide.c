@@ -5,13 +5,59 @@
 #include "../definitions.h"
 #include "../include/collide.h"
 
-void compute_equilibrium(double rho, double u, double v, double w, double P, double *feq, SimulationBag *sim)
+void compute_equilibrium(const double rho, const double u, const double v, const double w, const double P, double * restrict const feq, SimulationBag *sim)
 {
-    DistributionBag *dists = sim->dists;
-    double *meq = dists->meq;
-    double u2 = u * u;
-    double v2 = v * v;
-    double w2 = w * w;
+    UNPACK_BAGS
+
+    WRITE_DIST(meq)
+
+    const double u2 = u * u;
+    const double v2 = v * v;
+    const double w2 = w * w;
+
+    meq[0] = rho;
+    meq[1] = rho * u;
+    meq[2] = rho * v;
+    meq[3] = rho * w;
+    meq[4] = rho * u * v;
+    meq[5] = rho * u * w;
+    meq[6] = rho * v * w;
+    meq[7] = rho * (u2 - v2);
+    meq[8] = rho * (u2 - w2);
+    meq[9] = 3.0 * P + rho * (u2 + v2 + w2);
+    meq[10] = u * (P + rho * v2);
+    meq[11] = u * (P + rho * w2);
+    meq[12] = v * (P + rho * w2);
+    meq[13] = v * (P + rho * u2);
+    meq[14] = w * (P + rho * u2);
+    meq[15] = w * (P + rho * v2);
+    meq[16] = rho * u * v * w;
+    meq[17] = P * (u2 + v2) + P / 3.0 + rho * u2 * v2;
+    meq[18] = P * (u2 + w2) + P / 3.0 + rho * u2 * w2;
+    meq[19] = P * (v2 + w2) + P / 3.0 + rho * v2 * w2;
+    meq[20] = v * w * (P + rho * u2);
+    meq[21] = u * w * (P + rho * v2);
+    meq[22] = u * v * (P + rho * w2);
+    meq[23] = u * (3.0 * P * (v2 + w2) + P + 3.0 * rho * v2 * w2) / 3.0;
+    meq[24] = v * (3.0 * P * (u2 + w2) + P + 3.0 * rho * u2 * w2) / 3.0;
+    meq[25] = w * (3.0 * P * (u2 + v2) + P + 3.0 * rho * u2 * v2) / 3.0;
+    meq[26] = P * u2 / 3.0 + P * v2 / 3.0 + P * w2 / 3.0 + P * (u2 * v2 + u2 * w2 + v2 * w2) + P / 9.0 + rho * u2 * v2 * w2;
+
+    raw_to_pop(meq, feq);
+}
+
+void compute_equilibrium_comp(const double rho_comp, const double rho_tot, const double u, const double v, const double w, const double P_tot, double * restrict const feq, SimulationBag *sim)
+{
+    UNPACK_BAGS
+
+    WRITE_DIST(meq)
+
+    const double u2 = u * u;
+    const double v2 = v * v;
+    const double w2 = w * w;
+
+    const double rho = rho_comp;
+    const double P = rho_comp/rho_tot*P_tot;
 
     meq[0] = rho;
     meq[1] = rho * u;
@@ -46,63 +92,40 @@ void compute_equilibrium(double rho, double u, double v, double w, double P, dou
 
 void evaluate_color_gradients(SimulationBag *sim)
 {
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    ParamBag *params = sim->params;
-    Stencil *stencil = sim->stencil;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
+    READ_FIELD(rho_N)
+    
+    WRITE_FIELD(G_norm)
+    WRITE_FIELD(Gx)
+    WRITE_FIELD(Gy)
+    WRITE_FIELD(Gz)
+    WRITE_FIELD(nx)
+    WRITE_FIELD(ny)
+    WRITE_FIELD(nz)
 
-    double Gx_i, Gy_i, Gz_i, G_i;
-    double nhat_x, nhat_y, nhat_z;
-    double rho_N_local;
-    int ic, jc, kc;
-
-    int NY = params->NY;
-    int NZ = params->NZ;
-    int NP = stencil->NP;
-
-    int i_start = params->i_start;
-    int i_end = params->i_end;
-
-    int *cx = stencil->cx;
-    int *cy = stencil->cy;
-    int *cz = stencil->cz;
-    double *wp = stencil->wp;
+    const int * restrict const flag = fields->flag;
 
 #ifdef THETA_C
-    double nhat_norm, Gn;
-    double theta = THETA_C / 360.0 * 2.0 * DS_PI;
-    double n_star_x, n_star_y, n_star_z;
-    double n_plus_x, n_plus_y, n_plus_z;
-    double n_min_x, n_min_y, n_min_z;
-    double theta_prime;
-    double dnx, dny, dnz, D_plus, D_min;
+    const double theta = THETA_C / 360.0 * 2.0 * DS_PI;
 #endif
-
-    int *flag = glob_fields->flag;
-
-    double *rho_N = glob_fields->rho_N;
-    double *G_norm = glob_fields->G_norm;
-    double *Gx = glob_fields->Gx;
-    double *Gy = glob_fields->Gy;
-    double *Gz = glob_fields->Gz;
-    double *nx = glob_fields->nx;
-    double *ny = glob_fields->ny;
-    double *nz = glob_fields->nz;
 
     FOR_DOMAIN
     {
         // Compute Color Gradient
-        Gx_i = 0.0;
-        Gy_i = 0.0;
-        Gz_i = 0.0;
-        nhat_x = 0.0;
-        nhat_y = 0.0;
-        nhat_z = 0.0;
+        double Gx_i = 0.0;
+        double Gy_i = 0.0;
+        double Gz_i = 0.0;
+        double nhat_x = 0.0;
+        double nhat_y = 0.0;
+        double nhat_z = 0.0;
         for (int p = 0; p < NP; p++)
         {
-            ic = i + cx[p];
-            jc = j + cy[p];
-            kc = k + cz[p];
+            int ic = i + cx[p];
+            int jc = j + cy[p];
+            int kc = k + cz[p];
 
 #ifdef YPERIODIC
             jc = mod(jc, NY);
@@ -110,6 +133,8 @@ void evaluate_color_gradients(SimulationBag *sim)
 #ifdef ZPERIODIC
             kc = mod(kc, NZ);
 #endif
+
+            double rho_N_local;
 
             if (flag[INDEX_FLAG(ic, jc, kc)] > 0)
             {
@@ -120,7 +145,7 @@ void evaluate_color_gradients(SimulationBag *sim)
                 goto skip;
             }
 
-            rho_N_local = rho_N[INDEX_GLOB(ic, jc, kc)];
+            rho_N_local = rho_N[INDEX(ic, jc, kc)];
 
         skip:
 
@@ -132,12 +157,12 @@ void evaluate_color_gradients(SimulationBag *sim)
         Gy_i *= 3.0;
         Gz_i *= 3.0;
 
-        G_i = sqrt(Gx_i * Gx_i + Gy_i * Gy_i + Gz_i * Gz_i);
+        double G_i = sqrt(Gx_i * Gx_i + Gy_i * Gy_i + Gz_i * Gz_i);
 
 #ifdef THETA_C
-        nhat_norm = sqrt(nhat_x * nhat_x + nhat_y * nhat_y + nhat_z * nhat_z);
+        const double nhat_norm = sqrt(nhat_x * nhat_x + nhat_y * nhat_y + nhat_z * nhat_z);
 
-        if (nhat_norm > 0.0)
+        if ((nhat_norm > 0.0) && (G_i > 1e-15))
         {
             nhat_x /= nhat_norm;
             nhat_y /= nhat_norm;
@@ -180,7 +205,7 @@ void evaluate_color_gradients(SimulationBag *sim)
             //     Gz_i = -G_i * n_min_z;
             // }
 
-            Gn = nhat_x * Gx_i + nhat_y * Gy_i + nhat_z * Gz_i;
+            double Gn = nhat_x * Gx_i + nhat_y * Gy_i + nhat_z * Gz_i;
             Gx_i -= Gn * nhat_x;
             Gy_i -= Gn * nhat_y;
             Gz_i -= Gn * nhat_z;
@@ -195,62 +220,47 @@ void evaluate_color_gradients(SimulationBag *sim)
         }
 #endif
 
-        G_norm[INDEX_GLOB(i, j, k)] = G_i;
-        Gx[INDEX_GLOB(i, j, k)] = Gx_i;
-        Gy[INDEX_GLOB(i, j, k)] = Gy_i;
-        Gz[INDEX_GLOB(i, j, k)] = Gz_i;
-        nx[INDEX_GLOB(i, j, k)] = Gx_i / (G_i + 1e-15);
-        ny[INDEX_GLOB(i, j, k)] = Gy_i / (G_i + 1e-15);
-        nz[INDEX_GLOB(i, j, k)] = Gz_i / (G_i + 1e-15);
+        const int idx = INDEX(i, j, k);
+
+        G_norm[idx] = G_i;
+        Gx[idx] = Gx_i;
+        Gy[idx] = Gy_i;
+        Gz[idx] = Gz_i;
+        nx[idx] = Gx_i / (G_i + 1e-15);
+        ny[idx] = Gy_i / (G_i + 1e-15);
+        nz[idx] = Gz_i / (G_i + 1e-15);
     }
 }
 
 void compute_Q_corrections(SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
-    Stencil *stencil = sim->stencil;
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    double Qx_i, Qy_i, Qz_i;
-    double qx, qy, qz;
+    READ_FIELD(rho)
+    READ_FIELD(pressure)
+    READ_FIELD(u)
+    READ_FIELD(v)
+    READ_FIELD(w)
 
-    int ic, jc, kc;
+    WRITE_FIELD(Qx)
+    WRITE_FIELD(Qy)
+    WRITE_FIELD(Qz)
 
-    int NY = params->NY;
-    int NZ = params->NZ;
-    int NP = stencil->NP;
-
-    int *flag = glob_fields->flag;
-
-    int i_start = params->i_start;
-    int i_end = params->i_end;
-
-    int *cx = stencil->cx;
-    int *cy = stencil->cy;
-    int *cz = stencil->cz;
-    double *wp = stencil->wp;
-
-    double *Qx = glob_fields->Qx;
-    double *Qy = glob_fields->Qy;
-    double *Qz = glob_fields->Qz;
-
-    double *rho = glob_fields->rho;
-    double *pressure = glob_fields->pressure;
-    double *u = glob_fields->u;
-    double *v = glob_fields->v;
-    double *w = glob_fields->w;
+    const int * restrict const flag = fields->flag;
 
     FOR_DOMAIN
     {
-        Qx_i = 0.0;
-        Qy_i = 0.0;
-        Qz_i = 0.0;
+        double Qx_i = 0.0;
+        double Qy_i = 0.0;
+        double Qz_i = 0.0;
 
         for (int p = 0; p < NP; p++)
         {
-            ic = i + cx[p];
-            jc = j + cy[p];
-            kc = k + cz[p];
+            int ic = i + cx[p];
+            int jc = j + cy[p];
+            int kc = k + cz[p];
 
 #ifdef YPERIODIC
             jc = mod(jc, NY);
@@ -258,6 +268,10 @@ void compute_Q_corrections(SimulationBag *sim)
 #ifdef ZPERIODIC
             kc = mod(kc, NZ);
 #endif
+
+            double qx;
+            double qy;
+            double qz;
 
             if (flag[INDEX_FLAG(ic, jc, kc)] > 0)
             {
@@ -267,9 +281,11 @@ void compute_Q_corrections(SimulationBag *sim)
                 goto skip;
             }
 
-            qx = (pressure[INDEX_GLOB(ic, jc, kc)] - rho[INDEX_GLOB(ic, jc, kc)] / 3.0) * u[INDEX_GLOB(ic, jc, kc)];
-            qy = (pressure[INDEX_GLOB(ic, jc, kc)] - rho[INDEX_GLOB(ic, jc, kc)] / 3.0) * v[INDEX_GLOB(ic, jc, kc)];
-            qz = (pressure[INDEX_GLOB(ic, jc, kc)] - rho[INDEX_GLOB(ic, jc, kc)] / 3.0) * w[INDEX_GLOB(ic, jc, kc)];
+            const int idxl = INDEX(ic, jc, kc);
+
+            qx = (pressure[idxl] - rho[idxl] / 3.0) * u[idxl];
+            qy = (pressure[idxl] - rho[idxl] / 3.0) * v[idxl];
+            qz = (pressure[idxl] - rho[idxl] / 3.0) * w[idxl];
 
         skip:
 
@@ -278,122 +294,132 @@ void compute_Q_corrections(SimulationBag *sim)
             Qz_i += wp[p] * qz * (double)cz[p];
         }
 
-        Qx[INDEX_GLOB(i, j, k)] = -9.0 * Qx_i;
-        Qy[INDEX_GLOB(i, j, k)] = -9.0 * Qy_i;
-        Qz[INDEX_GLOB(i, j, k)] = -9.0 * Qz_i;
+        const int idx = INDEX(i, j, k);
+
+        Qx[idx] = -9.0 * Qx_i;
+        Qy[idx] = -9.0 * Qy_i;
+        Qz[idx] = -9.0 * Qz_i;
     }
 }
 
 void collide(SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    DistributionBag *dists = sim->dists;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
-    ComponentFieldBag *comp_fields = sim->comp_fields;
-    Stencil *stencil = sim->stencil;
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    double t4, t5, t6, t7, t8;
-    double cx_bar, cy_bar, cz_bar;
-    double u_i, v_i, w_i;
-    double Fx_i, Fy_i, Fz_i;
-    double Qx_i, Qy_i, Qz_i;
-    double rho_i, pressure_i, rho_RED_i, rho_BLUE_i;
-    double rho_N_i, nu;
-    double omega;
-    double G_i, nx_i, ny_i, nz_i;
-    double prefac, px, py, pz;
+    READ_FIELD(rho)
+    READ_FIELD(rho_RED)
+    READ_FIELD(rho_BLUE)
+    READ_FIELD(pressure)
+    READ_FIELD(u)
+    READ_FIELD(v)
+    READ_FIELD(w)
+    READ_FIELD(Fx)
+    READ_FIELD(Fy)
+    READ_FIELD(Fz)
+    READ_FIELD(Qx)
+    READ_FIELD(Qy)
+    READ_FIELD(Qz)
+    READ_FIELD(rho_N)
+    READ_FIELD(nx)
+    READ_FIELD(ny)
+    READ_FIELD(nz)
+    READ_FIELD(G_norm)
 
-    int i_start = params->i_start;
-    int i_end = params->i_end;
-    int NY = params->NY;
-    int NZ = params->NZ;
-    int NP = stencil->NP;
+    WRITE_DIST(m_star)
+    WRITE_DIST(t_star)
+    WRITE_DIST(f_star)
+    WRITE_DIST(f1_RED)
+    WRITE_DIST(f2_RED)
+    WRITE_DIST(f1_BLUE)
+    WRITE_DIST(f2_BLUE)
 
-    int *cx = stencil->cx;
-    int *cy = stencil->cy;
-    int *cz = stencil->cz;
+    PARAM(mu_RED)
+    PARAM(mu_BLUE)
+    PARAM(rho_0_BLUE)
+    PARAM(cs2_BLUE)
+    PARAM(sigma)
+    PARAM(beta)
+    
+    const double p_0 = cs2_BLUE * rho_0_BLUE;
 
-    double rho_0_RED = params->rho_0_RED;
-    double rho_0_BLUE = params->rho_0_BLUE;
+    const double tau_RED = mu_RED / p_0 + 0.5;
+    const double tau_BLUE = mu_BLUE / p_0 + 0.5;
 
-    double mu_RED = params->mu_RED;
-    double mu_BLUE = params->mu_BLUE;
+    // Wen 2019, 10.1103/PhysRevE.100.023301
+    const double delta_tau = 0.98;
 
-    double nu_RED = mu_RED / rho_0_RED;
-    double nu_BLUE = mu_BLUE / rho_0_BLUE;
-
-    double beta = params->beta;
-
-    double *rho_comp = comp_fields->rho_comp;
-
-    double *rho = glob_fields->rho;
-    double *pressure = glob_fields->pressure;
-    double *u = glob_fields->u;
-    double *v = glob_fields->v;
-    double *w = glob_fields->w;
-    double *Fx = glob_fields->Fx;
-    double *Fy = glob_fields->Fy;
-    double *Fz = glob_fields->Fz;
-    double *Qx = glob_fields->Qx;
-    double *Qy = glob_fields->Qy;
-    double *Qz = glob_fields->Qz;
-    double *rho_N = glob_fields->rho_N;
-    double *nx = glob_fields->nx;
-    double *ny = glob_fields->ny;
-    double *nz = glob_fields->nz;
-    double *G_norm = glob_fields->G_norm;
-
-    double *t_star = dists->t_star;
-    double *m_star = dists->m_star;
-    double *f_star = dists->f_star;
-
-    double *f1 = dists->f1;
-    double *f2 = dists->f2;
+    // Grunau 1993, 10.1063/1.858769
+    const double alpha_tau = 2.0 * tau_RED * tau_BLUE / (tau_RED + tau_BLUE);
+    const double beta_tau = 2.0 * (tau_RED - alpha_tau) / delta_tau;
+    const double kappa_tau = -beta_tau / (2.0 * delta_tau);
+    const double eta_tau = 2.0 * (alpha_tau - tau_BLUE) / delta_tau;
+    const double xi_tau = eta_tau / (2.0 * delta_tau);
 
     FOR_DOMAIN
     {
-        rho_i = rho[INDEX_GLOB(i, j, k)];
-        pressure_i = pressure[INDEX_GLOB(i, j, k)];
-        rho_N_i = rho_N[INDEX_GLOB(i, j, k)];
+        const int idx = INDEX(i, j, k);
 
-        rho_RED_i = rho_comp[INDEX(i, j, k, RED)];
-        rho_BLUE_i = rho_comp[INDEX(i, j, k, BLUE)];
+        const double rho_i = rho[idx];
+        const double pressure_i = pressure[idx];
+        const double rho_N_i = rho_N[idx];
 
-        u_i = u[INDEX_GLOB(i, j, k)];
-        v_i = v[INDEX_GLOB(i, j, k)];
-        w_i = w[INDEX_GLOB(i, j, k)];
+        const double rho_RED_i = rho_RED[idx];
+        const double rho_BLUE_i = rho_BLUE[idx];
 
-        Fx_i = Fx[INDEX_GLOB(i, j, k)];
-        Fy_i = Fy[INDEX_GLOB(i, j, k)];
-        Fz_i = Fz[INDEX_GLOB(i, j, k)];
+        const double u_i = u[idx];
+        const double v_i = v[idx];
+        const double w_i = w[idx];
 
-        Qx_i = Qx[INDEX_GLOB(i, j, k)];
-        Qy_i = Qy[INDEX_GLOB(i, j, k)];
-        Qz_i = Qz[INDEX_GLOB(i, j, k)];
+        const double Fx_i = Fx[idx];
+        const double Fy_i = Fy[idx];
+        const double Fz_i = Fz[idx];
 
-        G_i = G_norm[INDEX_GLOB(i, j, k)];
+        const double Qx_i = Qx[idx];
+        const double Qy_i = Qy[idx];
+        const double Qz_i = Qz[idx];
 
-        // Saito 2023
-        nu = 0.5 * (rho_N_i + 1.0) * nu_RED + 0.5 * (rho_N_i - 1.0) * nu_BLUE;
-        omega = 1.0 / (rho_i / pressure_i * nu + 0.5);
+        const double G_i = G_norm[idx];
 
-        t4 = 0.0;
-        t5 = 0.0;
-        t6 = 0.0;
-        t7 = 0.0;
-        t8 = 0.0;
+        double omega;
+        if (rho_N_i > delta_tau)
+        {
+            omega = 1.0 / tau_RED;
+        }
+        else if (rho_N_i > 0)
+        {
+            omega = 1.0 / (alpha_tau + beta_tau * rho_N_i + kappa_tau * rho_N_i * rho_N_i);
+        }
+        else if (rho_N_i >= -delta_tau)
+        {
+            omega = 1.0 / (alpha_tau + eta_tau * rho_N_i + xi_tau * rho_N_i * rho_N_i);
+        }
+        else
+        {
+            omega = 1.0 / tau_BLUE;
+        }
+
+        double t4 = 0.0;
+        double t5 = 0.0;
+        double t6 = 0.0;
+        double t7 = 0.0;
+        double t8 = 0.0;
 
         for (int p = 0; p < NP; p++)
         {
-            cx_bar = (double)cx[p] - u_i;
-            cy_bar = (double)cy[p] - v_i;
-            cz_bar = (double)cz[p] - w_i;
+            double cx_bar = (double)cx[p] - u_i;
+            double cy_bar = (double)cy[p] - v_i;
+            double cz_bar = (double)cz[p] - w_i;
 
-            t4 += f(p) * cx_bar * cy_bar;
-            t5 += f(p) * cx_bar * cz_bar;
-            t6 += f(p) * cy_bar * cz_bar;
-            t7 += f(p) * (cx_bar * cx_bar - cy_bar * cy_bar);
-            t8 += f(p) * (cx_bar * cx_bar - cz_bar * cz_bar);
+            const int idxf = INDEX_F(i, j, k, p);
+            double f = f1_RED[idxf] + f1_BLUE[idxf];
+
+            t4 += f * cx_bar * cy_bar;
+            t5 += f * cx_bar * cz_bar;
+            t6 += f * cy_bar * cz_bar;
+            t7 += f * (cx_bar * cx_bar - cy_bar * cy_bar);
+            t8 += f * (cx_bar * cx_bar - cz_bar * cz_bar);
         }
 
         t_star[0] = rho_i;
@@ -431,68 +457,56 @@ void collide(SimulationBag *sim)
         // Mixing
         for (int p = 0; p < NP; p++)
         {
-            f2[INDEX_F(i, j, k, p, RED)] = rho_RED_i / rho_i * f_star[p];
-            f2[INDEX_F(i, j, k, p, BLUE)] = rho_BLUE_i / rho_i * f_star[p];
+            const int idxf = INDEX_F(i, j, k, p);
+
+            f2_RED[idxf] = rho_RED_i / rho_i * f_star[p];
+            f2_BLUE[idxf] = rho_BLUE_i / rho_i * f_star[p];
         }
 
         if (G_i > 1e-15)
         {
-            nx_i = nx[INDEX_GLOB(i, j, k)];
-            ny_i = ny[INDEX_GLOB(i, j, k)];
-            nz_i = nz[INDEX_GLOB(i, j, k)];
+            const double nx_i = nx[idx];
+            const double ny_i = ny[idx];
+            const double nz_i = nz[idx];
 
-            prefac = beta * rho_RED_i * rho_BLUE_i / (rho_i * rho_i) * pressure_i;
-            px = prefac * nx_i;
-            py = prefac * ny_i;
-            pz = prefac * nz_i;
+            const double prefac = beta * rho_RED_i * rho_BLUE_i / (rho_i * rho_i) * pressure_i;
+            const double px = prefac * nx_i;
+            const double py = prefac * ny_i;
+            const double pz = prefac * nz_i;
 
-            f2[INDEX_F(i, j, k, 1, RED)] += px / 2.0;
-            f2[INDEX_F(i, j, k, 2, RED)] += -px / 2.0;
-            f2[INDEX_F(i, j, k, 3, RED)] += py / 2.0;
-            f2[INDEX_F(i, j, k, 4, RED)] += -py / 2.0;
-            f2[INDEX_F(i, j, k, 5, RED)] += pz / 2.0;
-            f2[INDEX_F(i, j, k, 6, RED)] += -pz / 2.0;
+            f2_RED[INDEX_F(i, j, k, 1)] += px / 2.0;
+            f2_RED[INDEX_F(i, j, k, 2)] += -px / 2.0;
+            f2_RED[INDEX_F(i, j, k, 3)] += py / 2.0;
+            f2_RED[INDEX_F(i, j, k, 4)] += -py / 2.0;
+            f2_RED[INDEX_F(i, j, k, 5)] += pz / 2.0;
+            f2_RED[INDEX_F(i, j, k, 6)] += -pz / 2.0;
 
-            f2[INDEX_F(i, j, k, 1, BLUE)] -= px / 2.0;
-            f2[INDEX_F(i, j, k, 2, BLUE)] -= -px / 2.0;
-            f2[INDEX_F(i, j, k, 3, BLUE)] -= py / 2.0;
-            f2[INDEX_F(i, j, k, 4, BLUE)] -= -py / 2.0;
-            f2[INDEX_F(i, j, k, 5, BLUE)] -= pz / 2.0;
-            f2[INDEX_F(i, j, k, 6, BLUE)] -= -pz / 2.0;
+            f2_BLUE[INDEX_F(i, j, k, 1)] -= px / 2.0;
+            f2_BLUE[INDEX_F(i, j, k, 2)] -= -px / 2.0;
+            f2_BLUE[INDEX_F(i, j, k, 3)] -= py / 2.0;
+            f2_BLUE[INDEX_F(i, j, k, 4)] -= -py / 2.0;
+            f2_BLUE[INDEX_F(i, j, k, 5)] -= pz / 2.0;
+            f2_BLUE[INDEX_F(i, j, k, 6)] -= -pz / 2.0;
         }
     }
 }
 
-double extrapolate_wall_rho_N(int i, int j, int k, SimulationBag *sim)
+double extrapolate_wall_rho_N(const int i, const int j, const int k, SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    Stencil *stencil = sim->stencil;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    int ic, jc, kc;
-    double sum_rho_N, sum_wp;
+    READ_FIELD(rho_N)
 
-    int NY = params->NY;
-    int NZ = params->NZ;
-
-    int i_start = params->i_start;
-
-    int NP = stencil->NP;
-    int *cx = stencil->cx;
-    int *cy = stencil->cy;
-    int *cz = stencil->cz;
-    double *wp = stencil->wp;
-
-    double *rho_N = glob_fields->rho_N;
-
-    sum_rho_N = 0.0;
-    sum_wp = 0.0;
+    double sum_rho_N = 0.0;
+    double sum_wp = 0.0;
 
     for (int p = 1; p < NP; p++)
     {
-        ic = i + cx[p];
-        jc = j + cy[p];
-        kc = k + cz[p];
+        int ic = i + cx[p];
+        int jc = j + cy[p];
+        int kc = k + cz[p];
 
 #ifndef XPERIODIC
         if ((ic < 0) || (ic > params->NX - 1))
@@ -511,7 +525,7 @@ double extrapolate_wall_rho_N(int i, int j, int k, SimulationBag *sim)
         kc = mod(kc, NZ);
 #endif
 
-        sum_rho_N += wp[p] * rho_N[INDEX_GLOB(ic, jc, kc)];
+        sum_rho_N += wp[p] * rho_N[INDEX(ic, jc, kc)];
         sum_wp += wp[p];
     }
 
@@ -521,41 +535,29 @@ double extrapolate_wall_rho_N(int i, int j, int k, SimulationBag *sim)
         return sum_rho_N / sum_wp;
 }
 
-double extrapolate_wall_q(int i, int j, int k, int alpha, SimulationBag *sim)
+double extrapolate_wall_q(const int i, const int j, const int k, const int alpha, SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    Stencil *stencil = sim->stencil;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    int ic, jc, kc;
-    double sum_q, sum_wp;
+    READ_FIELD(rho)
+    READ_FIELD(pressure)
 
-    int NY = params->NY;
-    int NZ = params->NZ;
+    double * restrict u = fields->u;
+    double * restrict v = fields->v;
+    double * restrict w = fields->w;
 
-    int i_start = params->i_start;
-
-    int NP = stencil->NP;
-    int *cx = stencil->cx;
-    int *cy = stencil->cy;
-    int *cz = stencil->cz;
-    double *wp = stencil->wp;
-
-    double *rho = glob_fields->rho;
-    double *pressure = glob_fields->pressure;
-    double *u = glob_fields->u;
-    double *v = glob_fields->v;
-    double *w = glob_fields->w;
     double *u_vec[3] = {u, v, w};
 
-    sum_q = 0.0;
-    sum_wp = 0.0;
+    double sum_q = 0.0;
+    double sum_wp = 0.0;
 
     for (int p = 1; p < NP; p++)
     {
-        ic = i + cx[p];
-        jc = j + cy[p];
-        kc = k + cz[p];
+        int ic = i + cx[p];
+        int jc = j + cy[p];
+        int kc = k + cz[p];
 
 #ifndef XPERIODIC
         if ((ic < 0) || (ic > params->NX - 1))
@@ -574,7 +576,7 @@ double extrapolate_wall_q(int i, int j, int k, int alpha, SimulationBag *sim)
         kc = mod(kc, NZ);
 #endif
 
-        sum_q += wp[p] * (pressure[INDEX_GLOB(ic, jc, kc)] - rho[INDEX_GLOB(ic, jc, kc)] / 3.0) * u_vec[alpha][INDEX_GLOB(ic, jc, kc)];
+        sum_q += wp[p] * (pressure[INDEX(ic, jc, kc)] - rho[INDEX(ic, jc, kc)] / 3.0) * u_vec[alpha][INDEX(ic, jc, kc)];
         sum_wp += wp[p];
     }
 

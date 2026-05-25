@@ -13,6 +13,7 @@
 #include "include/stream.h"
 #include "include/wetnode.h"
 #include "include/fields.h"
+#include "include/wetnode.h"
 #include "definitions.h"
 
 int main(int argc, char **argv)
@@ -21,12 +22,11 @@ int main(int argc, char **argv)
 
     SimulationBag *sim;
     DistributionBag *dists;
-    GlobalFieldBag *glob_fields;
-    ComponentFieldBag *comp_fields;
+    FieldBag *fields;
     ParamBag *params;
     Stencil *stencil;
 
-    allocate_bags(&sim, &dists, &glob_fields, &comp_fields, &params, &stencil);
+    allocate_bags(&sim, &dists, &fields, &params, &stencil);
 
     set_params(params);
 
@@ -49,15 +49,23 @@ int main(int argc, char **argv)
     
     initialize_fields(sim);
 
-    communicate_fields(sim);
-
-    compute_Q_corrections(sim);
+    communicate_field(fields->rho_N, sim);
 
     evaluate_color_gradients(sim);
 
-    communicate_surface_vector(sim);
+    communicate_field(fields->nx, sim);
+    communicate_field(fields->ny, sim);
+    communicate_field(fields->nz, sim);
 
     evaluate_forces(sim);
+
+    communicate_field(fields->rho, sim);
+    communicate_field(fields->pressure, sim);
+    communicate_field(fields->u, sim);
+    communicate_field(fields->v, sim);
+    communicate_field(fields->w, sim);
+
+    compute_Q_corrections(sim);
 
     initialize_distributions(sim);
 
@@ -96,38 +104,40 @@ int main(int argc, char **argv)
         )
 
         TIME("> Communicate distributions...",
-            communicate_dists(sim);
+            communicate_dist(dists->f2_RED, sim);
+            communicate_dist(dists->f2_BLUE, sim);
         )
 
         TIME("> Streaming...",
             stream_distributions(sim);
         )
 
-        // TIME("> Wetnode boundary conditions...",
-        //     wetnode_boundary_conditions(sim);
-        // )
-
         TIME("> Computing macroscopic fields...",
             extract_moments(sim);
             evaluate_pressure(sim);
-            communicate_fields(sim);
-            compute_Q_corrections(sim);
+
+            wetnode_macroscopic_fields(sim);
+
+            communicate_field(fields->rho_N, sim);
             evaluate_color_gradients(sim);
-            communicate_surface_vector(sim);
+
+            communicate_field(fields->nx, sim);
+            communicate_field(fields->ny, sim);
+            communicate_field(fields->nz, sim);
             evaluate_forces(sim);
+
+            wetnode_distributions(sim);
+
+            extract_moments(sim);
             update_final_velocity(sim);
-            M_RED = evaluate_mass(RED, sim);
-            M_BLUE = evaluate_mass(BLUE, sim);
-            M_total = M_RED + M_BLUE;
-            if (M_total != M_total)
-            {
-                if (params->process_rank == 0)
-                {
-                    printf("\n--------------------------------------------------------------------------------\n");
-                    printf("Step failed, mass is NaN!\n");
-                }
-                break;
-            }
+
+            communicate_field(fields->rho, sim);
+            communicate_field(fields->pressure, sim);
+            communicate_field(fields->u, sim);
+            communicate_field(fields->v, sim);
+            communicate_field(fields->w, sim);
+
+            compute_Q_corrections(sim);
         )
 
         duration_timestep = MPI_Wtime() - start_timestep;

@@ -1,1505 +1,826 @@
-// #include <math.h>
-// #include <string.h>
-// #include <stdlib.h>
-
-// #include "../include/datatypes.h"
-// #include "../definitions.h"
-// #include "../include/forcing.h"
-// #include "../include/fields.h"
-// #include "../include/communicate.h"
-// #include "../include/collide.h"
-// #include "../include/fields.h"
-// #include "../include/wetnode.h"
-
-// void wetnode_boundary_conditions(SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-
-//     int i_start = params->i_start;
-//     int i_end = params->i_end;
-
-//     (void)sim;
-//     (void)params;
-//     (void)NY;
-//     (void)NZ;
-//     (void)i_start;
-//     (void)i_end;
-
-// #if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
-//     if (i_start == 0)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 wetnode_mass_conservation_streaming(0, j, k, 1, 0, 0, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
-//     if (i_end == params->NX)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 wetnode_mass_conservation_streaming(params->NX - 1, j, k, -1, 0, 0, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             wetnode_mass_conservation_streaming(i, 0, k, 0, 1, 0, sim);
-//         }
-//     }
-// #endif
-
-// #if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             wetnode_mass_conservation_streaming(i, NY - 1, k, 0, -1, 0, sim);
-//         }
-//     }
-// #endif
-
-// #if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             wetnode_mass_conservation_streaming(i, j, 0, 0, 0, 1, sim);
-//         }
-//     }
-// #endif
-
-// #if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             wetnode_mass_conservation_streaming(i, j, NZ - 1, 0, 0, -1, sim);
-//         }
-//     }
-// #endif
-
-// #if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_REGNEE_VELOCITY)
-//     if (i_start == 0)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 sim->glob_fields->u[INDEX_GLOB(0, j, k)] = LEFT_U_VELOCITY;
-//                 sim->glob_fields->v[INDEX_GLOB(0, j, k)] = LEFT_V_VELOCITY;
-//                 sim->glob_fields->w[INDEX_GLOB(0, j, k)] = LEFT_W_VELOCITY;
-//                 sim->comp_fields->u_comp[INDEX(0, j, k, RED)] = LEFT_U_VELOCITY;
-//                 sim->comp_fields->v_comp[INDEX(0, j, k, RED)] = LEFT_V_VELOCITY;
-//                 sim->comp_fields->w_comp[INDEX(0, j, k, RED)] = LEFT_W_VELOCITY;
-//                 sim->comp_fields->u_comp[INDEX(0, j, k, BLUE)] = LEFT_U_VELOCITY;
-//                 sim->comp_fields->v_comp[INDEX(0, j, k, BLUE)] = LEFT_V_VELOCITY;
-//                 sim->comp_fields->w_comp[INDEX(0, j, k, BLUE)] = LEFT_W_VELOCITY;
-//             }
-//         }
-//     }
-// #endif
-
-// #if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_REGNEE_VELOCITY)
-//     if (i_end == params->NX)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 sim->glob_fields->u[INDEX_GLOB(params->NX - 1, j, k)] = RIGHT_U_VELOCITY;
-//                 sim->glob_fields->v[INDEX_GLOB(params->NX - 1, j, k)] = RIGHT_V_VELOCITY;
-//                 sim->glob_fields->w[INDEX_GLOB(params->NX - 1, j, k)] = RIGHT_W_VELOCITY;
-//                 sim->comp_fields->u_comp[INDEX(params->NX - 1, j, k, RED)] = RIGHT_U_VELOCITY;
-//                 sim->comp_fields->v_comp[INDEX(params->NX - 1, j, k, RED)] = RIGHT_V_VELOCITY;
-//                 sim->comp_fields->w_comp[INDEX(params->NX - 1, j, k, RED)] = RIGHT_W_VELOCITY;
-//                 sim->comp_fields->u_comp[INDEX(params->NX - 1, j, k, BLUE)] = RIGHT_U_VELOCITY;
-//                 sim->comp_fields->v_comp[INDEX(params->NX - 1, j, k, BLUE)] = RIGHT_V_VELOCITY;
-//                 sim->comp_fields->w_comp[INDEX(params->NX - 1, j, k, BLUE)] = RIGHT_W_VELOCITY;
-//             }
-//         }
-//     }
-// #endif
-
-// #if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_REGNEE_VELOCITY)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             sim->glob_fields->u[INDEX_GLOB(i, 0, k)] = BOTTOM_U_VELOCITY;
-//             sim->glob_fields->v[INDEX_GLOB(i, 0, k)] = BOTTOM_V_VELOCITY;
-//             sim->glob_fields->w[INDEX_GLOB(i, 0, k)] = BOTTOM_W_VELOCITY;
-//             sim->comp_fields->u_comp[INDEX(i, 0, k, RED)] = BOTTOM_U_VELOCITY;
-//             sim->comp_fields->v_comp[INDEX(i, 0, k, RED)] = BOTTOM_V_VELOCITY;
-//             sim->comp_fields->w_comp[INDEX(i, 0, k, RED)] = BOTTOM_W_VELOCITY;
-//             sim->comp_fields->u_comp[INDEX(i, 0, k, BLUE)] = BOTTOM_U_VELOCITY;
-//             sim->comp_fields->v_comp[INDEX(i, 0, k, BLUE)] = BOTTOM_V_VELOCITY;
-//             sim->comp_fields->w_comp[INDEX(i, 0, k, BLUE)] = BOTTOM_W_VELOCITY;
-//         }
-//     }
-// #endif
-
-// #if defined(TOP_NEBB_VELOCITY) || defined(TOP_REGNEE_VELOCITY)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             sim->glob_fields->u[INDEX_GLOB(i, NY - 1, k)] = TOP_U_VELOCITY;
-//             sim->glob_fields->v[INDEX_GLOB(i, NY - 1, k)] = TOP_V_VELOCITY;
-//             sim->glob_fields->w[INDEX_GLOB(i, NY - 1, k)] = TOP_W_VELOCITY;
-//             sim->comp_fields->u_comp[INDEX(i, NY - 1, k, RED)] = TOP_U_VELOCITY;
-//             sim->comp_fields->v_comp[INDEX(i, NY - 1, k, RED)] = TOP_V_VELOCITY;
-//             sim->comp_fields->w_comp[INDEX(i, NY - 1, k, RED)] = TOP_W_VELOCITY;
-//             sim->comp_fields->u_comp[INDEX(i, NY - 1, k, BLUE)] = TOP_U_VELOCITY;
-//             sim->comp_fields->v_comp[INDEX(i, NY - 1, k, BLUE)] = TOP_V_VELOCITY;
-//             sim->comp_fields->w_comp[INDEX(i, NY - 1, k, BLUE)] = TOP_W_VELOCITY;
-//         }
-//     }
-// #endif
-
-// #if defined(BACK_NEBB_VELOCITY) || defined(BACK_REGNEE_VELOCITY)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             sim->glob_fields->u[INDEX_GLOB(i, j, 0)] = BACK_U_VELOCITY;
-//             sim->glob_fields->v[INDEX_GLOB(i, j, 0)] = BACK_V_VELOCITY;
-//             sim->glob_fields->w[INDEX_GLOB(i, j, 0)] = BACK_W_VELOCITY;
-//             sim->comp_fields->u_comp[INDEX(i, j, 0, RED)] = BACK_U_VELOCITY;
-//             sim->comp_fields->v_comp[INDEX(i, j, 0, RED)] = BACK_V_VELOCITY;
-//             sim->comp_fields->w_comp[INDEX(i, j, 0, RED)] = BACK_W_VELOCITY;
-//             sim->comp_fields->u_comp[INDEX(i, j, 0, BLUE)] = BACK_U_VELOCITY;
-//             sim->comp_fields->v_comp[INDEX(i, j, 0, BLUE)] = BACK_V_VELOCITY;
-//             sim->comp_fields->w_comp[INDEX(i, j, 0, BLUE)] = BACK_W_VELOCITY;
-//         }
-//     }
-// #endif
-
-// #if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_REGNEE_VELOCITY)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             sim->glob_fields->u[INDEX_GLOB(i, j, NZ - 1)] = FRONT_U_VELOCITY;
-//             sim->glob_fields->v[INDEX_GLOB(i, j, NZ - 1)] = FRONT_V_VELOCITY;
-//             sim->glob_fields->w[INDEX_GLOB(i, j, NZ - 1)] = FRONT_W_VELOCITY;
-//             sim->comp_fields->u_comp[INDEX(i, j, NZ - 1, RED)] = FRONT_U_VELOCITY;
-//             sim->comp_fields->v_comp[INDEX(i, j, NZ - 1, RED)] = FRONT_V_VELOCITY;
-//             sim->comp_fields->w_comp[INDEX(i, j, NZ - 1, RED)] = FRONT_W_VELOCITY;
-//             sim->comp_fields->u_comp[INDEX(i, j, NZ - 1, BLUE)] = FRONT_U_VELOCITY;
-//             sim->comp_fields->v_comp[INDEX(i, j, NZ - 1, BLUE)] = FRONT_V_VELOCITY;
-//             sim->comp_fields->w_comp[INDEX(i, j, NZ - 1, BLUE)] = FRONT_W_VELOCITY;
-//         }
-//     }
-// #endif
-
-//     // Set densities
-// #ifdef LEFT_NEBB_PRESSURE
-//     if (i_start == 0)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 sim->comp_fields->rho_comp[INDEX(0, j, k, RED)] = LEFT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-//                 sim->comp_fields->rho_comp[INDEX(0, j, k, BLUE)] = LEFT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef RIGHT_NEBB_PRESSURE
-//     if (i_end == params->NX)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 sim->comp_fields->rho_comp[INDEX(params->NX - 1, j, k, RED)] = RIGHT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-//                 sim->comp_fields->rho_comp[INDEX(params->NX - 1, j, k, BLUE)] = RIGHT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef BOTTOM_NEBB_PRESSURE
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             sim->comp_fields->rho_comp[INDEX(i, 0, k, RED)] = BOTTOM_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-//             sim->comp_fields->rho_comp[INDEX(i, 0, k, BLUE)] = BOTTOM_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
-//         }
-//     }
-// #endif
-
-// #ifdef TOP_NEBB_PRESSURE
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             sim->comp_fields->rho_comp[INDEX(i, NY - 1, k, RED)] = TOP_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-//             sim->comp_fields->rho_comp[INDEX(i, NY - 1, k, BLUE)] = TOP_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
-//         }
-//     }
-// #endif
-
-// #ifdef BACK_NEBB_PRESSURE
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             sim->comp_fields->rho_comp[INDEX(i, j, 0, RED)] = BACK_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-//             sim->comp_fields->rho_comp[INDEX(i, j, 0, BLUE)] = BACK_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
-//         }
-//     }
-// #endif
-
-// #ifdef FRONT_NEBB_PRESSURE
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             sim->comp_fields->rho_comp[INDEX(i, j, NZ - 1, RED)] = FRONT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-//             sim->comp_fields->rho_comp[INDEX(i, j, NZ - 1, BLUE)] = FRONT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
-//         }
-//     }
-// #endif
-
-//     // Compute densities
-// #ifdef LEFT_NEBB_VELOCITY
-//     if (i_start == 0)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 wetnode_compute_density(0, j, k, 1, 0, 0, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef RIGHT_NEBB_VELOCITY
-//     if (i_end == params->NX)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 wetnode_compute_density(params->NX - 1, j, k, -1, 0, 0, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef BOTTOM_NEBB_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             wetnode_compute_density(i, 0, k, 0, 1, 0, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef TOP_NEBB_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             wetnode_compute_density(i, NY - 1, k, 0, -1, 0, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef BACK_NEBB_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             wetnode_compute_density(i, j, 0, 0, 0, 1, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef FRONT_NEBB_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             wetnode_compute_density(i, j, NZ - 1, 0, 0, -1, sim);
-//         }
-//     }
-// #endif
-
-//     // Compute velocities
-// #ifdef LEFT_NEBB_PRESSURE
-//     if (i_start == 0)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 wetnode_compute_velocity(0, j, k, 1, 0, 0, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef RIGHT_NEBB_PRESSURE
-//     if (i_end == params->NX)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 wetnode_compute_velocity(params->NX - 1, j, k, -1, 0, 0, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef BOTTOM_NEBB_PRESSURE
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             wetnode_compute_velocity(i, 0, k, 0, 1, 0, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef TOP_NEBB_PRESSURE
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             wetnode_compute_velocity(i, NY - 1, k, 0, -1, 0, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef BACK_NEBB_PRESSURE
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             wetnode_compute_velocity(i, j, 0, 0, 0, 1, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef FRONT_NEBB_PRESSURE
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             wetnode_compute_velocity(i, j, NZ - 1, 0, 0, -1, sim);
-//         }
-//     }
-// #endif
-
-//     // Evaluate forces
-// #if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
-//     if (i_start == 0)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 evaluate_force(0, j, k, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
-//     if (i_end == params->NX)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 evaluate_force(params->NX - 1, j, k, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             evaluate_force(i, 0, k, sim);
-//         }
-//     }
-// #endif
-
-// #if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             evaluate_force(i, NY - 1, k, sim);
-//         }
-//     }
-// #endif
-
-// #if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             evaluate_force(i, j, 0, sim);
-//         }
-//     }
-// #endif
-
-// #if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             evaluate_force(i, j, NZ - 1, sim);
-//         }
-//     }
-// #endif
-
-//     // Non-equilibrium bounce-back
-// #if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
-//     if (i_start == 0)
-//     {
-//         non_equilibrium_bounce_back_x(0, 1, sim);
-//     }
-// #endif
-
-// #if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
-//     if (i_end == params->NX)
-//     {
-//         non_equilibrium_bounce_back_x(params->NX - 1, -1, sim);
-//     }
-// #endif
-
-// #if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
-//     non_equilibrium_bounce_back_y(0, 1, sim);
-// #endif
-
-// #if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
-//     non_equilibrium_bounce_back_y(NY - 1, -1, sim);
-// #endif
-
-// #if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
-//     non_equilibrium_bounce_back_z(0, 1, sim);
-// #endif
-
-// #if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
-//     non_equilibrium_bounce_back_z(NZ - 1, -1, sim);
-// #endif
-
-// #ifdef LEFT_REGNEE_VELOCITY
-//     if (i_start == 0)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 evaluate_velocity(1, j, k, sim);
-//                 evaluate_density(1, j, k, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef RIGHT_REGNEE_VELOCITY
-//     if (i_end == params->NX)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 evaluate_velocity(params->NX - 2, j, k, sim);
-//                 evaluate_density(params->NX - 2, j, k, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef BOTTOM_REGNEE_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             evaluate_velocity(i, 1, k, sim);
-//             evaluate_density(i, 1, k, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef TOP_REGNEE_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             evaluate_velocity(i, NY - 2, k, sim);
-//             evaluate_density(i, NY - 2, k, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef BACK_REGNEE_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             evaluate_velocity(i, j, 1, sim);
-//             evaluate_density(i, j, 1, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef FRONT_REGNEE_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             evaluate_velocity(i, j, NZ - 2, sim);
-//             evaluate_density(i, j, NZ - 2, sim);
-//         }
-//     }
-// #endif
-
-//     // Compute densities
-// #ifdef LEFT_REGNEE_VELOCITY
-//     if (i_start == 0)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 wetnode_compute_density_no_mc(0, j, k, 1, 0, 0, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef RIGHT_REGNEE_VELOCITY
-//     if (i_end == params->NX)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int k = 0; k < NZ; k++)
-//             {
-//                 wetnode_compute_density_no_mc(params->NX - 1, j, k, -1, 0, 0, sim);
-//             }
-//         }
-//     }
-// #endif
-
-// #ifdef BOTTOM_REGNEE_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             wetnode_compute_density_no_mc(i, 0, k, 0, 1, 0, sim);
-//             // sim->comp_fields->rho_comp[INDEX(i, 0, k, RED)] = sim->comp_fields->rho_comp[INDEX(i, 1, k, RED)];
-//             // sim->comp_fields->rho_comp[INDEX(i, 0, k, BLUE)] = sim->comp_fields->rho_comp[INDEX(i, 1, k, BLUE)];
-//         }
-//     }
-// #endif
-
-// #ifdef TOP_REGNEE_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             wetnode_compute_density_no_mc(i, NY - 1, k, 0, -1, 0, sim);
-//             // sim->comp_fields->rho_comp[INDEX(i, NY - 1, k, RED)] = sim->comp_fields->rho_comp[INDEX(i, NY - 2, k, RED)];
-//             // sim->comp_fields->rho_comp[INDEX(i, NY - 1, k, BLUE)] = sim->comp_fields->rho_comp[INDEX(i, NY - 2, k, BLUE)];
-//         }
-//     }
-// #endif
-
-// #ifdef BACK_REGNEE_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             wetnode_compute_density_no_mc(i, j, 0, 0, 0, 1, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef FRONT_REGNEE_VELOCITY
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             wetnode_compute_density_no_mc(i, j, NZ - 1, 0, 0, -1, sim);
-//         }
-//     }
-// #endif
-
-// #ifdef RIGHT_REGNEE_VELOCITY
-//     if (i_end == params->NX)
-//     {
-//         regularized_non_equilibrium_extrapolation_x(params->NX - 1, -1, sim);
-//     }
-// #endif
-
-// #ifdef BOTTOM_REGNEE_VELOCITY
-//     regularized_non_equilibrium_extrapolation_y(0, 1, sim);
-// #endif
-
-// #ifdef TOP_REGNEE_VELOCITY
-//     regularized_non_equilibrium_extrapolation_y(NY - 1, -1, sim);
-// #endif
-
-// #ifdef BACK_REGNEE_VELOCITY
-//     regularized_non_equilibrium_extrapolation_y(0, 1, sim);
-// #endif
-
-// #ifdef FRONT_REGNEE_VELOCITY
-//     regularized_non_equilibrium_extrapolation_y(NZ - 1, -1, sim);
-// #endif
-// }
-
-// void wetnode_mass_conservation_streaming(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
-// {
-//     DistributionBag *dists = sim->dists;
-//     ParamBag *params = sim->params;
-//     Stencil *stencil = sim->stencil;
-
-//     double cn;
-
-//     int i_start = params->i_start;
-
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     int *cx = stencil->cx;
-//     int *cy = stencil->cy;
-//     int *cz = stencil->cz;
-
-//     double *f1 = dists->f1;
-//     double *f2 = dists->f2;
-
-//     for (int p = 0; p < NP; p++)
-//     {
-//         cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
-//         if (cn < 0)
-//         {
-//             f1[INDEX_F(i, j, k, 0, RED)] += f2[INDEX_F(i, j, k, p, RED)] - f1[INDEX_F(i, j, k, p, RED)];
-//             f1[INDEX_F(i, j, k, 0, BLUE)] += f2[INDEX_F(i, j, k, p, BLUE)] - f1[INDEX_F(i, j, k, p, BLUE)];
-//         }
-//     }
-// }
-
-// void wetnode_compute_density(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-//     ComponentFieldBag *comp_fields = sim->comp_fields;
-//     DistributionBag *dists = sim->dists;
-//     Stencil *stencil = sim->stencil;
-
-//     double rho_i;
-//     double un;
-//     int cn;
-
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     int *cx = stencil->cx;
-//     int *cy = stencil->cy;
-//     int *cz = stencil->cz;
-
-//     int i_start = params->i_start;
-
-//     double *rho_comp = comp_fields->rho_comp;
-
-//     double *u_comp = comp_fields->u_comp;
-//     double *v_comp = comp_fields->v_comp;
-//     double *w_comp = comp_fields->w_comp;
-
-//     double *f1 = dists->f1;
-//     double *f2 = dists->f2;
-
-//     for (int n = 0; n < NCOMP; n++)
-//     {
-//         rho_i = f2[INDEX_F(i, j, k, 0, n)];
-
-//         for (int p = 1; p < NP; p++)
-//         {
-//             cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
-
-//             if (cn < 0)
-//             {
-//                 rho_i += f1[INDEX_F(i, j, k, p, n)] + f2[INDEX_F(i, j, k, p, n)];
-//             }
-//             else if (cn == 0)
-//             {
-//                 rho_i += f1[INDEX_F(i, j, k, p, n)];
-//             }
-//         }
-
-//         un = u_comp[INDEX(i, j, k, n)] * (double)nx + v_comp[INDEX(i, j, k, n)] * (double)ny + w_comp[INDEX(i, j, k, n)] * (double)nz;
-
-//         rho_comp[INDEX(i, j, k, n)] = rho_i / (1.0 - un);
-//     }
-// }
-
-// void wetnode_compute_velocity(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-//     GlobalFieldBag *glob_fields = sim->glob_fields;
-//     ComponentFieldBag *comp_fields = sim->comp_fields;
-//     DistributionBag *dists = sim->dists;
-//     Stencil *stencil = sim->stencil;
-
-//     double un, rho_i;
-//     int cn;
-
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     int *cx = stencil->cx;
-//     int *cy = stencil->cy;
-//     int *cz = stencil->cz;
-
-//     int i_start = params->i_start;
-
-//     double *rho_comp = comp_fields->rho_comp;
-
-//     double *u = glob_fields->u;
-//     double *v = glob_fields->v;
-//     double *w = glob_fields->w;
-
-//     double *u_comp = comp_fields->u_comp;
-//     double *v_comp = comp_fields->v_comp;
-//     double *w_comp = comp_fields->w_comp;
-
-//     double *f1 = dists->f1;
-//     double *f2 = dists->f2;
-
-//     for (int n = 0; n < NCOMP; n++)
-//     {
-//         if (rho_comp[INDEX(i, j, k, n)] == 0.0)
-//         {
-//             u_comp[INDEX(i, j, k, n)] = 0.0;
-//             v_comp[INDEX(i, j, k, n)] = 0.0;
-//             w_comp[INDEX(i, j, k, n)] = 0.0;
-//             continue;
-//         }
-
-//         un = f2[INDEX_F(i, j, k, 0, n)];
-
-//         for (int p = 1; p < NP; p++)
-//         {
-//             cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
-
-//             if (cn < 0)
-//             {
-//                 un += f1[INDEX_F(i, j, k, p, n)] + f2[INDEX_F(i, j, k, p, n)];
-//             }
-//             else if (cn == 0)
-//             {
-//                 un += f1[INDEX_F(i, j, k, p, n)];
-//             }
-//         }
-
-//         un = 1.0 - un / rho_comp[INDEX(i, j, k, n)];
-//         u_comp[INDEX(i, j, k, n)] = un * (double)nx;
-//         v_comp[INDEX(i, j, k, n)] = un * (double)ny;
-//         w_comp[INDEX(i, j, k, n)] = un * (double)nz;
-//     }
-//     rho_i = rho_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)];
-//     u[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] * u_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)] * u_comp[INDEX(i, j, k, BLUE)]) / rho_i;
-//     v[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] * v_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)] * v_comp[INDEX(i, j, k, BLUE)]) / rho_i;
-//     w[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] * w_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)] * w_comp[INDEX(i, j, k, BLUE)]) / rho_i;
-// }
-
-// void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-//     GlobalFieldBag *glob_fields = sim->glob_fields;
-//     ComponentFieldBag *comp_fields = sim->comp_fields;
-//     DistributionBag *dists = sim->dists;
-//     Stencil *stencil = sim->stencil;
-
-//     double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
-//     double u_i, v_i, w_i, uc_i, vc_i, wc_i;
-//     double cs2_i;
-
-//     int i_start = params->i_start;
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     int *cx = stencil->cx;
-//     int *cy = stencil->cy;
-//     int *cz = stencil->cz;
-//     int *p_bounceback = stencil->p_bounceback;
-//     double *wp = stencil->wp;
-
-//     double *cs2 = stencil->cs2;
-
-//     double *rho_comp = comp_fields->rho_comp;
-//     double *Fx = comp_fields->Fx;
-//     double *Fy = comp_fields->Fy;
-//     double *Fz = comp_fields->Fz;
-
-//     double *u = glob_fields->u;
-//     double *v = glob_fields->v;
-//     double *w = glob_fields->w;
-
-//     double *u_comp = comp_fields->u_comp;
-//     double *v_comp = comp_fields->v_comp;
-//     double *w_comp = comp_fields->w_comp;
-
-//     double *f1 = dists->f1;
-//     double *feq = dists->feq;
-
-//     for (int j = 0; j < NY; j++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             for (int n = 0; n < NCOMP; n++)
-//             {
-//                 rho_i = rho_comp[INDEX(i, j, k, n)];
-
-//                 if (rho_i == 0.0)
-//                 {
-//                     for (int p = 0; p < NP; p++)
-//                     {
-//                         f1[INDEX_F(i, j, k, p, n)] = 0.0;
-//                     }
-//                     continue;
-//                 }
-
-//                 u_i = u[INDEX_GLOB(i, j, k)];
-//                 v_i = v[INDEX_GLOB(i, j, k)];
-//                 w_i = w[INDEX_GLOB(i, j, k)];
-
-//                 cs2_i = cs2[n];
-
-//                 compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
-
-//                 uc_i = u_comp[INDEX(i, j, k, n)];
-//                 vc_i = v_comp[INDEX(i, j, k, n)];
-//                 wc_i = w_comp[INDEX(i, j, k, n)];
-
-//                 Fx_i = Fx[INDEX(i, j, k, n)];
-//                 Fy_i = Fy[INDEX(i, j, k, n)];
-//                 Fz_i = Fz[INDEX(i, j, k, n)];
-
-//                 Nx = 6.0 * (rho_i * (u_i - uc_i) + 0.5 * Fx_i);
-//                 Ny = rho_i * ((cs2_i + u_i * u_i) * v_i - vc_i) + 0.5 * Fy_i;
-//                 Nz = rho_i * ((cs2_i + u_i * u_i) * w_i - wc_i) + 0.5 * Fz_i;
-//                 for (int p = 1; p < NP; p++)
-//                 {
-//                     if (cx[p] == 0)
-//                     {
-//                         Ny += f1[INDEX_F(i, j, k, p, n)] * (double)cy[p];
-//                         Nz += f1[INDEX_F(i, j, k, p, n)] * (double)cz[p];
-//                     }
-//                 }
-//                 Ny *= 18.0;
-//                 Nz *= 18.0;
-
-//                 for (int p = 1; p < NP; p++)
-//                 {
-//                     if (cx[p] * nx > 0)
-//                     {
-//                         f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + (feq[p] - feq[p_bounceback[p]]) - wp[p] * ((double)cx[p] * Nx + (double)cy[p] * Ny + (double)cz[p] * Nz);
-//                     }
-//                 }
-
-//                 f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fx_i * nx;
-//             }
-//         }
-//     }
-// }
-
-// void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-//     GlobalFieldBag *glob_fields = sim->glob_fields;
-//     ComponentFieldBag *comp_fields = sim->comp_fields;
-//     DistributionBag *dists = sim->dists;
-//     Stencil *stencil = sim->stencil;
-
-//     double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
-//     double u_i, v_i, w_i, uc_i, vc_i, wc_i;
-//     double cs2_i;
-
-//     int i_start = params->i_start;
-//     int i_end = params->i_end;
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     int *cx = stencil->cx;
-//     int *cy = stencil->cy;
-//     int *cz = stencil->cz;
-//     int *p_bounceback = stencil->p_bounceback;
-//     double *wp = stencil->wp;
-
-//     double *cs2 = stencil->cs2;
-
-//     double *rho_comp = comp_fields->rho_comp;
-//     double *Fx = comp_fields->Fx;
-//     double *Fy = comp_fields->Fy;
-//     double *Fz = comp_fields->Fz;
-
-//     double *u = glob_fields->u;
-//     double *v = glob_fields->v;
-//     double *w = glob_fields->w;
-
-//     double *u_comp = comp_fields->u_comp;
-//     double *v_comp = comp_fields->v_comp;
-//     double *w_comp = comp_fields->w_comp;
-
-//     double *f1 = dists->f1;
-//     double *feq = dists->feq;
-
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             for (int n = 0; n < NCOMP; n++)
-//             {
-//                 rho_i = rho_comp[INDEX(i, j, k, n)];
-
-//                 if (rho_i == 0.0)
-//                 {
-//                     for (int p = 0; p < NP; p++)
-//                     {
-//                         f1[INDEX_F(i, j, k, p, n)] = 0.0;
-//                     }
-//                     continue;
-//                 }
-
-//                 u_i = u[INDEX_GLOB(i, j, k)];
-//                 v_i = v[INDEX_GLOB(i, j, k)];
-//                 w_i = w[INDEX_GLOB(i, j, k)];
-
-//                 cs2_i = cs2[n];
-
-//                 compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
-
-//                 uc_i = u_comp[INDEX(i, j, k, n)];
-//                 vc_i = v_comp[INDEX(i, j, k, n)];
-//                 wc_i = w_comp[INDEX(i, j, k, n)];
-
-//                 Fx_i = Fx[INDEX(i, j, k, n)];
-//                 Fy_i = Fy[INDEX(i, j, k, n)];
-//                 Fz_i = Fz[INDEX(i, j, k, n)];
-
-//                 Nx = rho_i * ((cs2_i + v_i * v_i) * u_i - uc_i) + 0.5 * Fx_i;
-//                 Ny = 6.0 * (rho_i * (v_i - vc_i) + 0.5 * Fy_i);
-//                 Nz = rho_i * ((cs2_i + v_i * v_i) * w_i - wc_i) + 0.5 * Fz_i;
-//                 for (int p = 1; p < NP; p++)
-//                 {
-//                     if (cy[p] == 0)
-//                     {
-//                         Nx += f1[INDEX_F(i, j, k, p, n)] * (double)cx[p];
-//                         Nz += f1[INDEX_F(i, j, k, p, n)] * (double)cz[p];
-//                     }
-//                 }
-//                 Nx *= 18.0;
-//                 Nz *= 18.0;
-
-//                 for (int p = 1; p < NP; p++)
-//                 {
-//                     if (cy[p] * ny > 0)
-//                     {
-//                         f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + (feq[p] - feq[p_bounceback[p]]) - wp[p] * ((double)cx[p] * Nx + (double)cy[p] * Ny + (double)cz[p] * Nz);
-//                     }
-//                 }
-
-//                 f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fy_i * ny;
-//             }
-//         }
-//     }
-// }
-
-// void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-//     GlobalFieldBag *glob_fields = sim->glob_fields;
-//     ComponentFieldBag *comp_fields = sim->comp_fields;
-//     DistributionBag *dists = sim->dists;
-//     Stencil *stencil = sim->stencil;
-
-//     double rho_i, Fx_i, Fy_i, Fz_i, Nx, Ny, Nz;
-//     double u_i, v_i, w_i, uc_i, vc_i, wc_i;
-//     double cs2_i;
-
-//     int i_start = params->i_start;
-//     int i_end = params->i_end;
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     int *cx = stencil->cx;
-//     int *cy = stencil->cy;
-//     int *cz = stencil->cz;
-//     int *p_bounceback = stencil->p_bounceback;
-//     double *wp = stencil->wp;
-
-//     double *cs2 = stencil->cs2;
-
-//     double *rho_comp = comp_fields->rho_comp;
-//     double *Fx = comp_fields->Fx;
-//     double *Fy = comp_fields->Fy;
-//     double *Fz = comp_fields->Fz;
-
-//     double *u = glob_fields->u;
-//     double *v = glob_fields->v;
-//     double *w = glob_fields->w;
-
-//     double *u_comp = comp_fields->u_comp;
-//     double *v_comp = comp_fields->v_comp;
-//     double *w_comp = comp_fields->w_comp;
-
-//     double *f1 = dists->f1;
-//     double *feq = dists->feq;
-
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NZ; j++)
-//         {
-//             for (int n = 0; n < NCOMP; n++)
-//             {
-//                 rho_i = rho_comp[INDEX(i, j, k, n)];
-
-//                 if (rho_i == 0.0)
-//                 {
-//                     for (int p = 0; p < NP; p++)
-//                     {
-//                         f1[INDEX_F(i, j, k, p, n)] = 0.0;
-//                     }
-//                     continue;
-//                 }
-
-//                 u_i = u[INDEX_GLOB(i, j, k)];
-//                 v_i = v[INDEX_GLOB(i, j, k)];
-//                 w_i = w[INDEX_GLOB(i, j, k)];
-
-//                 cs2_i = cs2[n];
-
-//                 compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
-
-//                 uc_i = u_comp[INDEX(i, j, k, n)];
-//                 vc_i = v_comp[INDEX(i, j, k, n)];
-//                 wc_i = w_comp[INDEX(i, j, k, n)];
-
-//                 Fx_i = Fx[INDEX(i, j, k, n)];
-//                 Fy_i = Fy[INDEX(i, j, k, n)];
-//                 Fz_i = Fz[INDEX(i, j, k, n)];
-
-//                 Nx = rho_i * ((cs2_i + w_i * w_i) * u_i - uc_i) + 0.5 * Fx_i;
-//                 Ny = rho_i * ((cs2_i + w_i * w_i) * v_i - vc_i) + 0.5 * Fy_i;
-//                 Nz = 6.0 * (rho_i * (w_i - wc_i) + 0.5 * Fz_i);
-//                 for (int p = 1; p < NP; p++)
-//                 {
-//                     if (cz[p] == 0)
-//                     {
-//                         Nx += f1[INDEX_F(i, j, k, p, n)] * (double)cx[p];
-//                         Ny += f1[INDEX_F(i, j, k, p, n)] * (double)cy[p];
-//                     }
-//                 }
-//                 Nx *= 18.0;
-//                 Ny *= 18.0;
-
-//                 for (int p = 1; p < NP; p++)
-//                 {
-//                     if (cz[p] * nz > 0)
-//                     {
-//                         f1[INDEX_F(i, j, k, p, n)] = f1[INDEX_F(i, j, k, p_bounceback[p], n)] + (feq[p] - feq[p_bounceback[p]]) - wp[p] * ((double)cx[p] * Nx + (double)cy[p] * Ny + (double)cz[p] * Nz);
-//                     }
-//                 }
-
-//                 f1[INDEX_F(i, j, k, 0, n)] += 0.5 * Fz_i * nz;
-//             }
-//         }
-//     }
-// }
-
-// void wetnode_compute_density_no_mc(int i, int j, int k, int nx, int ny, int nz, SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-//     ComponentFieldBag *comp_fields = sim->comp_fields;
-//     DistributionBag *dists = sim->dists;
-//     Stencil *stencil = sim->stencil;
-
-//     double rho_i;
-//     double un;
-//     int cn;
-
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     int *cx = stencil->cx;
-//     int *cy = stencil->cy;
-//     int *cz = stencil->cz;
-
-//     int i_start = params->i_start;
-
-//     double *rho_comp = comp_fields->rho_comp;
-
-//     double *u_comp = comp_fields->u_comp;
-//     double *v_comp = comp_fields->v_comp;
-//     double *w_comp = comp_fields->w_comp;
-
-//     double *f1 = dists->f1;
-
-//     for (int n = 0; n < NCOMP; n++)
-//     {
-//         rho_i = f1[INDEX_F(i, j, k, 0, n)];
-
-//         for (int p = 1; p < NP; p++)
-//         {
-//             cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
-
-//             if (cn < 0)
-//             {
-//                 rho_i += 2.0 * f1[INDEX_F(i, j, k, p, n)];
-//             }
-//             else if (cn == 0)
-//             {
-//                 rho_i += f1[INDEX_F(i, j, k, p, n)];
-//             }
-//         }
-
-//         un = u_comp[INDEX(i, j, k, n)] * (double)nx + v_comp[INDEX(i, j, k, n)] * (double)ny + w_comp[INDEX(i, j, k, n)] * (double)nz;
-
-//         rho_comp[INDEX(i, j, k, n)] = rho_i / (1.0 - un);
-//     }
-// }
-
-// void regularized_non_equilibrium_extrapolation_x(int i, int nx, SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-//     ComponentFieldBag *comp_fields = sim->comp_fields;
-//     GlobalFieldBag *glob_fields = sim->glob_fields;
-//     Stencil *stencil = sim->stencil;
-//     DistributionBag *dists = sim->dists;
-
-//     double rho_bulk, u_bulk, v_bulk, w_bulk;
-//     double rho_i, u_i, v_i, w_i, fneq, correction, cs2_i;
-
-//     double Pi[3][3];
-
-//     int i_start = params->i_start;
-
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     int *cx = stencil->cx;
-//     int *cy = stencil->cy;
-//     int *cz = stencil->cz;
-//     int *c_vec[3] = {cx, cy, cz};
-//     double *cs2 = stencil->cs2;
-//     double *wp = stencil->wp;
-
-//     double *rho_comp = comp_fields->rho_comp;
-//     double *u = glob_fields->u;
-//     double *v = glob_fields->v;
-//     double *w = glob_fields->w;
-
-//     double *f1 = dists->f1;
-//     double *feq = dists->feq;
-
-//     for (int j = 0; j < NY; j++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-//             for (int n = 0; n < NCOMP; n++)
-//             {
-//                 rho_i = rho_comp[INDEX(i, j, k, n)];
-
-//                 if (rho_i < 1e-15)
-//                 {
-//                     for (int p = 0; p < NP; p++)
-//                     {
-//                         f1[INDEX_F(i, j, k, p, n)] = 0.0;
-//                     }
-//                     continue;
-//                 }
-
-//                 rho_bulk = rho_comp[INDEX(i + nx, j, k, n)];
-
-//                 u_i = u[INDEX_GLOB(i, j, k)];
-//                 v_i = v[INDEX_GLOB(i, j, k)];
-//                 w_i = w[INDEX_GLOB(i, j, k)];
-
-//                 u_bulk = u[INDEX_GLOB(i + nx, j, k)];
-//                 v_bulk = v[INDEX_GLOB(i + nx, j, k)];
-//                 w_bulk = w[INDEX_GLOB(i + nx, j, k)];
-
-//                 cs2_i = cs2[n];
-
-//                 // Compute Pi
-//                 memset(Pi, 0, 9 * sizeof(double));
-
-//                 compute_equilibrium(rho_bulk, u_bulk, v_bulk, w_bulk, cs2_i, feq, sim);
-
-//                 for (int p = 0; p < NP; p++)
-//                 {
-//                     fneq = f1[INDEX_F(i + nx, j, k, p, n)] - feq[p];
-//                     for (int alpha = 0; alpha < 3; alpha++)
-//                     {
-//                         for (int beta = 0; beta < 3; beta++)
-//                         {
-//                             Pi[alpha][beta] += (double)c_vec[alpha][p] * (double)c_vec[beta][p] * fneq;
-//                         }
-//                     }
-//                 }
-
-//                 compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
-
-//                 for (int p = 0; p < NP; p++)
-//                 {
-//                     correction = 0.0;
-//                     for (int alpha = 0; alpha < 3; alpha++)
-//                     {
-//                         for (int beta = 0; beta < 3; beta++)
-//                         {
-//                             correction += ((double)c_vec[alpha][p] * (double)c_vec[beta][p] - cs2_i * delta(alpha, beta)) * Pi[alpha][beta];
-//                         }
-//                     }
-//                     correction *= wp[p] / (2.0 * cs2_i * cs2_i);
-
-//                     f1[INDEX_F(i, j, k, p, n)] = feq[p] + correction;
-//                 }
-//             }
-//         }
-//     }
-// }
-
-// void regularized_non_equilibrium_extrapolation_y(int j, int ny, SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-//     ComponentFieldBag *comp_fields = sim->comp_fields;
-//     GlobalFieldBag *glob_fields = sim->glob_fields;
-//     Stencil *stencil = sim->stencil;
-//     DistributionBag *dists = sim->dists;
-
-//     double rho_bulk, u_bulk, v_bulk, w_bulk;
-//     double rho_i, u_i, v_i, w_i, cs2_i;
-
-//     int i_start = params->i_start;
-//     int i_end = params->i_end;
-
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     double *cs2 = stencil->cs2;
-
-//     double *rho_comp = comp_fields->rho_comp;
-//     double *u = glob_fields->u;
-//     double *v = glob_fields->v;
-//     double *w = glob_fields->w;
-
-//     double *f1 = dists->f1;
-//     double *feq = dists->feq;
-
-//     double *fneq = (double *)malloc(NP * sizeof(double));
-//     double *sneq = (double *)malloc(NP * sizeof(double));
-//     memset(sneq, 0, NP * sizeof(double));
-
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int k = 0; k < NZ; k++)
-//         {
-
-//             u_i = u[INDEX_GLOB(i, j, k)];
-//             v_i = v[INDEX_GLOB(i, j, k)];
-//             w_i = w[INDEX_GLOB(i, j, k)];
-
-//             u_bulk = u[INDEX_GLOB(i, j + ny, k)];
-//             v_bulk = v[INDEX_GLOB(i, j + ny, k)];
-//             w_bulk = w[INDEX_GLOB(i, j + ny, k)];
-
-//             for (int n = 0; n < NCOMP; n++)
-//             {
-//                 rho_i = rho_comp[INDEX(i, j, k, n)];
-
-//                 if (rho_i < 1e-15)
-//                 {
-//                     for (int p = 0; p < NP; p++)
-//                     {
-//                         f1[INDEX_F(i, j, k, p, n)] = 0.0;
-//                     }
-//                     continue;
-//                 }
-
-//                 rho_bulk = rho_comp[INDEX(i, j + ny, k, n)];
-
-//                 cs2_i = cs2[n];
-
-//                 compute_equilibrium(rho_bulk, u_bulk, v_bulk, w_bulk, cs2_i, feq, sim);
-
-//                 for (int p = 0; p < NP; p++)
-//                 {
-//                     fneq[p] = f1[INDEX_F(i, j + ny, k, p, n)] - feq[p];
-//                 }
-
-//                 sneq[0] = -2.0 * fneq[10] - 2.0 * fneq[11] - 2.0 * fneq[12] - 2.0 * fneq[13] - 2.0 * fneq[14] - 2.0 * fneq[15] - 2.0 * fneq[16] - 2.0 * fneq[17] - 2.0 * fneq[18] - 3.0 * fneq[19] - fneq[1] - 3.0 * fneq[20] - 3.0 * fneq[21] - 3.0 * fneq[22] - 3.0 * fneq[23] - 3.0 * fneq[24] - 3.0 * fneq[25] - 3.0 * fneq[26] - fneq[2] - fneq[3] - fneq[4] - fneq[5] - fneq[6] - 2.0 * fneq[7] - 2.0 * fneq[8] - 2.0 * fneq[9];
-//                 sneq[1] = fneq[10] / 2.0 + fneq[11] / 2.0 + fneq[12] / 2.0 + fneq[13] / 2.0 + fneq[14] / 2.0 + fneq[19] / 2.0 + fneq[1] / 2.0 + fneq[20] / 2.0 + fneq[21] / 2.0 + fneq[22] / 2.0 + fneq[23] / 2.0 + fneq[24] / 2.0 + fneq[25] / 2.0 + fneq[26] / 2.0 + fneq[2] / 2.0 + fneq[7] / 2.0 + fneq[8] / 2.0 + fneq[9] / 2.0;
-//                 sneq[2] = fneq[10] / 2.0 + fneq[11] / 2.0 + fneq[12] / 2.0 + fneq[13] / 2.0 + fneq[14] / 2.0 + fneq[19] / 2.0 + fneq[1] / 2.0 + fneq[20] / 2.0 + fneq[21] / 2.0 + fneq[22] / 2.0 + fneq[23] / 2.0 + fneq[24] / 2.0 + fneq[25] / 2.0 + fneq[26] / 2.0 + fneq[2] / 2.0 + fneq[7] / 2.0 + fneq[8] / 2.0 + fneq[9] / 2.0;
-//                 sneq[3] = fneq[10] / 2.0 + fneq[15] / 2.0 + fneq[16] / 2.0 + fneq[17] / 2.0 + fneq[18] / 2.0 + fneq[19] / 2.0 + fneq[20] / 2.0 + fneq[21] / 2.0 + fneq[22] / 2.0 + fneq[23] / 2.0 + fneq[24] / 2.0 + fneq[25] / 2.0 + fneq[26] / 2.0 + fneq[3] / 2.0 + fneq[4] / 2.0 + fneq[7] / 2.0 + fneq[8] / 2.0 + fneq[9] / 2.0;
-//                 sneq[4] = fneq[10] / 2.0 + fneq[15] / 2.0 + fneq[16] / 2.0 + fneq[17] / 2.0 + fneq[18] / 2.0 + fneq[19] / 2.0 + fneq[20] / 2.0 + fneq[21] / 2.0 + fneq[22] / 2.0 + fneq[23] / 2.0 + fneq[24] / 2.0 + fneq[25] / 2.0 + fneq[26] / 2.0 + fneq[3] / 2.0 + fneq[4] / 2.0 + fneq[7] / 2.0 + fneq[8] / 2.0 + fneq[9] / 2.0;
-//                 sneq[5] = fneq[11] / 2.0 + fneq[12] / 2.0 + fneq[13] / 2.0 + fneq[14] / 2.0 + fneq[15] / 2.0 + fneq[16] / 2.0 + fneq[17] / 2.0 + fneq[18] / 2.0 + fneq[19] / 2.0 + fneq[20] / 2.0 + fneq[21] / 2.0 + fneq[22] / 2.0 + fneq[23] / 2.0 + fneq[24] / 2.0 + fneq[25] / 2.0 + fneq[26] / 2.0 + fneq[5] / 2.0 + fneq[6] / 2.0;
-//                 sneq[6] = fneq[11] / 2.0 + fneq[12] / 2.0 + fneq[13] / 2.0 + fneq[14] / 2.0 + fneq[15] / 2.0 + fneq[16] / 2.0 + fneq[17] / 2.0 + fneq[18] / 2.0 + fneq[19] / 2.0 + fneq[20] / 2.0 + fneq[21] / 2.0 + fneq[22] / 2.0 + fneq[23] / 2.0 + fneq[24] / 2.0 + fneq[25] / 2.0 + fneq[26] / 2.0 + fneq[5] / 2.0 + fneq[6] / 2.0;
-//                 sneq[7] = fneq[10] / 4.0 + fneq[19] / 4.0 - fneq[20] / 4.0 - fneq[21] / 4.0 + fneq[22] / 4.0 + fneq[23] / 4.0 - fneq[24] / 4.0 - fneq[25] / 4.0 + fneq[26] / 4.0 + fneq[7] / 4.0 - fneq[8] / 4.0 - fneq[9] / 4.0;
-//                 sneq[8] = -fneq[10] / 4.0 - fneq[19] / 4.0 + fneq[20] / 4.0 + fneq[21] / 4.0 - fneq[22] / 4.0 - fneq[23] / 4.0 + fneq[24] / 4.0 + fneq[25] / 4.0 - fneq[26] / 4.0 - fneq[7] / 4.0 + fneq[8] / 4.0 + fneq[9] / 4.0;
-//                 sneq[9] = -fneq[10] / 4.0 - fneq[19] / 4.0 + fneq[20] / 4.0 + fneq[21] / 4.0 - fneq[22] / 4.0 - fneq[23] / 4.0 + fneq[24] / 4.0 + fneq[25] / 4.0 - fneq[26] / 4.0 - fneq[7] / 4.0 + fneq[8] / 4.0 + fneq[9] / 4.0;
-//                 sneq[10] = fneq[10] / 4.0 + fneq[19] / 4.0 - fneq[20] / 4.0 - fneq[21] / 4.0 + fneq[22] / 4.0 + fneq[23] / 4.0 - fneq[24] / 4.0 - fneq[25] / 4.0 + fneq[26] / 4.0 + fneq[7] / 4.0 - fneq[8] / 4.0 - fneq[9] / 4.0;
-//                 sneq[11] = fneq[11] / 4.0 - fneq[12] / 4.0 - fneq[13] / 4.0 + fneq[14] / 4.0 + fneq[19] / 4.0 - fneq[20] / 4.0 + fneq[21] / 4.0 - fneq[22] / 4.0 - fneq[23] / 4.0 + fneq[24] / 4.0 - fneq[25] / 4.0 + fneq[26] / 4.0;
-//                 sneq[12] = -fneq[11] / 4.0 + fneq[12] / 4.0 + fneq[13] / 4.0 - fneq[14] / 4.0 - fneq[19] / 4.0 + fneq[20] / 4.0 - fneq[21] / 4.0 + fneq[22] / 4.0 + fneq[23] / 4.0 - fneq[24] / 4.0 + fneq[25] / 4.0 - fneq[26] / 4.0;
-//                 sneq[13] = -fneq[11] / 4.0 + fneq[12] / 4.0 + fneq[13] / 4.0 - fneq[14] / 4.0 - fneq[19] / 4.0 + fneq[20] / 4.0 - fneq[21] / 4.0 + fneq[22] / 4.0 + fneq[23] / 4.0 - fneq[24] / 4.0 + fneq[25] / 4.0 - fneq[26] / 4.0;
-//                 sneq[14] = fneq[11] / 4.0 - fneq[12] / 4.0 - fneq[13] / 4.0 + fneq[14] / 4.0 + fneq[19] / 4.0 - fneq[20] / 4.0 + fneq[21] / 4.0 - fneq[22] / 4.0 - fneq[23] / 4.0 + fneq[24] / 4.0 - fneq[25] / 4.0 + fneq[26] / 4.0;
-//                 sneq[15] = fneq[15] / 4.0 - fneq[16] / 4.0 - fneq[17] / 4.0 + fneq[18] / 4.0 + fneq[19] / 4.0 + fneq[20] / 4.0 - fneq[21] / 4.0 - fneq[22] / 4.0 - fneq[23] / 4.0 - fneq[24] / 4.0 + fneq[25] / 4.0 + fneq[26] / 4.0;
-//                 sneq[16] = -fneq[15] / 4.0 + fneq[16] / 4.0 + fneq[17] / 4.0 - fneq[18] / 4.0 - fneq[19] / 4.0 - fneq[20] / 4.0 + fneq[21] / 4.0 + fneq[22] / 4.0 + fneq[23] / 4.0 + fneq[24] / 4.0 - fneq[25] / 4.0 - fneq[26] / 4.0;
-//                 sneq[17] = -fneq[15] / 4.0 + fneq[16] / 4.0 + fneq[17] / 4.0 - fneq[18] / 4.0 - fneq[19] / 4.0 - fneq[20] / 4.0 + fneq[21] / 4.0 + fneq[22] / 4.0 + fneq[23] / 4.0 + fneq[24] / 4.0 - fneq[25] / 4.0 - fneq[26] / 4.0;
-//                 sneq[18] = fneq[15] / 4.0 - fneq[16] / 4.0 - fneq[17] / 4.0 + fneq[18] / 4.0 + fneq[19] / 4.0 + fneq[20] / 4.0 - fneq[21] / 4.0 - fneq[22] / 4.0 - fneq[23] / 4.0 - fneq[24] / 4.0 + fneq[25] / 4.0 + fneq[26] / 4.0;
-
-//                 compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
-
-//                 for (int p = 0; p < NP; p++)
-//                 {
-//                     f1[INDEX_F(i, j, k, p, n)] = feq[p] + fneq[p];
-//                 }
-//             }
-//         }
-//     }
-
-//     free(fneq);
-//     free(sneq);
-// }
-
-// void regularized_non_equilibrium_extrapolation_z(int k, int nz, SimulationBag *sim)
-// {
-//     ParamBag *params = sim->params;
-//     ComponentFieldBag *comp_fields = sim->comp_fields;
-//     GlobalFieldBag *glob_fields = sim->glob_fields;
-//     Stencil *stencil = sim->stencil;
-//     DistributionBag *dists = sim->dists;
-
-//     double rho_bulk, u_bulk, v_bulk, w_bulk;
-//     double rho_i, u_i, v_i, w_i, fneq, correction, cs2_i;
-
-//     double Pi[3][3];
-
-//     int i_start = params->i_start;
-//     int i_end = params->i_end;
-
-//     int NY = params->NY;
-//     int NZ = params->NZ;
-//     int NP = stencil->NP;
-
-//     int *cx = stencil->cx;
-//     int *cy = stencil->cy;
-//     int *cz = stencil->cz;
-//     int *c_vec[3] = {cx, cy, cz};
-//     double *cs2 = stencil->cs2;
-//     double *wp = stencil->wp;
-
-//     double *rho_comp = comp_fields->rho_comp;
-//     double *u = glob_fields->u;
-//     double *v = glob_fields->v;
-//     double *w = glob_fields->w;
-
-//     double *f1 = dists->f1;
-//     double *feq = dists->feq;
-
-//     for (int i = i_start; i < i_end; i++)
-//     {
-//         for (int j = 0; j < NY; j++)
-//         {
-//             for (int n = 0; n < NCOMP; n++)
-//             {
-//                 rho_i = rho_comp[INDEX(i, j, k, n)];
-
-//                 if (rho_i < 1e-15)
-//                 {
-//                     for (int p = 0; p < NP; p++)
-//                     {
-//                         f1[INDEX_F(i, j, k, p, n)] = 0.0;
-//                     }
-//                     continue;
-//                 }
-
-//                 rho_bulk = rho_comp[INDEX(i, j, k + nz, n)];
-
-//                 u_i = u[INDEX_GLOB(i, j, k)];
-//                 v_i = v[INDEX_GLOB(i, j, k)];
-//                 w_i = w[INDEX_GLOB(i, j, k)];
-
-//                 u_bulk = u[INDEX_GLOB(i, j, k + nz)];
-//                 v_bulk = v[INDEX_GLOB(i, j, k + nz)];
-//                 w_bulk = w[INDEX_GLOB(i, j, k + nz)];
-
-//                 cs2_i = cs2[n];
-
-//                 // Compute Pi
-//                 memset(Pi, 0, 9 * sizeof(double));
-
-//                 compute_equilibrium(rho_bulk, u_bulk, v_bulk, w_bulk, cs2_i, feq, sim);
-
-//                 for (int p = 0; p < NP; p++)
-//                 {
-//                     fneq = f1[INDEX_F(i, j, k + nz, p, n)] - feq[p];
-//                     for (int alpha = 0; alpha < 3; alpha++)
-//                     {
-//                         for (int beta = 0; beta < 3; beta++)
-//                         {
-//                             Pi[alpha][beta] += (double)c_vec[alpha][p] * (double)c_vec[beta][p] * fneq;
-//                         }
-//                     }
-//                 }
-
-//                 compute_equilibrium(rho_i, u_i, v_i, w_i, cs2_i, feq, sim);
-
-//                 for (int p = 0; p < NP; p++)
-//                 {
-//                     correction = 0.0;
-//                     for (int alpha = 0; alpha < 3; alpha++)
-//                     {
-//                         for (int beta = 0; beta < 3; beta++)
-//                         {
-//                             correction += ((double)c_vec[alpha][p] * (double)c_vec[beta][p] - cs2_i * delta(alpha, beta)) * Pi[alpha][beta];
-//                         }
-//                     }
-//                     correction *= wp[p] / (2.0 * cs2_i * cs2_i);
-
-//                     f1[INDEX_F(i, j, k, p, n)] = feq[p] + correction;
-//                 }
-//             }
-//         }
-//     }
-// }
+#include "../definitions.h"
+#include "../include/collide.h"
+#include "../include/wetnode.h"
+
+void wetnode_macroscopic_fields(SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+
+    WRITE_FIELD(rho_RED)
+    WRITE_FIELD(rho_BLUE)
+    WRITE_FIELD(u)
+    WRITE_FIELD(v)
+    WRITE_FIELD(w)
+
+#if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
+    if (i_start == 0)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                wetnode_mass_conservation_streaming(0, j, k, 1, 0, 0, sim);
+            }
+        }
+    }
+#endif
+
+#if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
+    if (i_end == NX)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                wetnode_mass_conservation_streaming(NX - 1, j, k, -1, 0, 0, sim);
+            }
+        }
+    }
+#endif
+
+#if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            wetnode_mass_conservation_streaming(i, 0, k, 0, 1, 0, sim);
+        }
+    }
+#endif
+
+#if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            wetnode_mass_conservation_streaming(i, NY - 1, k, 0, -1, 0, sim);
+        }
+    }
+#endif
+
+#if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            wetnode_mass_conservation_streaming(i, j, 0, 0, 0, 1, sim);
+        }
+    }
+#endif
+
+#if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            wetnode_mass_conservation_streaming(i, j, NZ - 1, 0, 0, -1, sim);
+        }
+    }
+#endif
+
+#if defined(LEFT_NEBB_VELOCITY)
+    if (i_start == 0)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                u[INDEX(0, j, k)] = LEFT_U_VELOCITY;
+                v[INDEX(0, j, k)] = LEFT_V_VELOCITY;
+                w[INDEX(0, j, k)] = LEFT_W_VELOCITY;
+            }
+        }
+    }
+#endif
+
+#if defined(RIGHT_NEBB_VELOCITY)
+    if (i_end == NX)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                u[INDEX(NX - 1, j, k)] = RIGHT_U_VELOCITY;
+                v[INDEX(NX - 1, j, k)] = RIGHT_V_VELOCITY;
+                w[INDEX(NX - 1, j, k)] = RIGHT_W_VELOCITY;
+            }
+        }
+    }
+#endif
+
+#if defined(BOTTOM_NEBB_VELOCITY)
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            u[INDEX(i, 0, k)] = BOTTOM_U_VELOCITY;
+            v[INDEX(i, 0, k)] = BOTTOM_V_VELOCITY;
+            w[INDEX(i, 0, k)] = BOTTOM_W_VELOCITY;
+        }
+    }
+#endif
+
+#if defined(TOP_NEBB_VELOCITY)
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            u[INDEX(i, NY - 1, k)] = TOP_U_VELOCITY;
+            v[INDEX(i, NY - 1, k)] = TOP_V_VELOCITY;
+            w[INDEX(i, NY - 1, k)] = TOP_W_VELOCITY;
+        }
+    }
+#endif
+
+#if defined(BACK_NEBB_VELOCITY)
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            u[INDEX(i, j, 0)] = BACK_U_VELOCITY;
+            v[INDEX(i, j, 0)] = BACK_V_VELOCITY;
+            w[INDEX(i, j, 0)] = BACK_W_VELOCITY;
+        }
+    }
+#endif
+
+#if defined(FRONT_NEBB_VELOCITY)
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            u[INDEX(i, j, NZ - 1)] = FRONT_U_VELOCITY;
+            v[INDEX(i, j, NZ - 1)] = FRONT_V_VELOCITY;
+            w[INDEX(i, j, NZ - 1)] = FRONT_W_VELOCITY;
+        }
+    }
+#endif
+
+    // Set densities
+#ifdef LEFT_NEBB_PRESSURE
+    if (i_start == 0)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                rho_RED[INDEX(0, j, k)] = LEFT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+                rho_BLUE[INDEX(0, j, k)] = LEFT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            }
+        }
+    }
+#endif
+
+#ifdef RIGHT_NEBB_PRESSURE
+    if (i_end == NX)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                rho_RED[INDEX(NX - 1, j, k)] = RIGHT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+                rho_BLUE[INDEX(NX - 1, j, k)] = RIGHT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            }
+        }
+    }
+#endif
+
+#ifdef BOTTOM_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            rho_RED[INDEX(i, 0, k)] = BOTTOM_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+            rho_BLUE[INDEX(i, 0, k)] = BOTTOM_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+        }
+    }
+#endif
+
+#ifdef TOP_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            rho_RED[INDEX(i, NY - 1, k)] = TOP_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+            rho_BLUE[INDEX(i, NY - 1, k)] = TOP_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+        }
+    }
+#endif
+
+#ifdef BACK_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            rho_RED[INDEX(i, j, 0)] = BACK_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+            rho_BLUE[INDEX(i, j, 0)] = BACK_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+        }
+    }
+#endif
+
+#ifdef FRONT_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            rho_RED[INDEX(i, j, NZ - 1)] = FRONT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+            rho_BLUE[INDEX(i, j, NZ - 1)] = FRONT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+        }
+    }
+#endif
+
+    // Compute densities
+#ifdef LEFT_NEBB_VELOCITY
+    if (i_start == 0)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                wetnode_compute_density(0, j, k, 1, 0, 0, sim);
+            }
+        }
+    }
+#endif
+
+#ifdef RIGHT_NEBB_VELOCITY
+    if (i_end == NX)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                wetnode_compute_density(NX - 1, j, k, -1, 0, 0, sim);
+            }
+        }
+    }
+#endif
+
+#ifdef BOTTOM_NEBB_VELOCITY
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            wetnode_compute_density(i, 0, k, 0, 1, 0, sim);
+        }
+    }
+#endif
+
+#ifdef TOP_NEBB_VELOCITY
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            wetnode_compute_density(i, NY - 1, k, 0, -1, 0, sim);
+        }
+    }
+#endif
+
+#ifdef BACK_NEBB_VELOCITY
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            wetnode_compute_density(i, j, 0, 0, 0, 1, sim);
+        }
+    }
+#endif
+
+#ifdef FRONT_NEBB_VELOCITY
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            wetnode_compute_density(i, j, NZ - 1, 0, 0, -1, sim);
+        }
+    }
+#endif
+
+    // Compute velocities
+#ifdef LEFT_NEBB_PRESSURE
+    if (i_start == 0)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                wetnode_compute_velocity(0, j, k, 1, 0, 0, sim);
+            }
+        }
+    }
+#endif
+
+#ifdef RIGHT_NEBB_PRESSURE
+    if (i_end == NX)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            for (int k = 0; k < NZ; k++)
+            {
+                wetnode_compute_velocity(NX - 1, j, k, -1, 0, 0, sim);
+            }
+        }
+    }
+#endif
+
+#ifdef BOTTOM_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            wetnode_compute_velocity(i, 0, k, 0, 1, 0, sim);
+        }
+    }
+#endif
+
+#ifdef TOP_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            wetnode_compute_velocity(i, NY - 1, k, 0, -1, 0, sim);
+        }
+    }
+#endif
+
+#ifdef BACK_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            wetnode_compute_velocity(i, j, 0, 0, 0, 1, sim);
+        }
+    }
+#endif
+
+#ifdef FRONT_NEBB_PRESSURE
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            wetnode_compute_velocity(i, j, NZ - 1, 0, 0, -1, sim);
+        }
+    }
+#endif
+}
+
+void wetnode_distributions(SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+
+    // Non-equilibrium bounce-back
+#if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
+    if (i_start == 0)
+    {
+        non_equilibrium_bounce_back_x(0, 1, sim);
+    }
+#endif
+
+#if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
+    if (i_end == NX)
+    {
+        non_equilibrium_bounce_back_x(NX - 1, -1, sim);
+    }
+#endif
+
+#if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
+    non_equilibrium_bounce_back_y(0, 1, sim);
+#endif
+
+#if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
+    non_equilibrium_bounce_back_y(NY - 1, -1, sim);
+#endif
+
+#if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
+    non_equilibrium_bounce_back_z(0, 1, sim);
+#endif
+
+#if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
+    non_equilibrium_bounce_back_z(NZ - 1, -1, sim);
+#endif
+}
+
+void wetnode_mass_conservation_streaming(const int i, const int j, const int k, const int nx, const int ny, const int nz, SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
+
+    READ_DIST(f2_RED)
+    READ_DIST(f2_BLUE)
+
+    WRITE_DIST(f1_RED)
+    WRITE_DIST(f1_BLUE)
+
+    for (int p = 0; p < NP; p++)
+    {
+        const int cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
+        if (cn < 0)
+        {
+            f1_RED[INDEX_F(i, j, k, 0)] += f2_RED[INDEX_F(i, j, k, p)] - f1_RED[INDEX_F(i, j, k, p)];
+            f1_BLUE[INDEX_F(i, j, k, 0)] += f2_BLUE[INDEX_F(i, j, k, p)] - f1_BLUE[INDEX_F(i, j, k, p)];
+        }
+    }
+}
+
+void wetnode_compute_density(const int i, const int j, const int k, const int nx, const int ny, const int nz, SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
+
+    READ_FIELD(u)
+    READ_FIELD(v)
+    READ_FIELD(w)
+    READ_DIST(f1_RED)
+    READ_DIST(f1_BLUE)
+    READ_DIST(f2_RED)
+    READ_DIST(f2_BLUE)
+
+    WRITE_FIELD(rho_RED)
+    WRITE_FIELD(rho_BLUE)
+
+    double rho_RED_i = f2_RED[INDEX_F(i, j, k, 0)];
+    double rho_BLUE_i = f2_BLUE[INDEX_F(i, j, k, 0)];
+
+    for (int p = 1; p < NP; p++)
+    {
+        const int cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
+
+        if (cn < 0)
+        {
+            rho_RED_i += f1_RED[INDEX_F(i, j, k, p)] + f2_RED[INDEX_F(i, j, k, p)];
+            rho_BLUE_i += f1_BLUE[INDEX_F(i, j, k, p)] + f2_BLUE[INDEX_F(i, j, k, p)];
+        }
+        else if (cn == 0)
+        {
+            rho_RED_i += f1_RED[INDEX_F(i, j, k, p)];
+            rho_BLUE_i += f1_BLUE[INDEX_F(i, j, k, p)];
+        }
+    }
+
+    const int idx = INDEX(i, j, k);
+
+    const double un = u[idx] * (double)nx + v[idx] * (double)ny + w[idx] * (double)nz;
+
+    rho_RED[idx] = rho_RED_i / (1.0 - un);
+    rho_BLUE[idx] = rho_BLUE_i / (1.0 - un);
+}
+
+void wetnode_compute_velocity(const int i, const int j, const int k, const int nx, const int ny, const int nz, SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
+
+    READ_FIELD(rho_RED)
+    READ_FIELD(rho_BLUE)
+    READ_DIST(f1_RED)
+    READ_DIST(f1_BLUE)
+    READ_DIST(f2_RED)
+    READ_DIST(f2_BLUE)
+
+    WRITE_FIELD(u)
+    WRITE_FIELD(v)
+    WRITE_FIELD(w)
+
+    const int idx = INDEX(i, j, k);
+    const double rho_RED_i = rho_RED[idx];
+    const double rho_BLUE_i = rho_BLUE[idx];
+
+    if (rho_BLUE_i < 1e-15)
+    {
+        double un = f2_RED[INDEX_F(i, j, k, 0)];
+        for (int p = 1; p < NP; p++)
+        {
+            const int cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
+
+            if (cn < 0)
+            {
+                un += f1_RED[INDEX_F(i, j, k, p)] + f2_RED[INDEX_F(i, j, k, p)];
+            }
+            else if (cn == 0)
+            {
+                un += f1_RED[INDEX_F(i, j, k, p)];
+            }
+        }
+        un = 1.0 - un / rho_RED_i;
+        u[idx] = un * (double)nx;
+        v[idx] = un * (double)ny;
+        w[idx] = un * (double)nz;
+    }   
+    else
+    {
+        double un = f2_BLUE[INDEX_F(i, j, k, 0)];
+        for (int p = 1; p < NP; p++)
+        {
+            const int cn = cx[p] * nx + cy[p] * ny + cz[p] * nz;
+
+            if (cn < 0)
+            {
+                un += f1_BLUE[INDEX_F(i, j, k, p)] + f2_BLUE[INDEX_F(i, j, k, p)];
+            }
+            else if (cn == 0)
+            {
+                un += f1_BLUE[INDEX_F(i, j, k, p)];
+            }
+        }
+        un = 1.0 - un / rho_BLUE_i;
+        u[idx] = un * (double)nx;
+        v[idx] = un * (double)ny;
+        w[idx] = un * (double)nz;
+    }
+}
+
+void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
+
+    READ_FIELD(rho)
+    READ_FIELD(rho_RED)
+    READ_FIELD(rho_BLUE)
+    READ_FIELD(pressure)
+    WRITE_FIELD(u)
+    WRITE_FIELD(v)
+    WRITE_FIELD(w)
+    READ_FIELD(Fx)
+    READ_FIELD(Fy)
+    READ_FIELD(Fz)
+    
+    WRITE_DIST(f_star)
+    WRITE_DIST(f1_RED)
+    WRITE_DIST(f1_BLUE)
+
+    double *rho_comp[2] = {rho_RED, rho_BLUE};
+    double *f1_comp[2] = {f1_RED, f1_BLUE};
+
+    for (int j = 0; j < NY; j++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            const int idx = INDEX(i, j, k);
+            const double pressure_i = pressure[idx];
+            const double rho_tot_i = rho[idx];
+            const double u_i = u[idx];
+            const double v_i = v[idx];
+            const double w_i = w[idx];
+            const double Fx_tot_i = Fx[idx];
+            const double Fy_tot_i = Fy[idx];
+            const double Fz_tot_i = Fz[idx];
+
+            for (int n = 0; n < 2; n++)
+            {
+                const double rho_i = rho_comp[n][idx];
+
+                if (rho_i == 0.0)
+                {
+                    for (int p = 0; p < NP; p++)
+                    {
+                        f1_comp[n][INDEX_F(i, j, k, p)] = 0.0;
+                    }
+                    continue;
+                }
+
+                compute_equilibrium_comp(rho_i, rho_tot_i, u_i, v_i, w_i, pressure_i, f_star, sim);
+
+                const double Fx_i = rho_i/rho_tot_i*Fx_tot_i;
+                const double Fy_i = rho_i/rho_tot_i*Fy_tot_i;
+                const double Fz_i = rho_i/rho_tot_i*Fz_tot_i;
+
+                double Nx = 3.0 * Fx_i;
+                double Ny = -rho_i*v_i + 0.5 * Fy_i;
+                double Nz = -rho_i*w_i + 0.5 * Fz_i;
+                for (int p = 1; p < NP; p++)
+                {
+                    if (cx[p] == 0)
+                    {
+                        const int idxf = INDEX_F(i, j, k, p);
+                        Ny += f1_comp[n][idxf] * (double)cy[p];
+                        Nz += f1_comp[n][idxf] * (double)cz[p];
+                    }
+                    else if (cx[p] * nx > 0)
+                    {
+                        const double dfeq = f_star[p]-f_star[p_bounceback[p]];
+                        Ny += dfeq*(double)cy[p];
+                        Nz += dfeq*(double)cz[p];
+                    }
+                }
+                Ny *= 18.0;
+                Nz *= 18.0;
+
+                for (int p = 1; p < NP; p++)
+                {
+                    if (cx[p] * nx > 0)
+                    {
+                        const double dfeq = f_star[p]-f_star[p_bounceback[p]];
+                        f1_comp[n][INDEX_F(i, j, k, p)] = f1_comp[n][INDEX_F(i, j, k, p_bounceback[p])] + dfeq - wp[p] * ((double)cx[p] * Nx + (double)cy[p] * Ny + (double)cz[p] * Nz);
+                    }
+                }
+
+                f1_comp[n][INDEX_F(i, j, k, 0)] += 0.5 * Fx_i * nx;
+            }
+
+            u[idx] = u_i - 0.5*Fx_tot_i/rho_tot_i;
+            v[idx] = v_i - 0.5*Fy_tot_i/rho_tot_i;
+            w[idx] = w_i - 0.5*Fz_tot_i/rho_tot_i;
+        }
+    }
+}
+
+void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
+
+    READ_FIELD(rho)
+    READ_FIELD(rho_RED)
+    READ_FIELD(rho_BLUE)
+    READ_FIELD(pressure)
+    WRITE_FIELD(u)
+    WRITE_FIELD(v)
+    WRITE_FIELD(w)
+    READ_FIELD(Fx)
+    READ_FIELD(Fy)
+    READ_FIELD(Fz)
+    
+    WRITE_DIST(f_star)
+    WRITE_DIST(f1_RED)
+    WRITE_DIST(f1_BLUE)
+
+    double *rho_comp[2] = {rho_RED, rho_BLUE};
+    double *f1_comp[2] = {f1_RED, f1_BLUE};
+
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int k = 0; k < NZ; k++)
+        {
+            const int idx = INDEX(i, j, k);
+            const double pressure_i = pressure[idx];
+            const double rho_tot_i = rho[idx];
+            const double u_i = u[idx];
+            const double v_i = v[idx];
+            const double w_i = w[idx];
+            const double Fx_tot_i = Fx[idx];
+            const double Fy_tot_i = Fy[idx];
+            const double Fz_tot_i = Fz[idx];
+            for (int n = 0; n < 2; n++)
+            {
+                const double rho_i = rho_comp[n][idx];
+
+                if (rho_i == 0.0)
+                {
+                    for (int p = 0; p < NP; p++)
+                    {
+                        f1_comp[n][INDEX_F(i, j, k, p)] = 0.0;
+                    }
+                    continue;
+                }
+
+                compute_equilibrium_comp(rho_i, rho_tot_i, u_i, v_i, w_i, pressure_i, f_star, sim);
+
+                const double Fx_i = rho_i/rho_tot_i*Fx_tot_i;
+                const double Fy_i = rho_i/rho_tot_i*Fy_tot_i;
+                const double Fz_i = rho_i/rho_tot_i*Fz_tot_i;
+
+                double Nx = -rho_i*u_i + 0.5 * Fx_i;
+                double Ny = 3.0 * Fy_i;
+                double Nz = -rho_i*w_i + 0.5 * Fz_i;
+
+                for (int p = 1; p < NP; p++)
+                {
+                    if (cy[p] == 0)
+                    {
+                        const int idxf = INDEX_F(i, j, k, p);
+                        Nx += f1_comp[n][idxf] * (double)cx[p];
+                        Nz += f1_comp[n][idxf] * (double)cz[p];
+                    }
+                    else if (cy[p] * ny > 0)
+                    {
+                        const double dfeq = f_star[p]-f_star[p_bounceback[p]];
+                        Nx += dfeq*(double)cx[p];
+                        Nz += dfeq*(double)cz[p];
+                    }
+                }
+                Nx *= 18.0;
+                Nz *= 18.0;
+
+                for (int p = 1; p < NP; p++)
+                {
+                    if (cy[p] * ny > 0)
+                    {
+                        const double dfeq = f_star[p]-f_star[p_bounceback[p]];
+                        f1_comp[n][INDEX_F(i, j, k, p)] = f1_comp[n][INDEX_F(i, j, k, p_bounceback[p])] + dfeq - wp[p] * ((double)cx[p] * Nx + (double)cy[p] * Ny + (double)cz[p] * Nz);
+                    }
+                }
+
+                f1_comp[n][INDEX_F(i, j, k, 0)] += 0.5 * Fy_i * ny;
+            }
+
+            u[idx] = u_i - 0.5*Fx_tot_i/rho_tot_i;
+            v[idx] = v_i - 0.5*Fy_tot_i/rho_tot_i;
+            w[idx] = w_i - 0.5*Fz_tot_i/rho_tot_i;
+        }
+    }
+}
+
+void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
+
+    READ_FIELD(rho)
+    READ_FIELD(rho_RED)
+    READ_FIELD(rho_BLUE)
+    READ_FIELD(pressure)
+    WRITE_FIELD(u)
+    WRITE_FIELD(v)
+    WRITE_FIELD(w)
+    READ_FIELD(Fx)
+    READ_FIELD(Fy)
+    READ_FIELD(Fz)
+    
+    WRITE_DIST(f_star)
+    WRITE_DIST(f1_RED)
+    WRITE_DIST(f1_BLUE)
+
+    double *rho_comp[2] = {rho_RED, rho_BLUE};
+    double *f1_comp[2] = {f1_RED, f1_BLUE};
+
+    for (int i = i_start; i < i_end; i++)
+    {
+        for (int j = 0; j < NY; j++)
+        {
+            const int idx = INDEX(i, j, k);
+            const double pressure_i = pressure[idx];
+            const double rho_tot_i = rho[idx];
+            const double u_i = u[idx];
+            const double v_i = v[idx];
+            const double w_i = w[idx];
+            const double Fx_tot_i = Fx[idx];
+            const double Fy_tot_i = Fy[idx];
+            const double Fz_tot_i = Fz[idx];
+            for (int n = 0; n < 2; n++)
+            {
+                const double rho_i = rho_comp[n][idx];
+
+                if (rho_i == 0.0)
+                {
+                    for (int p = 0; p < NP; p++)
+                    {
+                        f1_comp[n][INDEX_F(i, j, k, p)] = 0.0;
+                    }
+                    continue;
+                }
+
+                compute_equilibrium_comp(rho_i, rho_tot_i, u_i, v_i, w_i, pressure_i, f_star, sim);
+
+                const double Fx_i = rho_i/rho_tot_i*Fx_tot_i;
+                const double Fy_i = rho_i/rho_tot_i*Fy_tot_i;
+                const double Fz_i = rho_i/rho_tot_i*Fz_tot_i;
+
+                double Nx = -rho_i*u_i + 0.5 * Fx_i;
+                double Ny = -rho_i*v_i + 0.5 * Fy_i;
+                double Nz = 3.0 * Fz_i;
+
+                for (int p = 1; p < NP; p++)
+                {
+                    if (cz[p] == 0)
+                    {
+                        const int idxf = INDEX_F(i, j, k, p);
+                        Nx += f1_comp[n][idxf] * (double)cx[p];
+                        Ny += f1_comp[n][idxf] * (double)cy[p];
+                    }
+                    else if (cz[p] * nz > 0)
+                    {
+                        const double dfeq = f_star[p]-f_star[p_bounceback[p]];
+                        Nx += dfeq*(double)cx[p];
+                        Ny += dfeq*(double)cy[p];
+                    }
+                }
+                Nx *= 18.0;
+                Ny *= 18.0;
+
+                for (int p = 1; p < NP; p++)
+                {
+                    if (cz[p] * nz > 0)
+                    {
+                        const double dfeq = f_star[p]-f_star[p_bounceback[p]];
+                        f1_comp[n][INDEX_F(i, j, k, p)] = f1_comp[n][INDEX_F(i, j, k, p_bounceback[p])] + dfeq - wp[p] * ((double)cx[p] * Nx + (double)cy[p] * Ny + (double)cz[p] * Nz);
+                    }
+                }
+
+                f1_comp[n][INDEX_F(i, j, k, 0)] += 0.5 * Fz_i * nz;
+            }
+
+            u[idx] = u_i - 0.5*Fx_tot_i/rho_tot_i;
+            v[idx] = v_i - 0.5*Fy_tot_i/rho_tot_i;
+            w[idx] = w_i - 0.5*Fz_tot_i/rho_tot_i;
+        }
+    }
+}

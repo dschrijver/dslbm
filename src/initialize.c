@@ -64,11 +64,8 @@ void initialize_HDF5(ParamBag *params)
     params->filespace = H5Screate_simple(3, dims_file, NULL);
 
     // Space occupied in processor memory
-    hsize_t dims_proc_glob[3] = {NX_proc + 4, NY, NZ};
-    params->memspace_glob = H5Screate_simple(3, dims_proc_glob, NULL);
-
-    hsize_t dims_proc_comp[4] = {NX_proc + 4, NY, NZ, NCOMP};
-    params->memspace_comp = H5Screate_simple(4, dims_proc_comp, NULL);
+    hsize_t dims_proc[3] = {NX_proc + 4, NY, NZ};
+    params->memspace = H5Screate_simple(3, dims_proc, NULL);
 
     params->dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
     params->dxpl_id = H5Pcreate(H5P_DATASET_XFER);
@@ -77,97 +74,83 @@ void initialize_HDF5(ParamBag *params)
 
 void initialize_fields(SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
-    ComponentFieldBag *comp_fields = sim->comp_fields;
+    UNPACK_BAGS
+    UNPACK_GRID
 
-    int NX = params->NX;
-    int NY = params->NY;
-    int NZ = params->NZ;
+    WRITE_FIELD(rho)
+    WRITE_FIELD(rho_RED)
+    WRITE_FIELD(rho_BLUE)
+    WRITE_FIELD(u)
+    WRITE_FIELD(v)
+    WRITE_FIELD(w)
+    WRITE_FIELD(rho_N)
 
-    (void)NX;
-
-    int i_start = params->i_start;
-    int i_end = params->i_end;
-
-    double rho_0_RED = params->rho_0_RED;
-    double rho_0_BLUE = params->rho_0_BLUE;
-
-    (void)rho_0_BLUE;
-
-    double *rho = glob_fields->rho;
-    double *u = glob_fields->u;
-    double *v = glob_fields->v;
-    double *w = glob_fields->w;
-    double *rho_N = glob_fields->rho_N;
-
-    double *rho_comp = comp_fields->rho_comp;
+    PARAM(rho_0_RED)
+    PARAM(rho_0_BLUE)
 
 #ifdef INI_POISEUILLE
     FOR_DOMAIN
     {
-        u[INDEX_GLOB(i, j, k)] = 0.0;
-        v[INDEX_GLOB(i, j, k)] = 0.0;
-        w[INDEX_GLOB(i, j, k)] = 0.0;
+        rho_RED[INDEX(i, j, k)] = rho_0_RED;
+        rho_BLUE[INDEX(i, j, k)] = 0.0;
 
-        rho_comp[INDEX(i, j, k, RED)] = rho_0_RED;
-        rho_comp[INDEX(i, j, k, BLUE)] = 0.0;
+        u[INDEX(i, j, k)] = 0.0;
+        v[INDEX(i, j, k)] = 0.0;
+        w[INDEX(i, j, k)] = 0.0;
     }
 #endif
 
 #ifdef INI_DROPLET
-    double x, y, z, r;
     FOR_DOMAIN
     {
-        x = physx(i) - INI_DROPLET_X;
-        y = physy(j) - INI_DROPLET_Y;
-        z = physz(k) - INI_DROPLET_Z;
-        r = sqrt(x * x + y * y + z * z);
+        const double x = physx(i) - INI_DROPLET_X;
+        const double y = physy(j) - INI_DROPLET_Y;
+        const double z = physz(k) - INI_DROPLET_Z;
+        const double r = sqrt(x * x + y * y + z * z);
 
-        rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
-        rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 + tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
-        u[INDEX_GLOB(i, j, k)] = 0.5 * INI_DROPLET_U * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
-        v[INDEX_GLOB(i, j, k)] = 0.5 * INI_DROPLET_V * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
-        w[INDEX_GLOB(i, j, k)] = 0.5 * INI_DROPLET_W * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
+        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
+        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 + tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
+
+        u[INDEX(i, j, k)] = 0.5 * INI_DROPLET_U * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
+        v[INDEX(i, j, k)] = 0.5 * INI_DROPLET_V * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
+        w[INDEX(i, j, k)] = 0.5 * INI_DROPLET_W * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
     }
 #endif
 
 #ifdef INI_TWOCOMPONENT_POISEUILLE
-    double x, r;
-    double width = physlx(params);
+    const double width = physlx(params);
     FOR_DOMAIN
     {
-        x = physx(i) - 0.5 * width;
-        r = fabs(x);
+        const double x = physx(i) - 0.5 * width;
+        const double r = fabs(x);
 
-        rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 + tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_TWOCOMPONENT_POISEUILLE_SF));
-        rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 - tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_TWOCOMPONENT_POISEUILLE_SF));
-        u[INDEX_GLOB(i, j, k)] = 0.0;
-        v[INDEX_GLOB(i, j, k)] = 0.0;
-        w[INDEX_GLOB(i, j, k)] = 0.0;
+        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 + tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_TWOCOMPONENT_POISEUILLE_SF));
+        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 - tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_TWOCOMPONENT_POISEUILLE_SF));
+        u[INDEX(i, j, k)] = 0.0;
+        v[INDEX(i, j, k)] = 0.0;
+        w[INDEX(i, j, k)] = 0.0;
     }
 #endif
 
 #ifdef INI_TWOCOMPONENT_COUETTE
-    double x;
-    double width = physlx(params);
+    const double width = physlx(params);
     FOR_DOMAIN
     {
-        x = physx(i);
+        const double x = physx(i);
 
-        rho_comp[INDEX(i, j, k, RED)] = 0.5 * rho_0_RED * (1.0 - tanh((x - 0.5 * width) / INI_TWOCOMPONENT_COUETTE_SF));
-        rho_comp[INDEX(i, j, k, BLUE)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5 * width) / INI_TWOCOMPONENT_COUETTE_SF));
+        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 - tanh((x - 0.5 * width) / INI_TWOCOMPONENT_COUETTE_SF));
+        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5 * width) / INI_TWOCOMPONENT_COUETTE_SF));
 
-        u[INDEX_GLOB(i, j, k)] = 0.0;
-        v[INDEX_GLOB(i, j, k)] = INI_TWOCOMPONENT_COUETTE_V_LEFT;
-        w[INDEX_GLOB(i, j, k)] = 0.0;
+        u[INDEX(i, j, k)] = 0.0;
+        v[INDEX(i, j, k)] = INI_TWOCOMPONENT_COUETTE_V_LEFT;
+        w[INDEX(i, j, k)] = 0.0;
     }
 #endif
 
     FOR_DOMAIN
     {
-        rho[INDEX_GLOB(i, j, k)] = rho_comp[INDEX(i, j, k, RED)] + rho_comp[INDEX(i, j, k, BLUE)];
-        rho_N[INDEX_GLOB(i, j, k)] = (rho_comp[INDEX(i, j, k, RED)] / params->rho_0_RED - rho_comp[INDEX(i, j, k, BLUE)] / params->rho_0_BLUE) / (rho_comp[INDEX(i, j, k, RED)] / params->rho_0_RED + rho_comp[INDEX(i, j, k, BLUE)] / params->rho_0_BLUE);
+        rho[INDEX(i, j, k)] = rho_RED[INDEX(i, j, k)] + rho_BLUE[INDEX(i, j, k)];
+        rho_N[INDEX(i, j, k)] = (rho_RED[INDEX(i, j, k)] / params->rho_0_RED - rho_BLUE[INDEX(i, j, k)] / params->rho_0_BLUE) / (rho_RED[INDEX(i, j, k)] / params->rho_0_RED + rho_BLUE[INDEX(i, j, k)] / params->rho_0_BLUE);
     }
 
     evaluate_pressure(sim);
@@ -175,16 +158,10 @@ void initialize_fields(SimulationBag *sim)
 
 void initialize_flags(SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
+    UNPACK_BAGS
+    UNPACK_GRID
 
-    int *flag = glob_fields->flag;
-
-    int NY = params->NY;
-    int NZ = params->NZ;
-
-    int i_start = params->i_start;
-    int i_end = params->i_end;
+    int *flag = fields->flag;
 
     for (int i = i_start - 2; i < i_end + 2; i++)
     {
@@ -283,36 +260,6 @@ void initialize_flags(SimulationBag *sim)
                 if (k > NZ - 1)
                     flag[INDEX_FLAG(i, j, k)] = WETNODE;
 #endif
-
-#ifdef LEFT_REGNEE_VELOCITY
-                if (i < 0)
-                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
-#endif
-
-#ifdef RIGHT_REGNEE_VELOCITY
-                if (i > params->NX - 1)
-                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
-#endif
-
-#ifdef BOTTOM_REGNEE_VELOCITY
-                if (j < 0)
-                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
-#endif
-
-#ifdef TOP_REGNEE_VELOCITY
-                if (j > NY - 1)
-                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
-#endif
-
-#ifdef BACK_REGNEE_VELOCITY
-                if (k < 0)
-                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
-#endif
-
-#ifdef FRONT_REGNEE_VELOCITY
-                if (k > NZ - 1)
-                    flag[INDEX_FLAG(i, j, k)] = WETNODE;
-#endif
             }
         }
     }
@@ -320,119 +267,45 @@ void initialize_flags(SimulationBag *sim)
 
 void initialize_distributions(SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    DistributionBag *dists = sim->dists;
-    GlobalFieldBag *glob_fields = sim->glob_fields;
-    ComponentFieldBag *comp_fields = sim->comp_fields;
-    Stencil *stencil = sim->stencil;
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    double rho_i, u_i, v_i, w_i, pressure_i;
-    double rho_c_i;
+    READ_FIELD(rho)
+    READ_FIELD(rho_RED)
+    READ_FIELD(rho_BLUE)
+    READ_FIELD(pressure)
+    READ_FIELD(u)
+    READ_FIELD(v)
+    READ_FIELD(w)
+    READ_FIELD(Fx)
+    READ_FIELD(Fy)
+    READ_FIELD(Fz)
 
-    int NY = params->NY;
-    int NZ = params->NZ;
-    int NP = stencil->NP;
-
-    int i_start = params->i_start;
-    int i_end = params->i_end;
-
-    double *rho = glob_fields->rho;
-    double *u = glob_fields->u;
-    double *v = glob_fields->v;
-    double *w = glob_fields->w;
-    double *Fx = glob_fields->Fx;
-    double *Fy = glob_fields->Fy;
-    double *Fz = glob_fields->Fz;
-    double *pressure = glob_fields->pressure;
-
-    double *rho_comp = comp_fields->rho_comp;
-
-    double *f1 = dists->f1;
+    WRITE_DIST(f1_RED)
+    WRITE_DIST(f1_BLUE)
 
     FOR_DOMAIN
     {
-        rho_i = rho[INDEX_GLOB(i, j, k)];
-        pressure_i = pressure[INDEX_GLOB(i, j, k)];
-        u_i = u[INDEX_GLOB(i, j, k)] - 0.5 * Fx[INDEX_GLOB(i, j, k)] / rho_i;
-        v_i = v[INDEX_GLOB(i, j, k)] - 0.5 * Fy[INDEX_GLOB(i, j, k)] / rho_i;
-        w_i = w[INDEX_GLOB(i, j, k)] - 0.5 * Fz[INDEX_GLOB(i, j, k)] / rho_i;
+        const int idx = INDEX(i, j, k);
 
-        compute_equilibrium(rho_i, u_i, v_i, w_i, pressure_i, &f1[INDEX_F(i, j, k, 0, RED)], sim);
-        memcpy(&f1[INDEX_F(i, j, k, 0, BLUE)], &f1[INDEX_F(i, j, k, 0, RED)], NP * sizeof(double));
+        const double rho_i = rho[idx];
+        const double rho_RED_i = rho_RED[idx];
+        const double rho_BLUE_i = rho_BLUE[idx];
+        const double pressure_i = pressure[idx];
+        const double u_i = u[idx] - 0.5 * Fx[idx] / rho_i;
+        const double v_i = v[idx] - 0.5 * Fy[idx] / rho_i;
+        const double w_i = w[idx] - 0.5 * Fz[idx] / rho_i;
 
-        for (int n = 0; n < NCOMP; n++)
+        compute_equilibrium(rho_i, u_i, v_i, w_i, pressure_i, &f1_RED[INDEX_F(i, j, k, 0)], sim);
+        memcpy(&f1_BLUE[INDEX_F(i, j, k, 0)], &f1_RED[INDEX_F(i, j, k, 0)], NP * sizeof(double));
+
+        for (int p = 0; p < NP; p++)
         {
-            rho_c_i = rho_comp[INDEX(i, j, k, n)];
-            for (int p = 0; p < NP; p++)
-            {
-                f1[INDEX_F(i, j, k, p, n)] *= rho_c_i / rho_i;
-            }
+            const int idxf = INDEX_F(i, j, k, p);
+
+            f1_RED[idxf] *= rho_RED_i / rho_i;
+            f1_BLUE[idxf] *= rho_BLUE_i / rho_i;
         }
     }
-}
-
-double physx(int i)
-{
-#if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
-    return (double)i;
-#else
-    return (double)i + 0.5;
-#endif
-}
-
-double physy(int j)
-{
-#if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
-    return (double)j;
-#else
-    return (double)j + 0.5;
-#endif
-}
-
-double physz(int k)
-{
-#if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
-    return (double)k;
-#else
-    return (double)k + 0.5;
-#endif
-}
-
-double physlx(ParamBag *params)
-{
-    double result = (double)params->NX;
-#if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
-    result -= 0.5;
-#endif
-
-#if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
-    result -= 0.5;
-#endif
-    return result;
-}
-
-double physly(ParamBag *params)
-{
-    double result = (double)params->NY;
-#if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
-    result -= 0.5;
-#endif
-
-#if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
-    result -= 0.5;
-#endif
-    return result;
-}
-
-double physlz(ParamBag *params)
-{
-    double result = (double)params->NZ;
-#if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
-    result -= 0.5;
-#endif
-
-#if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
-    result -= 0.5;
-#endif
-    return result;
 }
