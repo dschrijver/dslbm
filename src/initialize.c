@@ -32,8 +32,6 @@ void initialize_MPI(ParamBag *params)
         params->i_end = 0;
         params->NX_proc = 0;
         params->process_rank = -1;
-        printf("test\n");
-        fflush(stdout);
     }
     else
     {
@@ -142,7 +140,20 @@ void initialize_fields(SimulationBag *sim)
         rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5 * width) / INI_TWOCOMPONENT_COUETTE_SF));
 
         u[INDEX(i, j, k)] = 0.0;
-        v[INDEX(i, j, k)] = INI_TWOCOMPONENT_COUETTE_V_LEFT;
+
+        if (i == 0)
+        {
+            v[INDEX(i, j, k)] = LEFT_V_VELOCITY;
+        }
+        else if (i == NX - 1)
+        {
+            v[INDEX(i, j, k)] = RIGHT_V_VELOCITY;
+        }
+        else
+        {
+            v[INDEX(i, j, k)] = 0.0;
+        }
+
         w[INDEX(i, j, k)] = 0.0;
     }
 #endif

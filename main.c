@@ -72,9 +72,8 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     double start_time = MPI_Wtime();
     double start_timestep, duration_timestep;
-    double start_substep, duration_substep;
+    double start_substep = 0.0, duration_substep = 0.0;
     char output_info[128];
-    double M_RED, M_BLUE, M_total;
 
     while (params->t < params->NTIME)
     {
@@ -143,14 +142,16 @@ int main(int argc, char **argv)
         duration_timestep = MPI_Wtime() - start_timestep;
 
         // LOGGING INFORMATION
-        if ((params->process_rank == 0) && (params->t_log == params->t))   
+        if (params->t_log == params->t)
         {
-            printf("--------------------------------------------------------------------------------\n");
-            printf("Step completed!\n");
-            printf("    RED mass: %.5e, BLUE mass: %.5e, Total mass: %.5e\n", M_RED, M_BLUE, M_total);
-            printf("    Duration of time step: %.4fs\n", duration_timestep);
-            printf("    Total simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0);
-            printf("    Expected remaining simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0 / (double)(params->t + 1) * (double)(params->NTIME - params->t - 1));
+            if (params->process_rank == 0)
+            {
+                printf("--------------------------------------------------------------------------------\n");
+                printf("Step completed!\n");
+                printf("    Duration of time step: %.4fs\n", duration_timestep);
+                printf("    Total simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0);
+                printf("    Expected remaining simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0 / (double)(params->t + 1) * (double)(params->NTIME - params->t - 1));
+            }
             params->t_log += params->NLOG;
         }
 

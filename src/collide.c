@@ -5,7 +5,7 @@
 #include "../definitions.h"
 #include "../include/collide.h"
 
-void compute_equilibrium(const double rho, const double u, const double v, const double w, const double P, double * restrict const feq, SimulationBag *sim)
+void compute_equilibrium(const double rho, const double u, const double v, const double w, const double P, double *restrict const feq, SimulationBag *sim)
 {
     UNPACK_BAGS
 
@@ -46,7 +46,7 @@ void compute_equilibrium(const double rho, const double u, const double v, const
     raw_to_pop(meq, feq);
 }
 
-void compute_equilibrium_comp(const double rho_comp, const double rho_tot, const double u, const double v, const double w, const double P_tot, double * restrict const feq, SimulationBag *sim)
+void compute_equilibrium_comp(const double rho_comp, const double rho_tot, const double u, const double v, const double w, const double P_tot, double *restrict const feq, SimulationBag *sim)
 {
     UNPACK_BAGS
 
@@ -57,7 +57,7 @@ void compute_equilibrium_comp(const double rho_comp, const double rho_tot, const
     const double w2 = w * w;
 
     const double rho = rho_comp;
-    const double P = rho_comp/rho_tot*P_tot;
+    const double P = rho_comp / rho_tot * P_tot;
 
     meq[0] = rho;
     meq[1] = rho * u;
@@ -97,7 +97,7 @@ void evaluate_color_gradients(SimulationBag *sim)
     UNPACK_STENCIL
 
     READ_FIELD(rho_N)
-    
+
     WRITE_FIELD(G_norm)
     WRITE_FIELD(Gx)
     WRITE_FIELD(Gy)
@@ -106,7 +106,7 @@ void evaluate_color_gradients(SimulationBag *sim)
     WRITE_FIELD(ny)
     WRITE_FIELD(nz)
 
-    const int * restrict const flag = fields->flag;
+    const int *restrict const flag = fields->flag;
 
 #ifdef THETA_C
     const double theta = THETA_C / 360.0 * 2.0 * DS_PI;
@@ -248,7 +248,7 @@ void compute_Q_corrections(SimulationBag *sim)
     WRITE_FIELD(Qy)
     WRITE_FIELD(Qz)
 
-    const int * restrict const flag = fields->flag;
+    const int *restrict const flag = fields->flag;
 
     FOR_DOMAIN
     {
@@ -341,21 +341,6 @@ void collide(SimulationBag *sim)
     PARAM(cs2_BLUE)
     PARAM(sigma)
     PARAM(beta)
-    
-    const double p_0 = cs2_BLUE * rho_0_BLUE;
-
-    const double tau_RED = mu_RED / p_0 + 0.5;
-    const double tau_BLUE = mu_BLUE / p_0 + 0.5;
-
-    // Wen 2019, 10.1103/PhysRevE.100.023301
-    const double delta_tau = 0.98;
-
-    // Grunau 1993, 10.1063/1.858769
-    const double alpha_tau = 2.0 * tau_RED * tau_BLUE / (tau_RED + tau_BLUE);
-    const double beta_tau = 2.0 * (tau_RED - alpha_tau) / delta_tau;
-    const double kappa_tau = -beta_tau / (2.0 * delta_tau);
-    const double eta_tau = 2.0 * (alpha_tau - tau_BLUE) / delta_tau;
-    const double xi_tau = eta_tau / (2.0 * delta_tau);
 
     FOR_DOMAIN
     {
@@ -382,23 +367,10 @@ void collide(SimulationBag *sim)
 
         const double G_i = G_norm[idx];
 
-        double omega;
-        if (rho_N_i > delta_tau)
-        {
-            omega = 1.0 / tau_RED;
-        }
-        else if (rho_N_i > 0)
-        {
-            omega = 1.0 / (alpha_tau + beta_tau * rho_N_i + kappa_tau * rho_N_i * rho_N_i);
-        }
-        else if (rho_N_i >= -delta_tau)
-        {
-            omega = 1.0 / (alpha_tau + eta_tau * rho_N_i + xi_tau * rho_N_i * rho_N_i);
-        }
-        else
-        {
-            omega = 1.0 / tau_BLUE;
-        }
+        // const double omega = interpolate_omega_wen(rho_N_i, params);
+        const double omega = interpolate_omega_ba(rho_N_i, params);
+        // const double nu = interpolate_nu_saito(rho_N_i, params);
+        // const double omega = 1.0 / (rho_i / pressure_i * nu + 0.5);
 
         double t4 = 0.0;
         double t5 = 0.0;
@@ -429,8 +401,8 @@ void collide(SimulationBag *sim)
         t_star[4] = t4 * (1.0 - omega);
         t_star[5] = t5 * (1.0 - omega);
         t_star[6] = t6 * (1.0 - omega);
-        t_star[7] = -t7 * (omega - 1.0) - (Qx_i - Qy_i) * (omega - 2.0) / 2.0;
-        t_star[8] = -t8 * (omega - 1.0) - (Qx_i - Qz_i) * (omega - 2.0) / 2.0;
+        t_star[7] = t7 * (1.0 - omega) - (Qx_i - Qy_i) * (omega - 2.0) / 2.0;
+        t_star[8] = t8 * (1.0 - omega) - (Qx_i - Qz_i) * (omega - 2.0) / 2.0;
         t_star[9] = Qx_i / 2.0 + Qy_i / 2.0 + Qz_i / 2.0 + 3.0 * pressure_i;
         t_star[10] = Fx_i / 6.0;
         t_star[11] = Fx_i / 6.0;
@@ -488,6 +460,24 @@ void collide(SimulationBag *sim)
             f2_BLUE[INDEX_F(i, j, k, 5)] -= pz / 2.0;
             f2_BLUE[INDEX_F(i, j, k, 6)] -= -pz / 2.0;
         }
+
+        // if (G_i > 1e-15)
+        // {
+        //     const double nx_i = nx[idx];
+        //     const double ny_i = ny[idx];
+        //     const double nz_i = nz[idx];
+
+        //     for (int p = 1; p < NP; p++)
+        //     {
+        //         const double feq_i = 3.0*wp[p]*pressure_i;
+        //         const double nc = nx_i * (double)cx[p] + ny_i * (double)cy[p] + nz_i * (double)cz[p];
+        //         const double cos_phi = nc / sqrt((double)cx[p] * (double)cx[p] + (double)cy[p] * (double)cy[p] + (double)cz[p] * (double)cz[p]);
+
+        //         const double mom_exchange = beta * rho_RED_i * rho_BLUE_i / (rho_i * rho_i) * cos_phi * feq_i;
+        //         f2_RED[INDEX_F(i, j, k, p)] += mom_exchange;
+        //         f2_BLUE[INDEX_F(i, j, k, p)] -= mom_exchange;
+        //     }
+        // }
     }
 }
 
@@ -544,9 +534,9 @@ double extrapolate_wall_q(const int i, const int j, const int k, const int alpha
     READ_FIELD(rho)
     READ_FIELD(pressure)
 
-    double * restrict u = fields->u;
-    double * restrict v = fields->v;
-    double * restrict w = fields->w;
+    double *restrict u = fields->u;
+    double *restrict v = fields->v;
+    double *restrict w = fields->w;
 
     double *u_vec[3] = {u, v, w};
 

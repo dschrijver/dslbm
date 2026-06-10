@@ -52,7 +52,7 @@ void extract_moments(SimulationBag *sim)
 
         const double rho_i = rho_RED_i + rho_BLUE_i;
         rho[idx] = rho_i;
-        rho_N[idx] = (rho_RED_i - rho_BLUE_i / rho_0_BLUE) / (rho_RED_i + rho_BLUE_i / rho_0_BLUE);
+        rho_N[idx] = (rho_RED_i / rho_0_RED - rho_BLUE_i / rho_0_BLUE) / (rho_RED_i / rho_0_RED + rho_BLUE_i / rho_0_BLUE);
 
         rho_RED[idx] = rho_RED_i;
         rho_BLUE[idx] = rho_BLUE_i;
@@ -121,5 +121,6 @@ void evaluate_pressure(SimulationBag *sim)
         const double b = rho_RED_i * cs2_RED + rho_BLUE_i * cs2_BLUE - p_star_RED;
 
         pressure[idx] = 0.5 * (b + sqrt(b * b + 4.0 * rho_BLUE_i * cs2_BLUE * p_star_RED));
+        pressure[idx] = rho_RED_i * cs2_RED + rho_BLUE_i * cs2_BLUE;
     }
 }

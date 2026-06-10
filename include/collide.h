@@ -13,6 +13,106 @@ void collide(SimulationBag *sim);
 double extrapolate_wall_rho_N(const int i, const int j, const int k, SimulationBag *sim);
 double extrapolate_wall_q(const int i, const int j, const int k, const int alpha, SimulationBag *sim);
 
+static inline double interpolate_omega_wen(const double phi, ParamBag *params)
+{
+    PARAM(mu_RED)
+    PARAM(mu_BLUE)
+    PARAM(cs2_BLUE)
+    PARAM(rho_0_BLUE)
+
+    const double p_0 = cs2_BLUE * rho_0_BLUE;
+
+    const double tau_RED = mu_RED / p_0 + 0.5;
+    const double tau_BLUE = mu_BLUE / p_0 + 0.5;
+
+    // Wen 2019, 10.1103/PhysRevE.100.023301
+    const double delta = 0.98;
+
+    // Grunau 1993, 10.1063/1.858769
+    const double alpha = 2.0 * tau_RED * tau_BLUE / (tau_RED + tau_BLUE);
+    const double beta = 2.0 * (tau_RED - alpha) / delta;
+    const double kappa = -beta / (2.0 * delta);
+    const double eta = 2.0 * (alpha - tau_BLUE) / delta;
+    const double xi = eta / (2.0 * delta);
+
+    double tau;
+    if (phi > delta)
+    {
+        tau = tau_RED;
+    }
+    else if (phi > 0)
+    {
+        tau = alpha + beta * phi + kappa * phi * phi;
+    }
+    else if (phi >= -delta)
+    {
+        tau = alpha + eta * phi + xi * phi * phi;
+    }
+    else
+    {
+        tau = tau_BLUE;
+    }
+
+    return 1.0 / tau;
+}
+
+static inline double interpolate_omega_ba(const double phi, ParamBag *params)
+{
+    PARAM(mu_RED)
+    PARAM(mu_BLUE)
+    PARAM(cs2_BLUE)
+    PARAM(rho_0_BLUE)
+
+    const double p_0 = cs2_BLUE * rho_0_BLUE;
+
+    const double omega_RED = 1.0 / (mu_RED / p_0 + 0.5);
+    const double omega_BLUE = 1.0 / (mu_BLUE / p_0 + 0.5);
+
+    // Wen 2019, 10.1103/PhysRevE.100.023301
+    const double delta = 0.1;
+
+    // Grunau 1993, 10.1063/1.858769
+    const double alpha = 2.0 * omega_RED * omega_BLUE / (omega_RED + omega_BLUE);
+    const double beta = 2.0 * (omega_RED - alpha) / delta;
+    const double kappa = -beta / (2.0 * delta);
+    const double eta = 2.0 * (alpha - omega_BLUE) / delta;
+    const double xi = eta / (2.0 * delta);
+
+    double omega;
+    if (phi > delta)
+    {
+        omega = omega_RED;
+    }
+    else if (phi > 0)
+    {
+        omega = alpha + beta * phi + kappa * phi * phi;
+    }
+    else if (phi >= -delta)
+    {
+        omega = alpha + eta * phi + xi * phi * phi;
+    }
+    else
+    {
+        omega = omega_BLUE;
+    }
+
+    return omega;
+}
+
+static inline double interpolate_nu_saito(const double phi, ParamBag *params)
+{
+    PARAM(mu_RED)
+    PARAM(mu_BLUE)
+    PARAM(rho_0_RED)
+    PARAM(rho_0_BLUE)
+
+    const double nu_RED = mu_RED / rho_0_RED;
+    const double nu_BLUE = mu_BLUE / rho_0_BLUE;
+
+    const double nu = 0.5*(1.0 + phi)*nu_RED + 0.5*(1.0 - phi)*nu_BLUE;
+    return nu;
+}
+
 static inline void raw_to_pop(const double *restrict raw, double *restrict pop)
 {
     pop[0] = raw[0] + raw[17] + raw[18] + raw[19] - raw[26] - raw[9];

@@ -71,18 +71,24 @@ inline double delta(int a, int b)
 #define PARAM(name) const double name = params->name;(void)name;
 
 #define TIME(name, functions)                                        \
-    if ((params->process_rank == 0) && (params->t_log == params->t)) \
+    if (params->t_log == params->t)                                  \
     {                                                                \
-        printf("%-70s", name);                                       \
-    }                                                                \
-    MPI_Barrier(MPI_COMM_WORLD);                                     \
-    start_substep = MPI_Wtime();                                     \
-    functions                                                        \
+        if (params->process_rank == 0)                               \
+        {                                                            \
+            printf("%-70s", name);                                   \
+        }                                                            \
         MPI_Barrier(MPI_COMM_WORLD);                                 \
-    duration_substep = MPI_Wtime() - start_substep;                  \
-    if ((params->process_rank == 0) && (params->t_log == params->t)) \
+        start_substep = MPI_Wtime();                                 \
+    }                                                                \
+    functions                                                        \
+    if (params->t_log == params->t)                                  \
     {                                                                \
-        printf("[%7.4fs]\n", duration_substep);                      \
+        MPI_Barrier(MPI_COMM_WORLD);                                 \
+        duration_substep = MPI_Wtime() - start_substep;              \
+        if (params->process_rank == 0)                               \
+        {                                                            \
+            printf("[%7.4fs]\n", duration_substep);                  \
+        }                                                            \
     }
 
 #define TIME_OUTPUT(functions)                                                                \

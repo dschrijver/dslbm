@@ -22,10 +22,16 @@ def analytical_solution(x):
     return result
 
 NX = 200
-rho_RED = 100
-rho_BLUE = 0.5
-mu_RED = 0.1
-mu_BLUE = 0.05
+rho_BLUE = 1
+rho_RED = rho_BLUE * 1000
+nu_RED = 0.5
+nu_BLUE = nu_RED / 100
+mu_RED = rho_RED * nu_RED
+mu_BLUE = rho_BLUE * nu_BLUE
+v_left = 1e-4
+v_right = -1e-2
+p_left = v_left * rho_RED
+p_right = v_right * rho_BLUE
 
 A = np.array(
     [[0, 1, 0, 0], 
@@ -34,7 +40,7 @@ A = np.array(
      [0, 0, (NX-1), 1]]
 )
 
-b = np.array([[1e-2, 0, 0, 0]]).T
+b = np.array([[v_left, 0, 0, v_right]]).T
 
 A_inv = np.linalg.inv(A)
 params = A_inv @ b
@@ -62,7 +68,7 @@ plt.plot(x, rho[:,0,0]*v[:,0,0], label="LBM")
 plt.plot(x, analytical_solution(x), ls="--", c="red", label="analytical")
 plt.xlabel("$x$")
 plt.ylabel("$p_y$")
-plt.ylim(0, 0.01)
+plt.ylim(min([p_left, p_right]) - 0.1*max([np.abs(p_left), np.abs(p_right)]), max([p_left, p_right]) + 0.1*max([np.abs(p_left), np.abs(p_right)]))
 plt.xlim(0, NX-1)
 plt.xticks([0, (NX-1)/2, NX-1])
 plt.legend()
@@ -77,7 +83,7 @@ plt.plot(x, v[:,0,0], label="LBM, Q = %.3e"%Q)
 plt.plot(x, analytical_solution(x)/rho_analytical, ls="--", c="red", label="analytical")
 plt.xlabel("$x$")
 plt.ylabel("$v$")
-plt.ylim(0, 0.01)
+plt.ylim(min([v_left, v_right]) - 0.1*max([np.abs(v_left), np.abs(v_right)]), max([v_left, v_right]) + 0.1*max([np.abs(v_left), np.abs(v_right)]))
 plt.xlim(0, NX-1)
 plt.xticks([0, (NX-1)/2, NX-1])
 plt.legend()

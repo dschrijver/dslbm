@@ -7,15 +7,8 @@
 #define YPERIODIC
 #define ZPERIODIC
 
-#define LEFT_NEBB_VELOCITY
-#define LEFT_U_VELOCITY 0.0
-#define LEFT_V_VELOCITY 0.0
-#define LEFT_W_VELOCITY 0.0
-
-#define RIGHT_NEBB_VELOCITY
-#define RIGHT_U_VELOCITY 0.0
-#define RIGHT_V_VELOCITY 0.0
-#define RIGHT_W_VELOCITY 0.0
+#define LEFT_HWBB_NOSLIP
+#define RIGHT_HWBB_NOSLIP
 
 // --------------------------
 //     Initial conditions

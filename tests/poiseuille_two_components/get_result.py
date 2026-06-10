@@ -5,12 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import os
+from scipy.interpolate import interp1d
 
 def analytical_solution(y, H):
     d = H/2
     a = d/2
-    mu_out = 0.1
-    mu_in = 0.0025
+    mu_out = 0.05826 
+    mu_in = 0.05826 / 40
     dpdx = -1.5e-8
 
     N = len(y)
@@ -39,8 +40,8 @@ NX, NY, NZ = data.shape
 v_simulated = data[:, 0, 0]
 
 # HWBB
-x = np.arange(0, NX-0.5)
-H = NX - 1
+x = np.arange(0.5, NX)
+H = NX
 
 v_analytical = analytical_solution(x, H)
 
