@@ -18,8 +18,8 @@ static inline void set_params(ParamBag *params)
     params->rho_0_BLUE  = 1.0;
 
     // Kinematic viscosities
-    params->mu_RED  = 0.1;
-    params->mu_BLUE = 0.1;
+    params->mu_RED  = 0.001;
+    params->mu_BLUE = 0.001;
 
     // Speeds of sound squared
     params->cs2_RED = 1.0/3.0;
@@ -38,7 +38,7 @@ static inline void set_params(ParamBag *params)
 
     // Constant body forces
     params->Fb_x = 0.0;
-    params->Fb_y = 1e-5;
+    params->Fb_y = 1e-8;
     params->Fb_z = 0.0;
 }
 

@@ -175,7 +175,7 @@ The Non-Equilibrium Bounce-Back scheme~\cite{zou_pressure_1997} is a boundary co
 \begin{equation}\label{eq:NEBB}
 \begin{split}
     f_i^{\text{neq},\sigma} &= f_q^{\text{neq},\sigma} - w_i c_{i\alpha} N_\alpha^\sigma,\\
-    f_i^\sigma &= f_q^\sigma + 2w_i \rho^\sigma \frac{\bm{u}\cdot \bm{c}_i}{c_s^2} - w_i c_{i\alpha} N_\alpha^\sigma,
+    f_i^\sigma &= f_q^\sigma + \left(f_i^{\text{eq},\sigma} - f_q^{\text{eq},\sigma}\right) - w_i c_{i\alpha} N_\alpha^\sigma,
 \end{split}
 \end{equation}
 where the index $q$ is given by $\bm{c}_i = -\bm{c}_q$. Furthermore, repeated Greek indices indicate sums. Note that the incoming populations are defined by $\bm{c}_i \cdot \hat{\bm{n}}_w > 0$, where $\hat{\bm{n}}_w$ is the normal vector to the boundary pointing into the domain. The density $\rho$ and the velocity $\bm{u}$ are the imposed boundary density and velocity. To conserve mass, we will satisfy the condition that the amount of mass being removed from the domain is equal to the mass added to the domain at every grid point. During the streaming step, the values of the outgoing populations $f_q$ will be overwritten by populations from the bulk, leading to mass loss. The mass gain is given by Eq.~(\ref{eq:NEBB}). This gives the net mass loss at the boundary due to the NEBB method,
