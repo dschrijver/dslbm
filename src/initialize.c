@@ -158,6 +158,31 @@ void initialize_fields(SimulationBag *sim)
     }
 #endif
 
+#ifdef INI_TWODROPLETS
+    FOR_DOMAIN
+    {
+        const double x1 = physx(i) - INI_TWODROPLETS_X1;
+        const double y1 = physy(j) - INI_TWODROPLETS_Y1;
+        const double z1 = physz(k) - INI_TWODROPLETS_Z1;
+        const double r1 = sqrt(x1 * x1 + y1 * y1 + z1 * z1);
+
+        const double x2 = physx(i) - INI_TWODROPLETS_X2;
+        const double y2 = physy(j) - INI_TWODROPLETS_Y2;
+        const double z2 = physz(k) - INI_TWODROPLETS_Z2;
+        const double r2 = sqrt(x2 * x2 + y2 * y2 + z2 * z2);
+
+        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (2.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)  - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
+        rho_BLUE[INDEX(i, j, k)] = rho_0_BLUE - 0.5 * rho_0_BLUE * (2.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)  - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
+
+        u[INDEX(i, j, k)] = 0.5 * INI_TWODROPLETS_U1 * (1.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)) + 
+                            0.5 * INI_TWODROPLETS_U2 * (1.0 - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
+        u[INDEX(i, j, k)] = 0.5 * INI_TWODROPLETS_V1 * (1.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)) + 
+                            0.5 * INI_TWODROPLETS_V2 * (1.0 - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
+        u[INDEX(i, j, k)] = 0.5 * INI_TWODROPLETS_W1 * (1.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)) + 
+                            0.5 * INI_TWODROPLETS_W2 * (1.0 - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
+    }
+#endif
+
     FOR_DOMAIN
     {
         rho[INDEX(i, j, k)] = rho_RED[INDEX(i, j, k)] + rho_BLUE[INDEX(i, j, k)];

@@ -121,6 +121,5 @@ void evaluate_pressure(SimulationBag *sim)
         const double b = rho_RED_i * cs2_RED + rho_BLUE_i * cs2_BLUE - p_star_RED;
 
         pressure[idx] = 0.5 * (b + sqrt(b * b + 4.0 * rho_BLUE_i * cs2_BLUE * p_star_RED));
-        pressure[idx] = rho_RED_i * cs2_RED + rho_BLUE_i * cs2_BLUE;
     }
 }
