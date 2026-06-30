@@ -182,6 +182,18 @@ feq = simplify(feq)
 S_guo = simplify(S_guo)
 print("Done!")
 
+sum = 0.0
+for i in range(NP):
+    if (cx[i] == 0):
+        sum += S_guo[i]*cy[i]
+print(nsimplify(simplify(sum), tolerance=1e-12))
+
+sum = 0.0
+for i in range(NP):
+    # if (cx[i] == 0):
+    sum += S_guo[i]*cy[i]
+print(nsimplify(simplify(sum), tolerance=1e-12))
+
 printer = DotZeroPrinter()
 
 teq = T*feq

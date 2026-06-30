@@ -39,7 +39,11 @@ static inline void set_params(ParamBag *params)
 
     // Constant body forces
     params->Fb_x = 0.0;
+<<<<<<< HEAD
     params->Fb_y = 0.0;
+=======
+    params->Fb_y = 1e-8;
+>>>>>>> beb2e3e77527bd7ba375866242057fbcfd150a00
     params->Fb_z = 0.0;
 }
 

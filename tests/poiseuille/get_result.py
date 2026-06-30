@@ -7,8 +7,8 @@ import sys
 import os
 
 def analytical_solution(y, H):
-    mu = 0.1
-    dpdx = -1e-5
+    mu = 0.001
+    dpdx = -1e-8
     u_particular = -1/(2*mu)*dpdx*y*(H-y)
     return u_particular
 

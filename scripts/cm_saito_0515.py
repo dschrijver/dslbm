@@ -24,6 +24,8 @@ omega = Symbol("omega")
 Qx = Symbol("Qx_i")
 Qy = Symbol("Qy_i")
 Qz = Symbol("Qz_i")
+cs2 = Symbol("cs2_i")
+alpha = 1-19/9*cs2
 pressure = Symbol("pressure_i")
 
 NP = 27
@@ -36,10 +38,44 @@ p_bounceback = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17
 wp = [8 / 27, 2 / 27, 2 / 27, 2 / 27, 2 / 27, 2 / 27, 2 / 27, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216]
 
 freq = diag(*[1, 1, 1, 1, omega, omega, omega, omega, omega, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+phi = [alpha, 2/19*(1-alpha), 2/19*(1-alpha), 2/19*(1-alpha), 2/19*(1-alpha), 2/19*(1-alpha), 2/19*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/38*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha), 1/152*(1-alpha)]
 
 T = zeros(NP, NP)
 M = zeros(NP, NP)
+feq_base = zeros(NP, 1)
 for i in range(NP):
+    # Wen 2019, 10.1103/PhysRevE.100.023301
+    uc = U*cx[i] + V*cy[i] + W*cz[i]
+    u2 = U*U + V*V + W*W
+    c2 = cx[i]*cx[i] + cy[i]*cy[i] + cz[i]*cz[i]
+
+    first_order = (U*cx[i]+V*cy[i]+W*cz[i])/(1/3)
+    second_order = (U*cx[i]+V*cy[i]+W*cz[i])**2/(2*(1/9)) - (U*U+V*V+W*W)/(2*(1/3))
+    # third_order = ((cx[i]**2-(1/3))*cy[i]*U*U*V + (cx[i]**2-(1/3))*cz[i]*U*U*W + 
+    #                (cy[i]**2-(1/3))*cx[i]*U*V*V + (cz[i]**2-(1/3))*cx[i]*U*W*W + 
+    #                (cz[i]**2-(1/3))*cy[i]*V*W*W + (cy[i]**2-(1/3))*cz[i]*V*V*W + 
+    #                2*( cx[i]*cy[i]*cz[i]*U*V*W)) / (2*(1/27))
+    # fourth_order = ((cx[i]**2-(1/3))*(cy[i]**2-(1/3))*U*U*V*V + 
+    #                 (cx[i]**2-(1/3))*(cz[i]**2-(1/3))*U*U*W*W + 
+    #                 (cy[i]**2-(1/3))*(cz[i]**2-(1/3))*V*V*W*W + 
+    #               2*(cx[i]*cy[i]*(cz[i]**2-(1/3))*U*V*W*W + 
+    #                  cx[i]*(cy[i]**2-(1/3))*cz[i]*U*V*V*W + 
+    #                  (cx[i]**2-(1/3))*cy[i]*cz[i]*U*U*V*W))/(4*(1/81))
+    # fifth_order = ((cx[i]**2-(1/3))*cy[i]*(cz[i]**2-(1/3))*U*U*V*W*W + 
+    #                (cx[i]**2-(1/3))*(cy[i]**2-(1/3))*cz[i]*U*U*V*V*W + 
+    #                cx[i]*(cy[i]**2-(1/3))*(cz[i]**2-(1/3))*U*V*V*W*W) / (4*(1/243))
+    # sixth_order = ((cx[i]**2-(1/3))*(cy[i]**2-(1/3))*(cz[i]**2-(1/3))*U*U*V*V*W*W) / (8*(1/729))
+    wen_addition = 3/2*uc*(3*cs2 - 1)*(3*c2 - 5)
+
+    third_order = 0
+    fourth_order = 0
+    fifth_order = 0
+    sixth_order = 0
+
+    wen_addion = 0
+
+    feq_base[i,0] = rho*(phi[i] + wp[i]*(first_order + second_order + third_order + fourth_order + fifth_order + sixth_order + wen_addition))
+
     # Saito 2023, 10.1103/PhysRevE.108.065305
     M[0,i] = 1
 
@@ -124,6 +160,20 @@ print("simplified M")
 
 N_shift = simplify(T*M.inv())
 print("simplified N_shift")
+
+meq_base = M*feq_base
+meq_base = nsimplify(simplify(meq_base), tolerance=1e-12)
+meq_base = meq_base.subs([(U**2, U2), (V**2, V2), (W**2, W2)])
+meq_base = nsimplify(simplify(meq_base), tolerance=1e-12)
+for i in range(NP):
+    print("meq_base[%d] = "%(i) + str(printer.doprint(meq_base[i,0])) + ";")
+
+teq_base = N_shift*meq_base
+teq_base = nsimplify(simplify(teq_base), tolerance=1e-12)
+teq_base = teq_base.subs([(U**2, U2), (V**2, V2), (W**2, W2)])
+teq_base = nsimplify(simplify(teq_base), tolerance=1e-12)
+for i in range(NP):
+    print("teq_base[%d] = "%(i) + str(printer.doprint(teq_base[i,0])) + ";")
 
 # Saito 2023, 10.1103/PhysRevE.108.065305
 teq = zeros(NP, 1)

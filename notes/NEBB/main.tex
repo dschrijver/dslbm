@@ -1,0 +1,161 @@
+\documentclass[fleqn,a4paper]{article} % Flush Left Equation Numbers
+
+% --- PACKAGES ---
+\usepackage{graphicx} % Required for inserting images
+\usepackage{a4wide} % Tell LaTeX to use the room there is on the page
+\usepackage[calc,showdow,english]{datetime2} % To get the date of today
+\usepackage{amsmath} % For matrices
+\usepackage{algorithm} % Algorithm
+\usepackage{algpseudocode} % Algorithm
+\usepackage{subcaption} % For captions of subfigures
+\usepackage{booktabs} % toprule
+\usepackage[hidelinks,colorlinks=true,citecolor=red,urlcolor=blue]{hyperref} % Make clickable references which are less ugly (borders removed)
+\usepackage[style=phys, articletitle=false,biblabel=brackets, chaptertitle=false,pageranges=false]{biblatex} % APS style (American Physical Society)
+\usepackage[absolute]{textpos}
+\usepackage{bm} % For bold Greek letters
+\usepackage{siunitx} % For units in equations
+\numberwithin{equation}{section} % For equation numbering
+\numberwithin{figure}{section} % For figure numbering
+\numberwithin{table}{section} % For table numbering
+\numberwithin{algorithm}{section} % For algorithm numbering
+
+\addbibresource{references.bib}
+
+\begin{document}
+
+\section{NEBB}
+The Non-Equilibrium Bounce-Back scheme~\cite{zou_pressure_1997} is a boundary condition based on the wet-node approach. Instead of the more common Half-way Bounce-Back scheme where the boundary fluid nodes are half a node away from the physical wall, the boundary fluid nodes are infinitesimally close to the physical wall in the wet-node approach. The NEBB scheme leaves the populations streaming out of the domain unchanged after streaming. The unknown populations streaming into the domain can be found using the non-equilibrium parts of the populations streaming out of the domain. Additionally, momentum corrections $N_\alpha$, where $\alpha$ is the spatial component, are introduced~\cite{kruger_lattice_2017}. This gives the following boundary condition for the unknown incoming populations $i$,
+\begin{equation}\label{eq:NEBB}
+\begin{split}
+    f_i^{\text{neq},\sigma} &= f_q^{\text{neq},\sigma} - w_i c_{i\alpha} N_\alpha^\sigma,\\
+    f_i^\sigma &= f_q^\sigma + \left(f_i^{\text{eq},\sigma} - f_q^{\text{eq},\sigma}\right) - w_i c_{i\alpha} N_\alpha^\sigma,
+\end{split}
+\end{equation}
+where the index $q$ is given by $\bm{c}_i = -\bm{c}_q$. Furthermore, repeated Greek indices indicate sums. Note that the incoming populations are defined by $\bm{c}_i \cdot \hat{\bm{n}}_w > 0$, where $\hat{\bm{n}}_w$ is the normal vector to the boundary pointing into the domain. The density $\rho$ and the velocity $\bm{u}$ are the imposed boundary density and velocity. To conserve mass, we will satisfy the condition that the amount of mass being removed from the domain is equal to the mass added to the domain at every grid point. During the streaming step, the values of the outgoing populations $f_q$ will be overwritten by populations from the bulk, leading to mass loss. The mass gain is given by Eq.~(\ref{eq:NEBB}). This gives the net mass loss at the boundary due to the NEBB method,
+\begin{equation}\label{eq:NEBB mass loss}
+\begin{split}
+    \Delta m^\sigma &= \sum_i^\text{out}\left(f_i^{*,\sigma} - f_i^\sigma\right) + \sum_i^\text{in} w_i c_{i\alpha}N_\alpha^\sigma\\
+    &= \sum_i^{\text{out}}\left(f_i^{*,\sigma} - f_i^\sigma\right) + \frac{1}{6} N_{n}^\sigma,
+\end{split}
+\end{equation}
+where outgoing populations are defined by $\bm{c}_i \cdot \hat{\bm{n}}_w < 0$. Furthermore, the index $n$ indicates the component normal to the boundary. Note that we ignored the term $\sum_i^\text{in}\left(f_i^{\text{eq},\sigma} - f_q^{\text{eq},\sigma}\right) = \rho^\sigma u_n$. This is because this is not mass loss, but the expected mass flux across an open boundary. For a set velocity boundary condition, the densities can be found using the bare velocity components, 
+\begin{equation}
+\begin{split}
+    \rho^\sigma u_n^\sigma &= \sum_i^\text{in} f_i^\sigma - \sum_i^\text{out} f_i^\sigma + \frac{1}{2}F_n^\sigma\\
+    &= \rho^\sigma - f_0^\sigma - 2\sum_i^\text{out}f_i^\sigma - \sum_i^\text{par}f_i^\sigma + \frac{1}{2}F_n^\sigma\\\
+    \rho^\sigma &= \frac{f_0^\sigma + 2\sum_i^\text{out}f_i^\sigma + \sum_i^\text{par}f_i^\sigma - \frac{1}{2}F_n^\sigma}{1 - u_n^\sigma},
+\end{split}
+\end{equation}
+where parallel populations are defined as $\bm{c}_i \cdot \hat{\bm{n}}_w = 0$ with $i\neq0$. Furthermore, we assume that $|\hat{\bm{c}}_i\cdot\hat{\bm{n}}_w| = 1$ for $i \neq 0$. This equation can be inverted to find the normal velocity from the imposed density at the boundary. Note that the parallel velocity components are not fixed by this equation and can be chosen freely. The momentum corrections $N_\alpha^\sigma$ can be computed by plugging the incoming populations from Eq.~(\ref{eq:NEBB}) back into the bare velocity components,
+\begin{equation}
+\begin{split}
+    \rho^\sigma u^\sigma_{\alpha} &= \sum_i^\text{in} f_i^\sigma c_{i\alpha} + \sum_i^\text{out} f_i^\sigma c_{i\alpha} + \sum_i^\text{par} f_i^\sigma c_{i\alpha} + \frac{1}{2}F^\sigma_{\alpha}\\
+    &= \sum_i^\text{in} \Bigl[\left(f_i^{\text{eq},\sigma} - f_q^{\text{eq},\sigma}\right) -  w_i c_{i\beta} N_\beta^\sigma\Bigr]c_{i\alpha} + \sum_i^\text{par}f_i^\sigma c_{i\alpha} + \frac{1}{2}F^\sigma_\alpha.
+\end{split}
+\end{equation}
+The normal and parallel components of the momentum corrections can be found,
+\begin{equation}
+    N_\alpha^\sigma = \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}f_i^\sigma + \sum_i^\text{in}c_{i\alpha}\left(f_i^{\text{eq},\sigma} - f_q^{\text{eq},\sigma}\right) - \rho^\sigma u^\sigma_\alpha+ \frac{1}{2}F_\alpha^\sigma\right],
+\end{equation}
+with $A_\alpha = \sum_i^\text{in} w_i c_{i\alpha}^2$. For the D2Q9, D3Q19 and D3Q27 lattices we have $A_\alpha = \frac{1}{6}\delta_{\alpha n} + \frac{1}{18}(1 - \delta_{\alpha n})$. To correct for the mass loss given in Eq.~(\ref{eq:NEBB mass loss}), we add this back to the zero-velocity component before computing the density,
+\begin{equation}
+\begin{split}
+    f_0^\sigma &= f_0^{*,\sigma} + \Delta m^\sigma + \rho^\sigma u_n\\
+    &= f_0^{*,\sigma} + \sum_i^{\text{out}}\left(f_i^{*,\sigma} - f_i^\sigma\right) + \frac{1}{2}F^\sigma_n.
+\end{split}
+\end{equation}
+This simplifies the computation of the densities, making it independent of forcing,
+\begin{equation}
+    \rho^\sigma_w = \frac{f_0^{*,\sigma} + \sum_i^\text{out}\left(f_i^{*,\sigma} + f_i^\sigma\right) + \sum_i^\text{par}f_i^\sigma}{1 - u_n^\sigma}.
+\end{equation}
+
+\section{Asymptotic expansion of LBE}
+To test the validity of the mass corrected NEBB method, we will need to apply an asymptotic expansion in Knudsen number~\cite{inamuro_accuracy_1997}. The Knudsen number is given as $\textit{Kn} = \lambda / L$, where $\lambda$ is the mean free path that decreases with relaxation time $\tau$, and $L$ is the characteristic length scale of the system. For simplicity, we apply the expansion to the single-component Lattice Boltzmann Equation, but now in explicitly dimensional form,
+\begin{equation}
+\begin{split}
+    &\quad\tilde{f}_i\left(\tilde{\bm{x}} + \tilde{\bm{c}}_i \Delta \tilde{t}, \tilde{t} + \Delta \tilde{t}\right) - \tilde{f}_i\left(\tilde{\bm{x}}, \tilde{t}\right)\\
+    &= -\frac{\Delta \tilde{t}}{\tilde{\tau}}\left(\tilde{f}_i\left(\tilde{\bm{x}}, \tilde{t}\right)  - \tilde{f}^\text{eq}_i\left(\tilde{\rho}, \tilde{\bm{u}}\right)\right) + \Delta \tilde{t} \tilde{S}_i,\\
+\end{split}
+\end{equation}
+where the dimensional source term is given as follows,
+\begin{equation}
+    \tilde{S}_i =  \left(1 - \frac{\Delta \tilde{t}}{2\tilde{\tau}}\right)w_i \left(\frac{\tilde{\bm{c}}_i - \tilde{\bm{u}}}{\tilde{c}_s^2} + \frac{\tilde{\bm{c}}_i \cdot \tilde{\bm{u}}}{\tilde{c}_s^4}\tilde{\bm{c}}_i\right) \cdot \tilde{\bm{F}}.
+\end{equation}
+We will now nondimensionalize this equation the length scale $\tilde{L}$, the velocity scale $\tilde{c}$, the timescale $\tilde{t}_0$ and the density scale $\tilde{\rho}_0$. Note that $\tilde{c} = \Delta \tilde{x} / \Delta \tilde{t}$. Furthermore, we introduce the Strouhal number $\textit{Sh} = \tilde{L} / (\tilde{t}_0 \tilde{c}) = \Delta t / \Delta x$. This gives the nondimensional version of the previous equations,
+\begin{equation}
+\begin{split}
+    &\quad f_i\left(\bm{x} + \bm{c}_i \Delta x, t + \Delta t\right) - f_i\left(\bm{x}, t\right)\\
+    &= -\frac{\Delta t}{\tau}\Bigl(f_i\left(\bm{x}, t\right)  - f^\text{eq}_i\left(\rho, \bm{u}\right)\Bigr) + \Delta x S_i,\\
+    S_i &=  \left(1 - \frac{\Delta t}{2\tau}\right)w_i \left(\frac{\bm{c}_i - \bm{u}}{c_s^2} + \frac{\bm{c}_i \cdot \bm{u}}{c_s^4}\bm{c}_i\right) \cdot \bm{F},
+\end{split}
+\end{equation}
+where we defined $\tilde{\bm{F}} = \tilde{\rho}_0 \tilde{c}^2 / \tilde{L} \bm{F}$. We will now introduce diffusive scaling, such that $\Delta t = \mathcal{O}\left(\textit{Kn}^2\right)$ and $\Delta x = \mathcal{O}\left(\textit{Kn}\right)$, implying $\textit{Sh} = \mathcal{O}\left(\textit{Kn}\right)$. Furthermore, if we choose a finite Reynolds number $\tilde{Re} = \tilde{U} \tilde{L} / \tilde{\nu} = \mathcal{O}\left(1\right)$, we get the Mach number $\textit{Ma} = \tilde{U} / \tilde{c}_s = \mathcal{O}\left(\textit{Kn}\right)$ from the equation $\textit{Ma} \propto \textit{Kn}\cdot \textit{Re}$. Lastly, $\tau = \mathcal{O}\left(\textit{Kn}^2\right)$, which we will show is required to recover the equilibrium at leading order in Knudsen number. We will now perform a Taylor expansion on the dimensionless LBE,
+\begin{equation}\label{eq:Taylor expansion LBE}
+\begin{split}
+    &\sum_{n=1}^\infty \frac{1}{n!}\Bigl(\Delta x c_{i\alpha} \partial_\alpha + \Delta t \partial t\Bigr)^n f_i=-\frac{\Delta t}{\tau}\Bigl(f_i  - f^\text{eq}_i\Bigr) + \Delta xS_i,
+\end{split}
+\end{equation}
+We will continue by expanding this equation in order of Knudsen number. We will expand the distribution function, the equilibrium distribution, the density, and the velocity in orders of Knudsen. Note that from the Mach number, we can state that $\bm{u}^{(0)} = \bm{0}$. Sorted by order in Knudsen, we recover the following equations,
+\begin{equation}\label{eq:asymptotic expansion lbe}
+\begin{split}
+    &f_i^{(0)} = f_i^{\text{eq},(0)},\\
+    &f_i^{(1)} = f_i^{\text{eq},(1)} - \frac{\tau}{\Delta t}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(0)}-\Delta xS_i^{(0)}\Biggr),\\
+    &f_i^{(2)} = f_i^{\text{eq},(2)} - \frac{\tau}{\Delta t}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(1)} + \frac{1}{2}\Delta x^2 c_{i\alpha}c_{i\beta}\partial_\alpha\partial_\beta f_i^{(0)} + \Delta t \partial_t f_i^{(0)} - \Delta xS_i^{(1)}\Biggr),\\
+    &f_i^{(3)} = f_i^{\text{eq},(3)} -\frac{\Delta t}{\tau}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(2)} + \frac{1}{2}\Delta x^2 c_{i\alpha}c_{i\beta}\partial_\alpha\partial_\beta f_i^{(1)}+ \Delta t \partial_t f_i^{(1)} + \Delta x  c_{i\alpha}\partial_\alpha \Delta t\partial_t f_i^{(0)}\\
+    &\qquad \qquad\qquad\qquad\quad  + \frac{1}{6}\Delta x^3 c_{i\alpha}c_{i\beta}c_{i\gamma}\partial_\alpha\partial_\beta\partial_\gamma f_i^{(0)}-\Delta xS_i^{(2)}\Biggr).\\
+\end{split}
+\end{equation}
+Here, we expanded the source term and the equations for density and velocity,
+\begin{equation}
+\begin{split}
+    \rho^{(n)} &= \sum_i f^{(n)},\\
+    \left(\rho \bm{u}\right)^{(n)} &= \sum_i \bm{c}_i f_i^{(n)} +  \frac{\Delta x}{2}\bm{F}^{(n-1)}.
+\end{split}
+\end{equation}
+The macroscopic equations can be obtained by taking the zeroth and first moments of the expansion in Eq.~(\ref{eq:asymptotic expansion lbe}). For simplicity, we will derive these macroscopic equations for $\rho^{(0)} = \text{const}$ and $\bm{F}^{(0)} = \bm{0}$. We can now compute the zeroth and first moments of the equation for $f^{(2)}$, 
+\begin{equation}
+\begin{split}
+    & \rho^{(0)}\bm{\nabla}\cdot \bm{u}^{(1)} = 0,\\
+    & \bm{0} =-\bm{\nabla} \left(c_s^2 \rho^{(1)}\right)+ \bm{F}^{(1)}.
+\end{split}
+\end{equation}
+We can do the same for $f^{(3)}$,
+\begin{equation}
+\begin{split}
+    &\textit{Sh}\partial_t \rho^{(1)} + \bm{\nabla} \cdot \left(\rho^{(0)} \bm{u}^{(2)} + \rho^{(1)} \bm{u}^{(1)}\right) = 0,\\
+    &\textit{Sh}\rho^{(0)}\partial_t \bm{u}^{(1)} + \rho^{(0)}\bm{\nabla}\cdot\left(\bm{u}^{(1)}\bm{u}^{(1)}\right) =\\
+    &-\bm{\nabla} \left(c_s^2 \rho^{(2)}\right)  + \frac{\rho^{(0)}}{\textit{Sh}}\left[\nu \left(\bm{\nabla} \bm{u}^{(1)} + \left(\bm{\nabla} \bm{u}^{(1)}\right)^T\right)\right]+ \bm{F}^{(2)},
+\end{split}
+\end{equation}
+with $\nu = c_s^2 (\tau - 1/2)$. 
+
+\section{Analysis of NEBB}
+To analyze the accuracy of the force-corrected and mass-corrected NEBB method, previous literature usually assumes the lack of a Knudsen layer~\cite{junk_asymptotic_2005}. This means that this method is used to find out up until which order in Knudsen number the bulk equations for the distribution function fulfill the boundary condition. We start by writing Eq.~(\ref{eq:NEBB}) in dimensionless form, 
+\begin{equation}
+\begin{split}
+    f_i &= f_q + \left(f_i^{\text{eq}} - f_q^{\text{eq}}\right) - w_i c_{i\alpha} N_\alpha,\\
+    N_\alpha &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}f_i + \sum_i^\text{in}c_{i\alpha}\left(f_i^{\text{eq}} - f_q^{\text{eq}}\right) - \rho u_\alpha+ \frac{\Delta x}{2}F_\alpha\right].
+\end{split}
+\end{equation}
+Note that we ignored the component specifier $\sigma$ for simplicity. We can expand this equation in Knudsen number,
+\begin{equation}
+\begin{split}
+    f_i^{(0)} &= f_q^{(0)} + \left(f_i^{\text{eq},(0)} - f_q^{\text{eq},(0)}\right) - w_i c_{i\alpha}N_\alpha^{(0)},\\
+    N_\alpha^{(0)} &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}f_i^{(0)} + \sum_i^\text{in}c_{i\alpha}\left(f_i^{\text{eq},(0)} - f_q^{\text{eq},(0)}\right)\right],\\
+    f_i^{(1)} &= f_q^{(1)} + \left(f_i^{\text{eq},(1)} - f_q^{\text{eq},(1)}\right) - w_i c_{i\alpha}N_\alpha^{(1)},\\
+    N_\alpha^{(1)} &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}f_i^{(1)} + \sum_i^\text{in}c_{i\alpha}\left(f_i^{\text{eq},(1)} - f_q^{\text{eq},(1)}\right) - \rho^{(0)}u^{(1)}_\alpha + \frac{\Delta x}{2}F_\alpha^{(0)}\right],
+\end{split}
+\end{equation}
+where we assumed $\bm{u}^{(0)} = \bm{0}$. After filling in the bulk equations, we can see that the zeroth-order equation is fulfilled. The first-order equation has the following simplified momentum correction,
+\begin{equation}
+\begin{split}
+    N_\alpha^{(1)} &= \frac{1}{A_\alpha}\left[- \frac{\tau}{\Delta t}\sum_i^\text{par}c_{i\alpha}\left(\Delta x c_{i\beta}\partial_\beta f_i^{\text{eq}, (0)}-\Delta xS_i^{(0)}\right) + \frac{\Delta x}{2}F_\alpha^{(0)}\right]\\
+    &=\frac{1}{A_\alpha}\left[- \frac{\tau}{\Delta t}\frac{2\Delta x}{3} \left(\delta_{\alpha n} -1\right) \partial_\alpha p^{(0)} + \left(\frac{\tau}{\Delta t} - \frac{1}{2}\right)\frac{2\Delta x}{3}\left(\delta_{\alpha n} -1\right)F_\alpha^{(0)} + \frac{\Delta x}{2}F_\alpha^{(0)}\right],
+\end{split}
+\end{equation}
+where $p$ is the pressure. For a Poiseuille flow driven by a stream-wise pressure-gradient, this shows that the bulk expansion does fulfill the first-order NEBB. However, when we have a force-driven Poiseuille flow we already have the nonzero term $\left(\frac{\tau}{\Delta t} + \frac{1}{6}\right)\Delta x F_p$. Furthermore, if we have forcing normal to the wall we have an extra term $\Delta x F_n/ 2 $. 
+
+\clearpage % Restrict floats (images)
+\printbibliography{}
+
+\end{document}  
