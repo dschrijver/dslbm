@@ -89,6 +89,16 @@
 #define INI_DROPLET_W   0.0
 #define INI_DROPLET_SF  1.0
 
+#define INI_BUBBLE
+#define INI_BUBBLE_R   25.0
+#define INI_BUBBLE_X   (0.5*(double)NX)
+#define INI_BUBBLE_Y   (0.5*(double)NY)
+#define INI_BUBBLE_Z   (0.5*(double)NZ)
+#define INI_BUBBLE_U   0.0
+#define INI_BUBBLE_V   0.0
+#define INI_BUBBLE_W   0.0
+#define INI_BUBBLE_SF  1.0
+
 #define INI_TWOCOMPONENT_POISEUILLE
 #define INI_TWOCOMPONENT_POISEUILLE_A   (0.25*(double)NY)
 #define INI_TWOCOMPONENT_POISEUILLE_SF  1.0
@@ -112,5 +122,8 @@
 #define INI_TWODROPLETS_V2 0.0
 #define INI_TWODROPLETS_W2 0.0
 #define INI_TWODROPLETS_SF 1.0
+
+#define INI_LAYERED_POISEUILLE
+#define INI_LAYERED_POISEUILLE_SF  2.0
 
 #endif

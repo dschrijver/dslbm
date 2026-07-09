@@ -115,6 +115,23 @@ void initialize_fields(SimulationBag *sim)
     }
 #endif
 
+#ifdef INI_BUBBLE
+    FOR_DOMAIN
+    {
+        const double x = physx(i) - INI_BUBBLE_X;
+        const double y = physy(j) - INI_BUBBLE_Y;
+        const double z = physz(k) - INI_BUBBLE_Z;
+        const double r = sqrt(x * x + y * y + z * z);
+
+        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 + tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
+        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 - tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
+
+        u[INDEX(i, j, k)] = 0.5 * INI_BUBBLE_U * (1.0 - tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
+        v[INDEX(i, j, k)] = 0.5 * INI_BUBBLE_V * (1.0 - tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
+        w[INDEX(i, j, k)] = 0.5 * INI_BUBBLE_W * (1.0 - tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
+    }
+#endif
+
 #ifdef INI_TWOCOMPONENT_POISEUILLE
     const double width = physlx(params);
     FOR_DOMAIN
@@ -180,6 +197,20 @@ void initialize_fields(SimulationBag *sim)
                             0.5 * INI_TWODROPLETS_V2 * (1.0 - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
         u[INDEX(i, j, k)] = 0.5 * INI_TWODROPLETS_W1 * (1.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)) + 
                             0.5 * INI_TWODROPLETS_W2 * (1.0 - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
+    }
+#endif
+
+#ifdef INI_LAYERED_POISEUILLE
+    FOR_DOMAIN
+    {
+        const double x = physx(i);
+
+        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 - tanh((x - 0.5*(double)NX) / INI_LAYERED_POISEUILLE_SF));
+        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5*(double)NX)  / INI_LAYERED_POISEUILLE_SF));
+
+        u[INDEX(i, j, k)] = 0.0;
+        v[INDEX(i, j, k)] = 0.0;
+        w[INDEX(i, j, k)] = 0.0;
     }
 #endif
 

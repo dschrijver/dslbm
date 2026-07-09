@@ -371,11 +371,11 @@ void collide(SimulationBag *sim)
 
         const double G_i = G_norm[idx];
 
-        const double omega = interpolate_omega_wen(rho_N_i, params);
+        // const double omega = interpolate_omega_wen(rho_N_i, params);
         // const double omega = interpolate_omega_ba(rho_N_i, params);
         // const double nu = interpolate_nu_saito(rho_N_i, params);
         // const double omega = 1.0 / (rho_i / pressure_i * nu + 0.5);
-        // const double omega = 0.5*(1.0 + rho_N_i)*omega_RED + 0.5*(1.0 - rho_N_i)*omega_BLUE;
+        const double omega = 0.5*(1.0 + rho_N_i)*omega_RED + 0.5*(1.0 - rho_N_i)*omega_BLUE;
 
         double t4 = 0.0;
         double t5 = 0.0;
