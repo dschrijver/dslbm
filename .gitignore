@@ -24,3 +24,4 @@ openmpi*/
 *.xml
 NOT_PASSED
 PASS
+obj/

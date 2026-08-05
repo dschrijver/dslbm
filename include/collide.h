@@ -5,11 +5,6 @@
 
 void compute_equilibrium(const double rho, const double u, const double v, const double w, const double P, double * restrict const feq, SimulationBag *sim);
 void compute_equilibrium_comp(const double rho_comp, const double rho_tot, const double u, const double v, const double w, const double P_tot, double * restrict const feq, SimulationBag *sim);
-void evaluate_color_gradients(SimulationBag *sim);
-void compute_Q_corrections(SimulationBag *sim);
-
-void collide(SimulationBag *sim);
-
 double extrapolate_wall_rho_N(const int i, const int j, const int k, SimulationBag *sim);
 double extrapolate_wall_q(const int i, const int j, const int k, const int alpha, SimulationBag *sim);
 
@@ -99,18 +94,18 @@ static inline double interpolate_omega_ba(const double phi, ParamBag *params)
     return omega;
 }
 
-static inline double interpolate_nu_saito(const double phi, ParamBag *params)
+static inline double interpolate_omega_saito(const double phi, ParamBag *params)
 {
     PARAM(mu_RED)
     PARAM(mu_BLUE)
-    PARAM(rho_0_RED)
     PARAM(rho_0_BLUE)
+    PARAM(cs2_BLUE)
 
-    const double nu_RED = mu_RED / rho_0_RED;
-    const double nu_BLUE = mu_BLUE / rho_0_BLUE;
+    const double p_0 = cs2_BLUE * rho_0_BLUE;
+    const double omega_RED = 1.0 / (mu_RED / p_0 + 0.5);
+    const double omega_BLUE = 1.0 / (mu_BLUE / p_0 + 0.5);
 
-    const double nu = 0.5*(1.0 + phi)*nu_RED + 0.5*(1.0 - phi)*nu_BLUE;
-    return nu;
+    return 0.5*(1.0 + phi)*omega_RED + 0.5*(1.0 - phi)*omega_BLUE;
 }
 
 static inline void raw_to_pop(const double *restrict raw, double *restrict pop)

@@ -335,16 +335,8 @@ void collide(SimulationBag *sim)
     WRITE_DIST(f1_BLUE)
     WRITE_DIST(f2_BLUE)
 
-    PARAM(mu_RED)
-    PARAM(mu_BLUE)
-    PARAM(rho_0_BLUE)
-    PARAM(cs2_BLUE)
     PARAM(sigma)
     PARAM(beta)
-
-    const double p_0 = cs2_BLUE * rho_0_BLUE;
-    const double omega_RED = 1.0 / (mu_RED / p_0 + 0.5);
-    const double omega_BLUE = 1.0 / (mu_BLUE / p_0 + 0.5);
 
     FOR_DOMAIN
     {
@@ -373,9 +365,7 @@ void collide(SimulationBag *sim)
 
         // const double omega = interpolate_omega_wen(rho_N_i, params);
         // const double omega = interpolate_omega_ba(rho_N_i, params);
-        // const double nu = interpolate_nu_saito(rho_N_i, params);
-        // const double omega = 1.0 / (rho_i / pressure_i * nu + 0.5);
-        const double omega = 0.5*(1.0 + rho_N_i)*omega_RED + 0.5*(1.0 - rho_N_i)*omega_BLUE;
+        const double omega = interpolate_omega_saito(rho_N_i, params);
 
         double t4 = 0.0;
         double t5 = 0.0;
@@ -446,43 +436,16 @@ void collide(SimulationBag *sim)
             const double ny_i = ny[idx];
             const double nz_i = nz[idx];
 
-            const double prefac = beta * rho_RED_i * rho_BLUE_i / (rho_i * rho_i) * pressure_i;
-            const double px = prefac * nx_i;
-            const double py = prefac * ny_i;
-            const double pz = prefac * nz_i;
+            for (int p = 1; p < NP; p++)
+            {
+                const double feq_i = 3.0*wp[p]*pressure_i;
+                const double nc = nx_i * (double)cx[p] + ny_i * (double)cy[p] + nz_i * (double)cz[p];
 
-            f2_RED[INDEX_F(i, j, k, 1)] += px / 2.0;
-            f2_RED[INDEX_F(i, j, k, 2)] += -px / 2.0;
-            f2_RED[INDEX_F(i, j, k, 3)] += py / 2.0;
-            f2_RED[INDEX_F(i, j, k, 4)] += -py / 2.0;
-            f2_RED[INDEX_F(i, j, k, 5)] += pz / 2.0;
-            f2_RED[INDEX_F(i, j, k, 6)] += -pz / 2.0;
-
-            f2_BLUE[INDEX_F(i, j, k, 1)] -= px / 2.0;
-            f2_BLUE[INDEX_F(i, j, k, 2)] -= -px / 2.0;
-            f2_BLUE[INDEX_F(i, j, k, 3)] -= py / 2.0;
-            f2_BLUE[INDEX_F(i, j, k, 4)] -= -py / 2.0;
-            f2_BLUE[INDEX_F(i, j, k, 5)] -= pz / 2.0;
-            f2_BLUE[INDEX_F(i, j, k, 6)] -= -pz / 2.0;
+                const double mom_exchange = beta * rho_RED_i * rho_BLUE_i / (rho_i * rho_i) * nc * feq_i;
+                f2_RED[INDEX_F(i, j, k, p)] += mom_exchange;
+                f2_BLUE[INDEX_F(i, j, k, p)] -= mom_exchange;
+            }
         }
-
-        // if (G_i > 1e-15)
-        // {
-        //     const double nx_i = nx[idx];
-        //     const double ny_i = ny[idx];
-        //     const double nz_i = nz[idx];
-
-        //     for (int p = 1; p < NP; p++)
-        //     {
-        //         const double feq_i = 3.0*wp[p]*pressure_i;
-        //         const double nc = nx_i * (double)cx[p] + ny_i * (double)cy[p] + nz_i * (double)cz[p];
-        //         const double cos_phi = nc / sqrt((double)cx[p] * (double)cx[p] + (double)cy[p] * (double)cy[p] + (double)cz[p] * (double)cz[p]);
-
-        //         const double mom_exchange = beta * rho_RED_i * rho_BLUE_i / (rho_i * rho_i) * cos_phi * feq_i;
-        //         f2_RED[INDEX_F(i, j, k, p)] += mom_exchange;
-        //         f2_BLUE[INDEX_F(i, j, k, p)] -= mom_exchange;
-        //     }
-        // }
     }
 }
 

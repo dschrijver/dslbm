@@ -55,12 +55,15 @@ where parallel populations are defined as $\bm{c}_i \cdot \hat{\bm{n}}_w = 0$ wi
 \end{equation}
 The normal and parallel components of the momentum corrections can be found,
 \begin{equation}
-    N_\alpha^\sigma = \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}f_i^\sigma + \sum_i^\text{in}c_{i\alpha}\left(f_i^{\text{eq},\sigma} - f_q^{\text{eq},\sigma}\right) - \rho^\sigma u^\sigma_\alpha+ \frac{1}{2}F_\alpha^\sigma\right],
+\begin{split}
+    N_\alpha^\sigma &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}f_i^\sigma + \sum_i^\text{in}c_{i\alpha}\left(f_i^{\text{eq},\sigma} - f_q^{\text{eq},\sigma}\right) - \rho^\sigma u^\sigma_\alpha+ \frac{1}{2}F_\alpha^\sigma\right]\\
+    &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}\left(f_i^\sigma - f_i^{\text{eq},\sigma}\right)+ \frac{1}{2}F_\alpha^\sigma\right],
+\end{split}
 \end{equation}
 with $A_\alpha = \sum_i^\text{in} w_i c_{i\alpha}^2$. For the D2Q9, D3Q19 and D3Q27 lattices we have $A_\alpha = \frac{1}{6}\delta_{\alpha n} + \frac{1}{18}(1 - \delta_{\alpha n})$. To correct for the mass loss given in Eq.~(\ref{eq:NEBB mass loss}), we add this back to the zero-velocity component before computing the density,
 \begin{equation}
 \begin{split}
-    f_0^\sigma &= f_0^{*,\sigma} + \Delta m^\sigma + \rho^\sigma u_n\\
+    f_0^\sigma &= f_0^{*,\sigma} + \Delta m^\sigma\\
     &= f_0^{*,\sigma} + \sum_i^{\text{out}}\left(f_i^{*,\sigma} - f_i^\sigma\right) + \frac{1}{2}F^\sigma_n.
 \end{split}
 \end{equation}
@@ -101,7 +104,7 @@ We will continue by expanding this equation in order of Knudsen number. We will 
     &f_i^{(0)} = f_i^{\text{eq},(0)},\\
     &f_i^{(1)} = f_i^{\text{eq},(1)} - \frac{\tau}{\Delta t}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(0)}-\Delta xS_i^{(0)}\Biggr),\\
     &f_i^{(2)} = f_i^{\text{eq},(2)} - \frac{\tau}{\Delta t}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(1)} + \frac{1}{2}\Delta x^2 c_{i\alpha}c_{i\beta}\partial_\alpha\partial_\beta f_i^{(0)} + \Delta t \partial_t f_i^{(0)} - \Delta xS_i^{(1)}\Biggr),\\
-    &f_i^{(3)} = f_i^{\text{eq},(3)} -\frac{\Delta t}{\tau}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(2)} + \frac{1}{2}\Delta x^2 c_{i\alpha}c_{i\beta}\partial_\alpha\partial_\beta f_i^{(1)}+ \Delta t \partial_t f_i^{(1)} + \Delta x  c_{i\alpha}\partial_\alpha \Delta t\partial_t f_i^{(0)}\\
+    &f_i^{(3)} = f_i^{\text{eq},(3)} -\frac{\tau}{\Delta t}\Biggl(\Delta x c_{i\alpha}\partial_\alpha f_i^{(2)} + \frac{1}{2}\Delta x^2 c_{i\alpha}c_{i\beta}\partial_\alpha\partial_\beta f_i^{(1)}+ \Delta t \partial_t f_i^{(1)} + \Delta x  c_{i\alpha}\partial_\alpha \Delta t\partial_t f_i^{(0)}\\
     &\qquad \qquad\qquad\qquad\quad  + \frac{1}{6}\Delta x^3 c_{i\alpha}c_{i\beta}c_{i\gamma}\partial_\alpha\partial_\beta\partial_\gamma f_i^{(0)}-\Delta xS_i^{(2)}\Biggr).\\
 \end{split}
 \end{equation}
@@ -134,26 +137,35 @@ To analyze the accuracy of the force-corrected and mass-corrected NEBB method, p
 \begin{equation}
 \begin{split}
     f_i &= f_q + \left(f_i^{\text{eq}} - f_q^{\text{eq}}\right) - w_i c_{i\alpha} N_\alpha,\\
-    N_\alpha &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}f_i + \sum_i^\text{in}c_{i\alpha}\left(f_i^{\text{eq}} - f_q^{\text{eq}}\right) - \rho u_\alpha+ \frac{\Delta x}{2}F_\alpha\right].
+    N_\alpha &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}\left(f_i - f_i^{\text{eq}}\right)+ \frac{\Delta x}{2}F_\alpha\right].
 \end{split}
 \end{equation}
-Note that we ignored the component specifier $\sigma$ for simplicity. We can expand this equation in Knudsen number,
+Note that we ignored the component specifier $\sigma$ for simplicity. We can expand this equation in Knudsen number. The momentum corrections are given as follows,
 \begin{equation}
 \begin{split}
-    f_i^{(0)} &= f_q^{(0)} + \left(f_i^{\text{eq},(0)} - f_q^{\text{eq},(0)}\right) - w_i c_{i\alpha}N_\alpha^{(0)},\\
-    N_\alpha^{(0)} &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}f_i^{(0)} + \sum_i^\text{in}c_{i\alpha}\left(f_i^{\text{eq},(0)} - f_q^{\text{eq},(0)}\right)\right],\\
-    f_i^{(1)} &= f_q^{(1)} + \left(f_i^{\text{eq},(1)} - f_q^{\text{eq},(1)}\right) - w_i c_{i\alpha}N_\alpha^{(1)},\\
-    N_\alpha^{(1)} &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}f_i^{(1)} + \sum_i^\text{in}c_{i\alpha}\left(f_i^{\text{eq},(1)} - f_q^{\text{eq},(1)}\right) - \rho^{(0)}u^{(1)}_\alpha + \frac{\Delta x}{2}F_\alpha^{(0)}\right],
+    N_\alpha^{(0)} &= \frac{1}{A_\alpha}\sum_i^\text{par}c_{i\alpha}\left(f_i^{(0)} - f_i^{\text{eq},(0)}\right),\\
+    N_\alpha^{(1)} &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}\left(f_i^{(1)} - f_i^{\text{eq},(1)}\right)+ \frac{\Delta x}{2}F_\alpha^{(0)}\right],\\
+    N_\alpha^{(2)} &= \frac{1}{A_\alpha}\left[\sum_i^\text{par}c_{i\alpha}\left(f_i^{(2)} - f_i^{\text{eq},(2)}\right)+ \frac{\Delta x}{2}F_\alpha^{(1)}\right].
 \end{split}
 \end{equation}
-where we assumed $\bm{u}^{(0)} = \bm{0}$. After filling in the bulk equations, we can see that the zeroth-order equation is fulfilled. The first-order equation has the following simplified momentum correction,
+As can be seen from Eq.~(\ref{eq:asymptotic expansion lbe}), the zeroth-order distribution function is equal to the zeroth-order equilibrium. This means that the momentum correction at this order is zero, and the NEBB is satisfied. The first-order distribution function gives the following momentum corrections,
+\begin{equation}
+    N_\alpha^{(1)} = \frac{1}{A_\alpha}\left[ - \frac{\tau}{\Delta t}\sum_i^\text{par}c_{i\alpha}\left(\Delta x c_{i\beta}\partial_\beta f_i^{\text{eq}, (0)}-\Delta xS_i^{(0)}\right)+ \frac{\Delta x}{2}F_\alpha^{(0)}\right].
+\end{equation}
+For the equilibrium and source term defined by previous research~\cite{saito_generalized_2023}, we get the following if we assume $\bm{u}^{(0)} = \bm{0}$,
 \begin{equation}
 \begin{split}
-    N_\alpha^{(1)} &= \frac{1}{A_\alpha}\left[- \frac{\tau}{\Delta t}\sum_i^\text{par}c_{i\alpha}\left(\Delta x c_{i\beta}\partial_\beta f_i^{\text{eq}, (0)}-\Delta xS_i^{(0)}\right) + \frac{\Delta x}{2}F_\alpha^{(0)}\right]\\
-    &=\frac{1}{A_\alpha}\left[- \frac{\tau}{\Delta t}\frac{2\Delta x}{3} \left(\delta_{\alpha n} -1\right) \partial_\alpha p^{(0)} + \left(\frac{\tau}{\Delta t} - \frac{1}{2}\right)\frac{2\Delta x}{3}\left(\delta_{\alpha n} -1\right)F_\alpha^{(0)} + \frac{\Delta x}{2}F_\alpha^{(0)}\right],
+    \sum_i^\text{par}c_{i\alpha}c_{i\beta}f_i^{\text{eq},(0)} &= (\delta_{\alpha n} - 1)\delta_{\alpha\beta}\frac{2}{3}p^{(0)},\\
+    \sum_i^\text{par}c_{i\alpha}S_i^{(0)} &= (\delta_{\alpha n} - 1)\frac{2}{3}F_\alpha^{(0)},
 \end{split}
 \end{equation}
-where $p$ is the pressure. For a Poiseuille flow driven by a stream-wise pressure-gradient, this shows that the bulk expansion does fulfill the first-order NEBB. However, when we have a force-driven Poiseuille flow we already have the nonzero term $\left(\frac{\tau}{\Delta t} + \frac{1}{6}\right)\Delta x F_p$. Furthermore, if we have forcing normal to the wall we have an extra term $\Delta x F_n/ 2 $. 
+where $p$ is the pressure. This gives the following momentum correction,
+\begin{equation}
+\begin{split}
+    w_i c_{i\alpha}N_\alpha^{(1)} &= \frac{w_i c_{i\alpha}}{\sum_i^\text{in}w_i c_{i\alpha}^2}\left[ - \frac{2}{3}\frac{\tau}{\Delta t}(\delta_{\alpha n} - 1)\left(\partial_\alpha p^{(0)} - \Delta x F_\alpha^{(0)}\right)+ \frac{\Delta x}{2}F_\alpha^{(0)}\right]\\
+    &= \sum_\alpha \left[-12\frac{\tau}{\Delta t}(\delta_{\alpha n} - 1)w_i c_{i\alpha}\left(\partial_\alpha p^{(0)}- \Delta xF_\alpha^{(0)}\right) + 3 w_i c_{i\alpha}\Delta xF_\alpha^{(0)}\right]
+\end{split}
+\end{equation}
 
 \clearpage % Restrict floats (images)
 \printbibliography{}

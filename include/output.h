@@ -5,7 +5,6 @@
 
 #include "datatypes.h"
 
-void output_data(SimulationBag *sim);
 void output_field(double* field, char *fieldname, hid_t loc_id, SimulationBag *sim);
 
 #endif

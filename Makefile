@@ -1,27 +1,42 @@
--include make.def.*
+CC = mpicc
 
-COMPILER = mpicc
-GENERAL_OPT_FLAGS = -std=c11 -O3
-DEBUG_FLAGS = -Wall -Wextra -Wno-unused-label -Wno-discarded-qualifiers
-LIB_FLAGS = -lhdf5 -lz -lm
+H5_INC_DIR = $(shell pwd)/hdf5/include
+H5_LIB_DIR = $(shell pwd)/hdf5/lib
 
-SRC = $(wildcard main.c src/*.c)
+# ADDITIONAL_OPT_FLAGS = -march=znver4
 
-compile:
-	$(COMPILER) $(SRC) -o dslbm $(GENERAL_OPT_FLAGS) $(ADDITIONAL_OPT_FLAGS) $(DEBUG_FLAGS) $(HDF5_FLAGS) $(LIB_FLAGS)
+OPT_FLAGS = -std=c11 -O3
+DEBUG_FLAGS = -Wall -Wextra -Wno-discarded-qualifiers -fdiagnostics-color=auto
 
-run_local: 
-	mpirun -n $(n) dslbm
+LIB_FLAGS = -I$(H5_INC_DIR) -L$(H5_LIB_DIR) -lhdf5 -lz -lm
 
-clean:
-	rm -f dslbm
+CFLAGS = $(OPT_FLAGS) $(ADDITIONAL_OPT_FLAGS) $(DEBUG_FLAGS) $(LIB_FLAGS)
+LFLAGS = $(LIB_FLAGS)
+
+SRC = $(wildcard src/*.c)
+OBJ = $(patsubst src/%.c,obj/%.o,$(SRC))
+HDF5_TAR = $(wildcard archives/hdf5*.tar.gz)
+
+obj/%.o: src/%.c definitions.h
+	@mkdir -p obj
+	@printf '\033[1;34mCC   %s\033[0m\n' "$<"
+	@$(CC) -c $< -o $@ $(CFLAGS)
+
+obj/main.o: main.c definitions.h params.h
+	@mkdir -p obj
+	@printf '\033[1;34mCC   %s\033[0m\n' "$<"
+	@$(CC) -c $< -o $@ $(CFLAGS)
+
+dslbm: $(OBJ) obj/main.o
+	@printf '\033[1;32mCCLD %s\033[0m\n' "$^"
+	@$(CC) $^ -o $@  $(CFLAGS)
 
 cleandata:
 	rm -f *.h5
 
-install_hdf5:
+hdf5: $(HDF5_TAR)
 	mkdir -p hdf5
-	tar -xvzf archives/hdf5* -C hdf5 --strip-components=2
+	tar -xvzf $(HDF5_TAR) -C hdf5 --strip-components=2
 	cd hdf5;\
 	export ac_cv_lib_sz_SZ_BufftoBuffCompress=no;\
 	export ac_cv_header_szlib_h=no;\

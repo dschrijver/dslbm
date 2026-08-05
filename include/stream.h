@@ -3,6 +3,4 @@
 
 #include "datatypes.h"
 
-void stream_distributions(SimulationBag *sim);
-
 #endif

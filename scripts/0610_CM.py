@@ -57,6 +57,7 @@ NP = 27
 cx = [0, 1, -1, 0, 0, 0, 0, 1, -1, 1, -1, 0, 0, 0, 0, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, -1, 1]
 cy = [0, 0, 0, 1, -1, 0, 0, 1, -1, -1, 1, 1, -1, 1, -1, 0, 0, 0, 0, 1, -1, 1, -1, -1, 1, 1, -1]
 cz = [0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1]
+p_bounceback = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 18, 17, 20, 19, 22, 21, 24, 23, 26, 25]
 wp = [8 / 27, 2 / 27, 2 / 27, 2 / 27, 2 / 27, 2 / 27, 2 / 27, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 54, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216, 1 / 216]
 Omega = diag(*[1, 1, 1, 1, omega, omega, omega, omega, omega, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
@@ -172,6 +173,8 @@ for i in range(NP):
 
     T[26,i] = t(2,2,2) 
         
+printer = DotZeroPrinter()
+
 M = simplify(M)
 T = simplify(T)
 N_shift = T * M.inv()
@@ -182,19 +185,27 @@ feq = simplify(feq)
 S_guo = simplify(S_guo)
 print("Done!")
 
+for i in range(NP):
+    print("eq[%d] = "%(i) + str(printer.doprint(nsimplify(simplify(feq[i,0].subs([(U, 0), (V, 0), (W, 0)])), tolerance=1e-12))) + ";")
+
+for i in range(NP):
+    print("S[%d] = "%(i) + str(printer.doprint(nsimplify(simplify(S_guo[i,0].subs([(U, 0), (V, 0), (W, 0)])-S_guo[p_bounceback[i],0].subs([(U, 0), (V, 0), (W, 0)])), tolerance=1e-12))) + ";")
+
+c = [cx, cy, cz]
+
+N = zeros(3, 3)
+for alpha in range(3):
+    for beta in range(3):
+        for i in range(NP):
+            if cx[i] == 0:
+                N[alpha, beta] += feq[i]*c[alpha][i]*c[beta][i]
+print(nsimplify(simplify(N), tolerance=1e-12))
+
 sum = 0.0
 for i in range(NP):
     if (cx[i] == 0):
         sum += S_guo[i]*cy[i]
 print(nsimplify(simplify(sum), tolerance=1e-12))
-
-sum = 0.0
-for i in range(NP):
-    # if (cx[i] == 0):
-    sum += S_guo[i]*cy[i]
-print(nsimplify(simplify(sum), tolerance=1e-12))
-
-printer = DotZeroPrinter()
 
 teq = T*feq
 teq = nsimplify(simplify(teq), tolerance=1e-12)

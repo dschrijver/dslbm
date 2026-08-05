@@ -3,11 +3,8 @@
 
 #include "datatypes.h"
 
-void initialize_MPI(ParamBag *params);
-void initialize_HDF5(ParamBag *params);
-void initialize_fields(SimulationBag *sim);
-void initialize_flags(SimulationBag *sim);
-void initialize_distributions(SimulationBag *sim);
+// fields.c
+void evaluate_pressure(SimulationBag *sim);
 
 static inline double physx(int i)
 {

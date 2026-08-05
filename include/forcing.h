@@ -3,7 +3,6 @@
 
 #include "datatypes.h"
 
-void evaluate_forces(SimulationBag *sim);
 void evaluate_force(int i, int j, int k, SimulationBag *sim);
 void evaluate_surface_force(int i, int j, int k, SimulationBag *sim);
 double extrapolate_wall_n(const int i, const int j, const int k, const int alpha, SimulationBag *sim);

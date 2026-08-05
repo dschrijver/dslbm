@@ -5,7 +5,9 @@
 #include <math.h>
 
 #include "datatypes.h"
-#include "memory.h"
+
+// memory.c
+void allocate_stencil(SimulationBag *sim);
 
 static inline void initialize_stencil(SimulationBag *sim)
 {

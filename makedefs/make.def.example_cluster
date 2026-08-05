@@ -1,3 +1,0 @@
-ADDITIONAL_OPT_FLAGS = -march=znver4
-
-HDF5_FLAGS = 

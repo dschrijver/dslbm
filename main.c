@@ -1,20 +1,8 @@
 #include <mpi.h>
 #include <stdio.h>
 
-#include "include/datatypes.h"
-#include "include/memory.h"
+#include "include/dslbm.h"
 #include "params.h"
-#include "include/initialize.h"
-#include "include/stencil.h"
-#include "include/forcing.h"
-#include "include/output.h"
-#include "include/communicate.h"
-#include "include/collide.h"
-#include "include/stream.h"
-#include "include/wetnode.h"
-#include "include/fields.h"
-#include "include/wetnode.h"
-#include "definitions.h"
 
 int main(int argc, char **argv)
 {

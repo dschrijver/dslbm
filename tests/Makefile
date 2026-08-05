@@ -11,7 +11,9 @@ $(TEST_CASES:/=):
 	cp params.h ../../params.h;\
 	cp definitions.h ../../definitions.h
 	cd ../;\
-	make cleandata && make && make run_local n=$(n);\
+	make cleandata;\
+	make dslbm;\
+	mpirun -np 6 ./dslbm;\
 	python3 tests/$@/get_result.py
 
 $(TEST_CASES:/=_cluster): %_cluster: 
