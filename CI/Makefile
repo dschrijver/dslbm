@@ -14,8 +14,8 @@ $(TEST_CASES:/=):
 	@cd ../;\
 	make cleandata > std.out;\
 	echo "Compiling...";\
-	make > std.out;\
+	make dslbm > std.out;\
 	echo "Running...";\
-	make run_local n=$(n) > std.out
+	mpirun -np $(n) ./dslbm > std.out
 	@cd $@;\
 	./compare.sh

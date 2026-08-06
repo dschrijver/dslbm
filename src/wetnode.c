@@ -16,9 +16,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
     if (i_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 wetnode_mass_conservation_streaming(0, j, k, 1, 0, 0, sim);
             }
@@ -29,9 +29,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
     if (i_end == NX)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 wetnode_mass_conservation_streaming(NX - 1, j, k, -1, 0, 0, sim);
             }
@@ -40,41 +40,53 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #endif
 
 #if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
-    for (int i = i_start; i < i_end; i++)
+    if (j_start == 0)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_mass_conservation_streaming(i, 0, k, 0, 1, 0, sim);
+            for (int k = k_start; k < k_end; k++)
+            {
+                wetnode_mass_conservation_streaming(i, 0, k, 0, 1, 0, sim);
+            }
         }
     }
 #endif
 
 #if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
-    for (int i = i_start; i < i_end; i++)
+    if (j_end == NY)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_mass_conservation_streaming(i, NY - 1, k, 0, -1, 0, sim);
+            for (int k = k_start; k < k_end; k++)
+            {
+                wetnode_mass_conservation_streaming(i, NY - 1, k, 0, -1, 0, sim);
+            }
         }
     }
 #endif
 
 #if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
-    for (int i = i_start; i < i_end; i++)
+    if (k_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_mass_conservation_streaming(i, j, 0, 0, 0, 1, sim);
+            for (int j = j_start; j < j_end; j++)
+            {
+                wetnode_mass_conservation_streaming(i, j, 0, 0, 0, 1, sim);
+            }
         }
     }
 #endif
 
 #if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
-    for (int i = i_start; i < i_end; i++)
+    if (k_end == NZ)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_mass_conservation_streaming(i, j, NZ - 1, 0, 0, -1, sim);
+            for (int j = j_start; j < j_end; j++)
+            {
+                wetnode_mass_conservation_streaming(i, j, NZ - 1, 0, 0, -1, sim);
+            }
         }
     }
 #endif
@@ -82,9 +94,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #if defined(LEFT_NEBB_VELOCITY)
     if (i_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 u[INDEX(0, j, k)] = LEFT_U_VELOCITY;
                 v[INDEX(0, j, k)] = LEFT_V_VELOCITY;
@@ -97,9 +109,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #if defined(RIGHT_NEBB_VELOCITY)
     if (i_end == NX)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 u[INDEX(NX - 1, j, k)] = RIGHT_U_VELOCITY;
                 v[INDEX(NX - 1, j, k)] = RIGHT_V_VELOCITY;
@@ -110,49 +122,61 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #endif
 
 #if defined(BOTTOM_NEBB_VELOCITY)
-    for (int i = i_start; i < i_end; i++)
+    if (j_start == 0)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            u[INDEX(i, 0, k)] = BOTTOM_U_VELOCITY;
-            v[INDEX(i, 0, k)] = BOTTOM_V_VELOCITY;
-            w[INDEX(i, 0, k)] = BOTTOM_W_VELOCITY;
+            for (int k = k_start; k < k_end; k++)
+            {
+                u[INDEX(i, 0, k)] = BOTTOM_U_VELOCITY;
+                v[INDEX(i, 0, k)] = BOTTOM_V_VELOCITY;
+                w[INDEX(i, 0, k)] = BOTTOM_W_VELOCITY;
+            }
         }
     }
 #endif
 
 #if defined(TOP_NEBB_VELOCITY)
-    for (int i = i_start; i < i_end; i++)
+    if (j_end == NY)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            u[INDEX(i, NY - 1, k)] = TOP_U_VELOCITY;
-            v[INDEX(i, NY - 1, k)] = TOP_V_VELOCITY;
-            w[INDEX(i, NY - 1, k)] = TOP_W_VELOCITY;
+            for (int k = k_start; k < k_end; k++)
+            {
+                u[INDEX(i, NY - 1, k)] = TOP_U_VELOCITY;
+                v[INDEX(i, NY - 1, k)] = TOP_V_VELOCITY;
+                w[INDEX(i, NY - 1, k)] = TOP_W_VELOCITY;
+            }
         }
     }
 #endif
 
 #if defined(BACK_NEBB_VELOCITY)
-    for (int i = i_start; i < i_end; i++)
+    if (k_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            u[INDEX(i, j, 0)] = BACK_U_VELOCITY;
-            v[INDEX(i, j, 0)] = BACK_V_VELOCITY;
-            w[INDEX(i, j, 0)] = BACK_W_VELOCITY;
+            for (int j = j_start; j < j_end; j++)
+            {
+                u[INDEX(i, j, 0)] = BACK_U_VELOCITY;
+                v[INDEX(i, j, 0)] = BACK_V_VELOCITY;
+                w[INDEX(i, j, 0)] = BACK_W_VELOCITY;
+            }
         }
     }
 #endif
 
 #if defined(FRONT_NEBB_VELOCITY)
-    for (int i = i_start; i < i_end; i++)
+    if (k_end == NZ)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            u[INDEX(i, j, NZ - 1)] = FRONT_U_VELOCITY;
-            v[INDEX(i, j, NZ - 1)] = FRONT_V_VELOCITY;
-            w[INDEX(i, j, NZ - 1)] = FRONT_W_VELOCITY;
+            for (int j = j_start; j < j_end; j++)
+            {
+                u[INDEX(i, j, NZ - 1)] = FRONT_U_VELOCITY;
+                v[INDEX(i, j, NZ - 1)] = FRONT_V_VELOCITY;
+                w[INDEX(i, j, NZ - 1)] = FRONT_W_VELOCITY;
+            }
         }
     }
 #endif
@@ -161,9 +185,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #ifdef LEFT_NEBB_PRESSURE
     if (i_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 rho_RED[INDEX(0, j, k)] = LEFT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
                 rho_BLUE[INDEX(0, j, k)] = LEFT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
@@ -175,9 +199,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #ifdef RIGHT_NEBB_PRESSURE
     if (i_end == NX)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 rho_RED[INDEX(NX - 1, j, k)] = RIGHT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
                 rho_BLUE[INDEX(NX - 1, j, k)] = RIGHT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
@@ -187,45 +211,57 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #endif
 
 #ifdef BOTTOM_NEBB_PRESSURE
-    for (int i = i_start; i < i_end; i++)
+    if (j_start == 0)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            rho_RED[INDEX(i, 0, k)] = BOTTOM_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-            rho_BLUE[INDEX(i, 0, k)] = BOTTOM_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            for (int k = k_start; k < k_end; k++)
+            {
+                rho_RED[INDEX(i, 0, k)] = BOTTOM_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+                rho_BLUE[INDEX(i, 0, k)] = BOTTOM_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            }
         }
     }
 #endif
 
 #ifdef TOP_NEBB_PRESSURE
-    for (int i = i_start; i < i_end; i++)
+    if (j_end == NY)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            rho_RED[INDEX(i, NY - 1, k)] = TOP_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-            rho_BLUE[INDEX(i, NY - 1, k)] = TOP_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            for (int k = k_start; k < k_end; k++)
+            {
+                rho_RED[INDEX(i, NY - 1, k)] = TOP_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+                rho_BLUE[INDEX(i, NY - 1, k)] = TOP_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            }
         }
     }
 #endif
 
 #ifdef BACK_NEBB_PRESSURE
-    for (int i = i_start; i < i_end; i++)
+    if (k_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            rho_RED[INDEX(i, j, 0)] = BACK_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-            rho_BLUE[INDEX(i, j, 0)] = BACK_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            for (int j = j_start; j < j_end; j++)
+            {
+                rho_RED[INDEX(i, j, 0)] = BACK_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+                rho_BLUE[INDEX(i, j, 0)] = BACK_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            }
         }
     }
 #endif
 
 #ifdef FRONT_NEBB_PRESSURE
-    for (int i = i_start; i < i_end; i++)
+    if (k_end == NZ)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            rho_RED[INDEX(i, j, NZ - 1)] = FRONT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
-            rho_BLUE[INDEX(i, j, NZ - 1)] = FRONT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            for (int j = j_start; j < j_end; j++)
+            {
+                rho_RED[INDEX(i, j, NZ - 1)] = FRONT_PRESSURE_RED / (sim->stencil->zeta * (1.0 - params->alpha_RED));
+                rho_BLUE[INDEX(i, j, NZ - 1)] = FRONT_PRESSURE_BLUE / (sim->stencil->zeta * (1.0 - params->alpha_BLUE));
+            }
         }
     }
 #endif
@@ -234,9 +270,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #ifdef LEFT_NEBB_VELOCITY
     if (i_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 wetnode_compute_density(0, j, k, 1, 0, 0, sim);
             }
@@ -247,9 +283,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #ifdef RIGHT_NEBB_VELOCITY
     if (i_end == NX)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 wetnode_compute_density(NX - 1, j, k, -1, 0, 0, sim);
             }
@@ -258,41 +294,53 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #endif
 
 #ifdef BOTTOM_NEBB_VELOCITY
-    for (int i = i_start; i < i_end; i++)
+    if (j_start == 0)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_compute_density(i, 0, k, 0, 1, 0, sim);
+            for (int k = k_start; k < k_end; k++)
+            {
+                wetnode_compute_density(i, 0, k, 0, 1, 0, sim);
+            }
         }
     }
 #endif
 
 #ifdef TOP_NEBB_VELOCITY
-    for (int i = i_start; i < i_end; i++)
+    if (j_end == NY)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_compute_density(i, NY - 1, k, 0, -1, 0, sim);
+            for (int k = k_start; k < k_end; k++)
+            {
+                wetnode_compute_density(i, NY - 1, k, 0, -1, 0, sim);
+            }
         }
     }
 #endif
 
 #ifdef BACK_NEBB_VELOCITY
-    for (int i = i_start; i < i_end; i++)
+    if (k_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_compute_density(i, j, 0, 0, 0, 1, sim);
+            for (int j = j_start; j < j_end; j++)
+            {
+                wetnode_compute_density(i, j, 0, 0, 0, 1, sim);
+            }
         }
     }
 #endif
 
 #ifdef FRONT_NEBB_VELOCITY
-    for (int i = i_start; i < i_end; i++)
+    if (k_end == NZ)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_compute_density(i, j, NZ - 1, 0, 0, -1, sim);
+            for (int j = j_start; j < j_end; j++)
+            {
+                wetnode_compute_density(i, j, NZ - 1, 0, 0, -1, sim);
+            }
         }
     }
 #endif
@@ -301,9 +349,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #ifdef LEFT_NEBB_PRESSURE
     if (i_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 wetnode_compute_velocity(0, j, k, 1, 0, 0, sim);
             }
@@ -314,9 +362,9 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #ifdef RIGHT_NEBB_PRESSURE
     if (i_end == NX)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
-            for (int k = 0; k < NZ; k++)
+            for (int k = k_start; k < k_end; k++)
             {
                 wetnode_compute_velocity(NX - 1, j, k, -1, 0, 0, sim);
             }
@@ -325,41 +373,53 @@ void wetnode_macroscopic_fields(SimulationBag *sim)
 #endif
 
 #ifdef BOTTOM_NEBB_PRESSURE
-    for (int i = i_start; i < i_end; i++)
+    if (j_start == 0)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_compute_velocity(i, 0, k, 0, 1, 0, sim);
+            for (int k = k_start; k < k_end; k++)
+            {
+                wetnode_compute_velocity(i, 0, k, 0, 1, 0, sim);
+            }
         }
     }
 #endif
 
 #ifdef TOP_NEBB_PRESSURE
-    for (int i = i_start; i < i_end; i++)
+    if (j_end == NY)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_compute_velocity(i, NY - 1, k, 0, -1, 0, sim);
+            for (int k = k_start; k < k_end; k++)
+            {
+                wetnode_compute_velocity(i, NY - 1, k, 0, -1, 0, sim);
+            }
         }
     }
 #endif
 
 #ifdef BACK_NEBB_PRESSURE
-    for (int i = i_start; i < i_end; i++)
+    if (k_start == 0)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_compute_velocity(i, j, 0, 0, 0, 1, sim);
+            for (int j = j_start; j < j_end; j++)
+            {
+                wetnode_compute_velocity(i, j, 0, 0, 0, 1, sim);
+            }
         }
     }
 #endif
 
 #ifdef FRONT_NEBB_PRESSURE
-    for (int i = i_start; i < i_end; i++)
+    if (k_end == NZ)
     {
-        for (int j = 0; j < NY; j++)
+        for (int i = i_start; i < i_end; i++)
         {
-            wetnode_compute_velocity(i, j, NZ - 1, 0, 0, -1, sim);
+            for (int j = j_start; j < j_end; j++)
+            {
+                wetnode_compute_velocity(i, j, NZ - 1, 0, 0, -1, sim);
+            }
         }
     }
 #endif
@@ -373,32 +433,32 @@ void wetnode_distributions(SimulationBag *sim)
     // Non-equilibrium bounce-back
 #if defined(LEFT_NEBB_VELOCITY) || defined(LEFT_NEBB_PRESSURE)
     if (i_start == 0)
-    {
         non_equilibrium_bounce_back_x(0, 1, sim);
-    }
 #endif
 
 #if defined(RIGHT_NEBB_VELOCITY) || defined(RIGHT_NEBB_PRESSURE)
     if (i_end == NX)
-    {
         non_equilibrium_bounce_back_x(NX - 1, -1, sim);
-    }
 #endif
 
 #if defined(BOTTOM_NEBB_VELOCITY) || defined(BOTTOM_NEBB_PRESSURE)
-    non_equilibrium_bounce_back_y(0, 1, sim);
+    if (j_start == 0)
+        non_equilibrium_bounce_back_y(0, 1, sim);
 #endif
 
 #if defined(TOP_NEBB_VELOCITY) || defined(TOP_NEBB_PRESSURE)
-    non_equilibrium_bounce_back_y(NY - 1, -1, sim);
+    if (j_end == NY)
+        non_equilibrium_bounce_back_y(NY - 1, -1, sim);
 #endif
 
 #if defined(BACK_NEBB_VELOCITY) || defined(BACK_NEBB_PRESSURE)
-    non_equilibrium_bounce_back_z(0, 1, sim);
+    if (k_start == 0)
+        non_equilibrium_bounce_back_z(0, 1, sim);
 #endif
 
 #if defined(FRONT_NEBB_VELOCITY) || defined(FRONT_NEBB_PRESSURE)
-    non_equilibrium_bounce_back_z(NZ - 1, -1, sim);
+    if (k_end == NZ)
+        non_equilibrium_bounce_back_z(NZ - 1, -1, sim);
 #endif
 }
 
@@ -558,9 +618,9 @@ void non_equilibrium_bounce_back_x(int i, int nx, SimulationBag *sim)
     double *rho_comp[2] = {rho_RED, rho_BLUE};
     double *f1_comp[2] = {f1_RED, f1_BLUE};
 
-    for (int j = 0; j < NY; j++)
+    for (int j = j_start; j < j_end; j++)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int k = k_start; k < k_end; k++)
         {
             const int idx = INDEX(i, j, k);
             const double pressure_i = pressure[idx];
@@ -657,7 +717,7 @@ void non_equilibrium_bounce_back_y(int j, int ny, SimulationBag *sim)
 
     for (int i = i_start; i < i_end; i++)
     {
-        for (int k = 0; k < NZ; k++)
+        for (int k = k_start; k < k_end; k++)
         {
             const int idx = INDEX(i, j, k);
             const double pressure_i = pressure[idx];
@@ -754,7 +814,7 @@ void non_equilibrium_bounce_back_z(int k, int nz, SimulationBag *sim)
 
     for (int i = i_start; i < i_end; i++)
     {
-        for (int j = 0; j < NY; j++)
+        for (int j = j_start; j < j_end; j++)
         {
             const int idx = INDEX(i, j, k);
             const double pressure_i = pressure[idx];

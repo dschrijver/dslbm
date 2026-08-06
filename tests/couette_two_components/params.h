@@ -10,8 +10,8 @@ static inline void set_params(ParamBag *params)
     params->NSTORE = 20000;
     params->NLOG = 2000;
     params->NX = 200;
-    params->NY = 1;
-    params->NZ = 1;
+    params->NY = 2;
+    params->NZ = 2;
 
     // Initial denities
     params->rho_0_BLUE  = 1.0;

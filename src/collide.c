@@ -363,9 +363,13 @@ void collide(SimulationBag *sim)
 
         const double G_i = G_norm[idx];
 
-        // const double omega = interpolate_omega_wen(rho_N_i, params);
-        // const double omega = interpolate_omega_ba(rho_N_i, params);
+#ifdef INTERPOLATE_WEN
+        const double omega = interpolate_omega_wen(rho_N_i, params);
+#elif  INTERPOLATE_BA
+        const double omega = interpolate_omega_ba(rho_N_i, params);
+#else
         const double omega = interpolate_omega_saito(rho_N_i, params);
+#endif
 
         double t4 = 0.0;
         double t5 = 0.0;
