@@ -32,10 +32,10 @@ void stream_distributions(SimulationBag *sim)
             kc = mod(kc, NZ);
 #endif
 
-            if (flag[INDEX_FLAG(ic, jc, kc)] == WETNODE)
+            if (flag[INDEX(ic, jc, kc)] == WETNODE)
                 continue;
 
-            if (flag[INDEX_FLAG(ic, jc, kc)] == BOUNDARY)
+            if (flag[INDEX(ic, jc, kc)] == BOUNDARY)
             {
                 const int p_bb = p_bounceback[p];
 

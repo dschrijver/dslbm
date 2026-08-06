@@ -9,9 +9,8 @@ enum flags
 };
 
 #define DS_PI 3.14159265358979323846
-#define INDEX(i, j, k) (NY * NZ * (i + 2 - i_start) + NZ * (j) + (k))
-#define INDEX_FLAG(i, j, k) ((NY + 4)*(NZ + 4)*(i + 2 - i_start) + (NZ + 4)*(j + 2) + (k + 2))
-#define INDEX_F(i, j, k, p) (NY * NZ * NP * (i + 1 - i_start) + NZ * NP * (j) + NP * (k) + (p))
+#define INDEX(i, j, k) ((NY_proc + 4) * (NZ_proc + 4) * (i + 2 - i_start) + (NZ_proc + 4) * (j + 2 - j_start) + (k + 2 - k_start))
+#define INDEX_F(i, j, k, p) ((NY_proc + 2) * (NZ_proc + 2) * NP * (i + 1 - i_start) + NZ_proc * NP * (j + 1 - j_start) + NP * (k + 1 - k_start) + (p))
 
 inline int mod(int x, int n)
 {
@@ -37,8 +36,8 @@ inline double delta(int a, int b)
 
 #define FOR_DOMAIN                        \
     for (int i = i_start; i < i_end; i++) \
-        for (int j = 0; j < NY; j++)      \
-            for (int k = 0; k < NZ; k++)
+        for (int j = j_start; j < j_end; j++)      \
+            for (int k = k_start; k < k_end; k++)
 
 #define UNPACK_BAGS \
     ParamBag * const params = sim->params; \
@@ -59,10 +58,17 @@ inline double delta(int a, int b)
 #define UNPACK_GRID \
     const int i_start = params->i_start; \
     const int i_end = params->i_end; \
+    const int j_start = params->j_start; \
+    const int j_end = params->j_end; \
+    const int k_start = params->k_start; \
+    const int k_end = params->k_end; \
     const int NX = params->NX; \
     const int NY = params->NY; \
     const int NZ = params->NZ; \
-    (void)i_start; (void)i_end; (void)NX; (void)NY; (void)NZ;
+    const int NX_proc = params->NX_proc; \
+    const int NY_proc = params->NY_proc; \
+    const int NZ_proc = params->NZ_proc; \
+    (void)i_start; (void)i_end; (void)j_start; (void)j_end; (void)k_start; (void)k_end; (void)NX; (void)NY; (void)NZ; (void)NX_proc; (void)NY_proc; (void)NZ_proc;
 
 #define READ_DIST(name) const double * restrict const name = dists->name; (void)name;
 #define WRITE_DIST(name) double * restrict const name = dists->name;(void)name;

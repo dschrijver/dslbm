@@ -136,7 +136,7 @@ void evaluate_color_gradients(SimulationBag *sim)
 
             double rho_N_local;
 
-            if (flag[INDEX_FLAG(ic, jc, kc)] > 0)
+            if (flag[INDEX(ic, jc, kc)] > 0)
             {
                 rho_N_local = extrapolate_wall_rho_N(ic, jc, kc, sim);
                 nhat_x += -wp[p] * (double)cx[p];
@@ -273,7 +273,7 @@ void compute_Q_corrections(SimulationBag *sim)
             double qy;
             double qz;
 
-            if (flag[INDEX_FLAG(ic, jc, kc)] > 0)
+            if (flag[INDEX(ic, jc, kc)] > 0)
             {
                 qx = extrapolate_wall_q(ic, jc, kc, 0, sim);
                 qy = extrapolate_wall_q(ic, jc, kc, 1, sim);

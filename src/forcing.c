@@ -94,7 +94,7 @@ void evaluate_surface_force(int i, int j, int k, SimulationBag *sim)
         kc = mod(kc, NZ);
 #endif
 
-        if (flag[INDEX_FLAG(ic, jc, kc)] > 0)
+        if (flag[INDEX(ic, jc, kc)] > 0)
         {
             n_local[0] = extrapolate_wall_n(ic, jc, kc, 0, sim);
             n_local[1] = extrapolate_wall_n(ic, jc, kc, 1, sim);

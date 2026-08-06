@@ -2,7 +2,9 @@
 #define DSLBM_H
 
 #include "datatypes.h"
-#include "stencil.h"
+
+// stencil.c
+void initialize_stencil(SimulationBag *sim);
 
 // collide.c
 void collide(SimulationBag *sim);
@@ -35,6 +37,7 @@ void allocate_stencil(SimulationBag *sim);
 void allocate_distributions(SimulationBag *sim);
 void allocate_fields(SimulationBag *sim);
 void free_all(SimulationBag *sim);
+int get_VmRSS(ParamBag *params);
 
 // output.c
 void output_data(SimulationBag *sim);

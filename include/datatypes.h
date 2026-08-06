@@ -51,14 +51,25 @@ typedef struct ParamBag
     double Fb_z;
 
     // MPI
-    int number_of_processes;  ///< Stores number of processes
-    int process_rank;         ///< Process rank
-    int process_coords[3];    ///< Coords of processor in virtual MPI topology
-    int process_neighbors[2]; ///< Left and right processor neighbors in virtual MPI topology.
-    int i_start;              ///< Starting index of slab owned by current processor.
-    int i_end;                ///< Ending index of slab owned by current processor.
-    int NX_proc;              ///< Number of nodes owned by current processor, NX_proc = i_end - i_start.
-    MPI_Comm comm_xslices;    ///< Communicator of slab decomposition.
+    int number_of_processes; 
+    int process_rank;     
+    int process_coords[3]; 
+    int process_left;
+    int process_right;
+    int process_bottom;
+    int process_top;
+    int process_back;
+    int process_front;
+    int i_start;              
+    int i_end;                
+    int NX_proc;         
+    int j_start;           
+    int j_end;              
+    int NY_proc;            
+    int k_start;             
+    int k_end;              
+    int NZ_proc;            
+    MPI_Comm comm_cart;    
 
     // HDF5
     hid_t fapl_id;
@@ -67,6 +78,7 @@ typedef struct ParamBag
     hid_t memspace;
     hid_t dcpl_id;
     hid_t dxpl_id;
+
 } ParamBag;
 
 typedef struct DistributionBag
@@ -83,8 +95,12 @@ typedef struct DistributionBag
     double *f_star;
 
     // Communication
-    double *send_buffer;
-    double *recv_buffer;
+    double *send_buffer_x;
+    double *recv_buffer_x;
+    double *send_buffer_y;
+    double *recv_buffer_y;
+    double *send_buffer_z;
+    double *recv_buffer_z;
 } DistributionBag;
 
 typedef struct FieldBag
@@ -126,8 +142,12 @@ typedef struct FieldBag
     int *flag;
 
     // Communication
-    double *send_buffer;
-    double *recv_buffer;
+    double *send_buffer_x;
+    double *recv_buffer_x;
+    double *send_buffer_y;
+    double *recv_buffer_y;
+    double *send_buffer_z;
+    double *recv_buffer_z;
 } FieldBag;
 
 typedef struct Stencil

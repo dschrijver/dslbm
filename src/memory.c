@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "../include/datatypes.h"
 #include "../include/memory.h"
@@ -32,15 +33,11 @@ void allocate_stencil(SimulationBag *sim)
 
 void allocate_distributions(SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    DistributionBag *dists = sim->dists;
-    Stencil *stencil = sim->stencil;
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
 
-    int NX_proc = params->NX_proc;
-    int NY = params->NY;
-    int NZ = params->NZ;
-    int NP = stencil->NP;
-    int malloc_size = (NX_proc + 2) * NY * NZ * NP * sizeof(double);
+    long malloc_size = (long)(NX_proc + 2) * (NY_proc + 2) * (NZ_proc + 2) * NP * sizeof(double);
 
     dists->f1_RED = (double *)malloc(malloc_size);
     dists->f2_RED = (double *)malloc(malloc_size);
@@ -51,20 +48,26 @@ void allocate_distributions(SimulationBag *sim)
     dists->m_star = (double *)malloc(NP * sizeof(double));
     dists->f_star = (double *)malloc(NP * sizeof(double));
 
-    malloc_size = NY * NZ * NP * sizeof(double);
-    dists->send_buffer = (double *)malloc(malloc_size);
-    dists->recv_buffer = (double *)malloc(malloc_size);
+    malloc_size = (long)NY_proc * NZ_proc * NP * sizeof(double);
+    dists->send_buffer_x = (double *)malloc(malloc_size);
+    dists->recv_buffer_x = (double *)malloc(malloc_size);
+
+    malloc_size = (long)(NX_proc + 2) * NZ_proc * NP * sizeof(double);
+    dists->send_buffer_y = (double *)malloc(malloc_size);
+    dists->recv_buffer_y = (double *)malloc(malloc_size);
+
+    malloc_size = (long)(NX_proc + 2) * (NY_proc + 2) * NP * sizeof(double);
+    dists->send_buffer_z = (double *)malloc(malloc_size);
+    dists->recv_buffer_z = (double *)malloc(malloc_size);
+
 }
 
 void allocate_fields(SimulationBag *sim)
 {
-    ParamBag *params = sim->params;
-    FieldBag *fields = sim->fields;
+    UNPACK_BAGS
+    UNPACK_GRID
 
-    int NX_proc = params->NX_proc;
-    int NY = params->NY;
-    int NZ = params->NZ;
-    int malloc_size = (NX_proc + 4) * NY * NZ * sizeof(double);
+    long malloc_size = (long)(NX_proc + 4) * (NY_proc + 4) * (NZ_proc + 4) * sizeof(double);
 
     fields->rho = (double *)malloc(malloc_size);
     fields->rho_RED = (double *)malloc(malloc_size);
@@ -87,16 +90,38 @@ void allocate_fields(SimulationBag *sim)
     fields->Fx = (double *)malloc(malloc_size);
     fields->Fy = (double *)malloc(malloc_size);
     fields->Fz = (double *)malloc(malloc_size);
-    fields->flag = (int *)malloc((NX_proc + 4) * (NY + 4) * (NZ + 4) * sizeof(int));
 
-    malloc_size = 2 * NY * NZ * sizeof(double);
-    fields->send_buffer = (double *)malloc(malloc_size);
-    fields->recv_buffer = (double *)malloc(malloc_size);
+    fields->flag = (int *)malloc((long)(NX_proc + 4) * (NY_proc + 4) * (NZ_proc + 4) * sizeof(int));
+
+    malloc_size = (long)2 * NY_proc * NZ_proc * sizeof(double);
+    fields->send_buffer_x = (double *)malloc(malloc_size);
+    fields->recv_buffer_x = (double *)malloc(malloc_size);
+
+    malloc_size = (long)2 * (NX_proc + 4) * NZ_proc * sizeof(double);
+    fields->send_buffer_y = (double *)malloc(malloc_size);
+    fields->recv_buffer_y = (double *)malloc(malloc_size);
+
+    malloc_size = (long)2 * (NX_proc + 4) * (NY_proc + 4) * sizeof(double);
+    fields->send_buffer_z = (double *)malloc(malloc_size);
+    fields->recv_buffer_z = (double *)malloc(malloc_size);
 }
 
 void free_all(SimulationBag *sim)
 {
     UNPACK_BAGS
+
+    H5Pclose(params->fapl_id);
+    H5Sclose(params->scalar_space);
+    H5Sclose(params->filespace);
+    H5Sclose(params->memspace);
+    H5Pclose(params->dcpl_id);
+    H5Pclose(params->dxpl_id);
+
+    free(stencil->cx);
+    free(stencil->cy);
+    free(stencil->cz);
+    free(stencil->wp);
+    free(stencil->p_bounceback);
 
     free(dists->f1_RED);
     free(dists->f1_BLUE);
@@ -106,8 +131,12 @@ void free_all(SimulationBag *sim)
     free(dists->t_star);
     free(dists->m_star);
     free(dists->f_star);
-    free(dists->send_buffer);
-    free(dists->recv_buffer);
+    free(dists->send_buffer_x);
+    free(dists->recv_buffer_x);
+    free(dists->send_buffer_y);
+    free(dists->recv_buffer_y);
+    free(dists->send_buffer_z);
+    free(dists->recv_buffer_z);
 
     free(fields->rho);
     free(fields->rho_RED);
@@ -131,17 +160,34 @@ void free_all(SimulationBag *sim)
     free(fields->Fy);
     free(fields->Fz);
     free(fields->flag);
-    free(fields->send_buffer);
-    free(fields->recv_buffer);
-
-    free(stencil->cx);
-    free(stencil->cy);
-    free(stencil->cz);
-    free(stencil->wp);
-    free(stencil->p_bounceback);
+    free(fields->send_buffer_x);
+    free(fields->recv_buffer_x);
+    free(fields->send_buffer_y);
+    free(fields->recv_buffer_y);
+    free(fields->send_buffer_z);
+    free(fields->recv_buffer_z);
 
     free(dists);
     free(fields);
     free(stencil);
     free(params);
+}
+
+int get_VmRSS(ParamBag *params) 
+{
+    FILE *f = fopen("/proc/self/status", "r");
+    char line[128];
+
+    int VmRSS, total_VmRSS = 0;
+    while (fgets(line, 128, f)) {
+        if (strncmp(line, "VmRSS:", 6) == 0) {
+            sscanf(line, "VmRSS: %d", &VmRSS);      
+            break;
+        }
+    }
+    fclose(f);
+
+    MPI_Reduce(&VmRSS, &total_VmRSS, 1, MPI_INT, MPI_SUM, 0, params->comm_cart);
+
+    return total_VmRSS;
 }

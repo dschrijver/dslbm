@@ -1,5 +1,6 @@
 #include <mpi.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "include/dslbm.h"
 #include "params.h"
@@ -59,7 +60,6 @@ int main(int argc, char **argv)
 
     MPI_Barrier(MPI_COMM_WORLD);
     double start_time = MPI_Wtime();
-    double start_timestep, duration_timestep;
     double start_substep = 0.0, duration_substep = 0.0;
     char output_info[128];
 
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     {
 
         MPI_Barrier(MPI_COMM_WORLD);
-        start_timestep = MPI_Wtime();
+        double start_timestep = MPI_Wtime();
 
         // LOGGING TIME
         if ((params->process_rank == 0) && (params->t_log == params->t)) 
@@ -127,18 +127,32 @@ int main(int argc, char **argv)
             compute_Q_corrections(sim);
         )
 
-        duration_timestep = MPI_Wtime() - start_timestep;
+        double duration_timestep = MPI_Wtime() - start_timestep;
 
         // LOGGING INFORMATION
-        if (params->t_log == params->t)
+        if (params->t_log == params->t)   
         {
+            int current_total_VmRSS = get_VmRSS(params);
             if (params->process_rank == 0)
             {
                 printf("--------------------------------------------------------------------------------\n");
                 printf("Step completed!\n");
+                printf("    Total memory in use (VmRSS): %'d kB\n", current_total_VmRSS);
                 printf("    Duration of time step: %.4fs\n", duration_timestep);
-                printf("    Total simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0);
-                printf("    Expected remaining simulation time: %.2fh\n", (MPI_Wtime() - start_time) / 3600.0 / (double)(params->t + 1) * (double)(params->NTIME - params->t - 1));
+                double total_time = MPI_Wtime() - start_time;
+                double hours = floor(total_time / 3600.0);
+                total_time -= hours*3600.0;
+                double minutes = floor(total_time / 60.0);
+                total_time -= minutes*60.0;
+                double seconds = floor(total_time);
+                printf("    Total simulation time: %02d:%02d:%02d\n", (int)hours, (int)minutes, (int)seconds);
+                double remaining_time = (MPI_Wtime() - start_time) / (double)(params->t + 1) * (double)(params->NTIME - params->t - 1);
+                hours = floor(remaining_time / 3600.0);
+                remaining_time -= hours*3600.0;
+                minutes = floor(remaining_time / 60.0);
+                remaining_time -= minutes*60.0;
+                seconds = floor(remaining_time);
+                printf("    Remaining simulation time: %02d:%02d:%02d\n", (int)hours, (int)minutes, (int)seconds);
             }
             params->t_log += params->NLOG;
         }
