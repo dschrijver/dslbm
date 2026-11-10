@@ -8,8 +8,6 @@ void initialize_stencil(SimulationBag *sim);
 
 // collide.c
 void collide(SimulationBag *sim);
-void evaluate_color_gradients(SimulationBag *sim);
-void compute_Q_corrections(SimulationBag *sim);
 
 // communicate.c
 void communicate_field(double *field, SimulationBag *sim);
@@ -28,7 +26,6 @@ void evaluate_force(int i, int j, int k, SimulationBag *sim);
 void initialize_MPI(ParamBag *params);
 void initialize_HDF5(ParamBag *params);
 void initialize_fields(SimulationBag *sim);
-void initialize_flags(SimulationBag *sim);
 void initialize_distributions(SimulationBag *sim);
 
 // memory.c
@@ -44,9 +41,5 @@ void output_data(SimulationBag *sim);
 
 // stream.c
 void stream_distributions(SimulationBag *sim);
-
-// wetnode.c
-void wetnode_macroscopic_fields(SimulationBag *sim);
-void wetnode_distributions(SimulationBag *sim);
 
 #endif

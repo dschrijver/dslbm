@@ -39,14 +39,11 @@ void allocate_distributions(SimulationBag *sim)
 
     long malloc_size = (long)(NX_proc + 2) * (NY_proc + 2) * (NZ_proc + 2) * NP * sizeof(double);
 
-    dists->f1_RED = (double *)malloc(malloc_size);
-    dists->f2_RED = (double *)malloc(malloc_size);
-    dists->f1_BLUE = (double *)malloc(malloc_size);
-    dists->f2_BLUE = (double *)malloc(malloc_size);
-    dists->meq = (double *)malloc(NP * sizeof(double));
-    dists->t_star = (double *)malloc(NP * sizeof(double));
-    dists->m_star = (double *)malloc(NP * sizeof(double));
-    dists->f_star = (double *)malloc(NP * sizeof(double));
+    dists->f1 = (double *)malloc(malloc_size);
+    dists->f2 = (double *)malloc(malloc_size);
+
+    dists->g1 = (double *)malloc(malloc_size);
+    dists->g2 = (double *)malloc(malloc_size);
 
     malloc_size = (long)NY_proc * NZ_proc * NP * sizeof(double);
     dists->send_buffer_x = (double *)malloc(malloc_size);
@@ -67,41 +64,27 @@ void allocate_fields(SimulationBag *sim)
     UNPACK_BAGS
     UNPACK_GRID
 
-    long malloc_size = (long)(NX_proc + 4) * (NY_proc + 4) * (NZ_proc + 4) * sizeof(double);
+    long malloc_size = (long)(NX_proc + 2) * (NY_proc + 2) * (NZ_proc + 2) * sizeof(double);
 
     fields->rho = (double *)malloc(malloc_size);
-    fields->rho_RED = (double *)malloc(malloc_size);
-    fields->rho_BLUE = (double *)malloc(malloc_size);
+    fields->phi = (double *)malloc(malloc_size);
     fields->pressure = (double *)malloc(malloc_size);
     fields->u = (double *)malloc(malloc_size);
     fields->v = (double *)malloc(malloc_size);
     fields->w = (double *)malloc(malloc_size);
-    fields->rho_N = (double *)malloc(malloc_size);
-    fields->G_norm = (double *)malloc(malloc_size);
-    fields->Gx = (double *)malloc(malloc_size);
-    fields->Gy = (double *)malloc(malloc_size);
-    fields->Gz = (double *)malloc(malloc_size);
-    fields->nx = (double *)malloc(malloc_size);
-    fields->ny = (double *)malloc(malloc_size);
-    fields->nz = (double *)malloc(malloc_size);
-    fields->Qx = (double *)malloc(malloc_size);
-    fields->Qy = (double *)malloc(malloc_size);
-    fields->Qz = (double *)malloc(malloc_size);
     fields->Fx = (double *)malloc(malloc_size);
     fields->Fy = (double *)malloc(malloc_size);
     fields->Fz = (double *)malloc(malloc_size);
 
-    fields->flag = (int *)malloc((long)(NX_proc + 4) * (NY_proc + 4) * (NZ_proc + 4) * sizeof(int));
-
-    malloc_size = (long)2 * NY_proc * NZ_proc * sizeof(double);
+    malloc_size = (long)NY_proc * NZ_proc * sizeof(double);
     fields->send_buffer_x = (double *)malloc(malloc_size);
     fields->recv_buffer_x = (double *)malloc(malloc_size);
 
-    malloc_size = (long)2 * (NX_proc + 4) * NZ_proc * sizeof(double);
+    malloc_size = (long)(NX_proc + 2) * NZ_proc * sizeof(double);
     fields->send_buffer_y = (double *)malloc(malloc_size);
     fields->recv_buffer_y = (double *)malloc(malloc_size);
 
-    malloc_size = (long)2 * (NX_proc + 4) * (NY_proc + 4) * sizeof(double);
+    malloc_size = (long)(NX_proc + 2) * (NY_proc + 2) * sizeof(double);
     fields->send_buffer_z = (double *)malloc(malloc_size);
     fields->recv_buffer_z = (double *)malloc(malloc_size);
 }
@@ -123,14 +106,10 @@ void free_all(SimulationBag *sim)
     free(stencil->wp);
     free(stencil->p_bounceback);
 
-    free(dists->f1_RED);
-    free(dists->f1_BLUE);
-    free(dists->f2_RED);
-    free(dists->f2_BLUE);
-    free(dists->meq);
-    free(dists->t_star);
-    free(dists->m_star);
-    free(dists->f_star);
+    free(dists->f1);
+    free(dists->f2);
+    free(dists->g1);
+    free(dists->g2);
     free(dists->send_buffer_x);
     free(dists->recv_buffer_x);
     free(dists->send_buffer_y);
@@ -139,27 +118,14 @@ void free_all(SimulationBag *sim)
     free(dists->recv_buffer_z);
 
     free(fields->rho);
-    free(fields->rho_RED);
-    free(fields->rho_BLUE);
+    free(fields->phi);
     free(fields->pressure);
     free(fields->u);
     free(fields->v);
     free(fields->w);
-    free(fields->rho_N);
-    free(fields->G_norm);
-    free(fields->Gx);
-    free(fields->Gy);
-    free(fields->Gz);
-    free(fields->nx);
-    free(fields->ny);
-    free(fields->nz);
-    free(fields->Qx);
-    free(fields->Qy);
-    free(fields->Qz);
     free(fields->Fx);
     free(fields->Fy);
     free(fields->Fz);
-    free(fields->flag);
     free(fields->send_buffer_x);
     free(fields->recv_buffer_x);
     free(fields->send_buffer_y);

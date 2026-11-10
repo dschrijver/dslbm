@@ -22,34 +22,6 @@ typedef struct ParamBag
     int NY;  
     int NZ;  
 
-    // Initial denities
-    double rho_0_RED;
-    double rho_0_BLUE;
-
-    // Dynamic viscosities
-    double mu_RED;
-    double mu_BLUE;
-
-    // Speeds of sound squared
-    double cs2_RED;
-    double cs2_BLUE;
-
-    // Surface tension
-    double sigma;
-
-    // Recoloring parameter
-    double beta;
-
-    // Gravitational accelerations
-    double gx;
-    double gy;
-    double gz;
-
-    // Constant body forces
-    double Fb_x;
-    double Fb_y;
-    double Fb_z;
-
     // MPI
     int number_of_processes; 
     int process_rank;     
@@ -83,16 +55,10 @@ typedef struct ParamBag
 
 typedef struct DistributionBag
 {
-    double *f1_RED;
-    double *f2_RED;
-
-    double *f1_BLUE;
-    double *f2_BLUE;
-
-    double *meq;
-    double *t_star;
-    double *m_star;
-    double *f_star;
+    double *f1;
+    double *f2;
+    double *g1;
+    double *g2;
 
     // Communication
     double *send_buffer_x;
@@ -105,12 +71,10 @@ typedef struct DistributionBag
 
 typedef struct FieldBag
 {
-    // Densities and pressure
     double *rho;
+    double *phi;
 
-    double *rho_RED;
-    double *rho_BLUE;
-
+    double *mu;
     double *pressure;
 
     // Velocities
@@ -118,28 +82,10 @@ typedef struct FieldBag
     double *v;
     double *w;
 
-    // Color-Gradient
-    double *rho_N;
-    double *G_norm;
-    double *Gx;
-    double *Gy;
-    double *Gz;
-    double *nx;
-    double *ny;
-    double *nz;
-
-    // Wen's correction
-    double *Qx;
-    double *Qy;
-    double *Qz;
-
     // Forces
     double *Fx;
     double *Fy;
     double *Fz;
-
-    // Boundaries
-    int *flag;
 
     // Communication
     double *send_buffer_x;

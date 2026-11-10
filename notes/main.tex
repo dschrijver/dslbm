@@ -16,41 +16,95 @@
 \usepackage{siunitx} % For units in equations
 \numberwithin{equation}{section} % For equation numbering
 \numberwithin{figure}{section} % For figure numbering
-\numberwithin{table}{section} % For table numbering
 \numberwithin{algorithm}{section} % For algorithm numbering
 
 \addbibresource{references.bib}
 
 \begin{document}
+\section{Continuous equations}
+We have a two-component fluid. The continuity equations are given as follows,
+\begin{equation}
+    \frac{\partial \rho_i}{\partial t} + \bm{\nabla}\cdot \Bigl(\rho_i \bm{u}_i\Bigr) = 0. 
+\end{equation}
+We can define a composition field $\phi = \rho_1 - \rho_2$,
+\begin{equation}\label{eq:composition field}
+    \frac{\partial \phi}{\partial t} + \bm{\nabla}\cdot \Bigl(\phi \bm{u}\Bigr) = - \bm{\nabla} \cdot \left[\frac{\rho}{2}\left(1 - \frac{\phi^2}{\rho^2}\right)\left(\bm{u}_1 - \bm{u}_2\right)\right].
+\end{equation}
+The momentum equation for the total density can be given as follows,
+\begin{equation}
+    \frac{\partial \left(\rho \bm{u}\right)}{\partial t} + \bm{\nabla} \cdot\Bigl(\rho \bm{u}\bm{u}\Bigr) = \bm{\nabla}\cdot \underline{\underline{\tau}} + \bm{\nabla}\cdot \underline{\underline{P}} + \bm{f}_b. 
+\end{equation}
+The viscous stress tensor was denoted by $\underline{\underline{\tau}}$, 
+\begin{equation}
+    \tau_{\alpha \beta} = \mu \left[\partial_\alpha u_\beta + \partial_\beta u_\alpha - \frac23 \partial_\mu u_\mu \delta_{\alpha \beta}\right] + \zeta \partial_\mu u_\mu \delta_{\alpha \beta}.
+\end{equation}
+The pressure tensor was denoted by $\underline{\underline{P}}$, and includes for instance the hydrodynamic pressure and the surface tension. Lastly, $\bm{f}_b$ denotes arbitrary body forces on the fluid.
+\section{Free Energy}
+A nonideal fluid can be simulated using the Free Energy Lattice Boltzmann Model~\cite{swift_lattice_1996}. We start by defining the Free Energy functional $\Psi$. This functional will depend on the fluid density $\rho$ and its gradient $\bm{\nabla}\rho$. An example for a one-component fluid can be given as follows,
+\begin{equation}
+    \Psi[\rho, \bm{\nabla}\rho] = \int \left(\psi_b + \frac{\kappa}{2}|\bm{\nabla}\rho|^2\right)\mathrm{d}V,
+\end{equation}
+where $\kappa$ is related to the surface tension and $\psi_b$ is the bulk free energy. An example for the bulk free energy can be given by the Van der Waals free energy~\cite{swift_lattice_1996},
+\begin{equation}
+    \psi_b = \rho T \ln \left(\frac{\rho}{1-\rho b}\right) - a \rho^2. 
+\end{equation}
+We can define the chemical potential as follows,
+\begin{equation}
+    \mu \equiv \frac{\delta \Psi}{\delta \rho}. 
+\end{equation}
+When we have a binary fluid, we will define separate chemical potentials for the total density $\rho$ and the composition $\phi = \rho_1 - \rho_2$,
+\begin{equation}
+    \mu_\rho \equiv \frac{\delta \Psi}{\delta \rho},\quad \mu_\phi \equiv \frac{\delta \Psi}{\delta \phi}.
+\end{equation}
+We can find a relation between the pressure tensor and the chemical potentials,
+\begin{equation}
+    \partial_\beta P_{\alpha \beta} = \rho_1 \partial_\alpha \mu_{\rho_1} + \rho_2 \partial_\alpha \mu_{\rho_2}
+\end{equation}
+I will use the functional chainrule,
+\begin{equation}
+    \frac{\delta \Psi}{\delta \rho_i} = \frac{\delta \Psi}{\delta \rho}\frac{\partial \rho}{\partial \rho_i} + \frac{\delta \Psi}{\delta \phi}\frac{\partial \phi}{\partial \rho_i}.
+\end{equation}
+This gives the pressure tensor in terms of functional derivatives over the total density and composition,
+\begin{equation}\label{eq:pressure tensor}
+    \partial_\beta P_{\alpha \beta} = \rho \partial_\alpha \mu_\rho + \phi \partial_\alpha \mu_\phi. 
+\end{equation}
+\section{Composition field complications}
+The literature is divided on how the composition field is modeled. Some literature solved Eq.~(\ref{eq:composition field}) directly~\cite{swift_lattice_1996}\cite{kruger_lattice_2017}. However, they model a modified equation that captures the velocity difference using the gradient of a chemical potential,
+\begin{equation}\label{eq:cahn-hilliard}
+    \frac{\partial \phi}{\partial t} + \bm{\nabla}\cdot \Bigl(\phi \bm{u}\Bigr) = \bm{\nabla} \cdot \Bigl[M\bm{\nabla}\mu_{\phi}\Bigr].
+\end{equation}
+One issue is that the foundational paper gets an additional term added to this equation~\cite{swift_lattice_1996},
+\begin{equation}\label{eq:cahn-hilliard added}
+    \frac{\partial \phi}{\partial t} + \bm{\nabla}\cdot \Bigl(\phi \bm{u}\Bigr) = \bm{\nabla} \cdot \Bigl[M\bm{\nabla}\mu_{\phi}\Bigr] - \bm{\nabla}\cdot \left(\frac{\phi}{\rho}\bm{\nabla}\cdot \underline{\underline{P}}\right).
+\end{equation}
+I am confused where this term comes from. Later literature uses the exact same computational method, but communicates Eq.~(\ref{eq:cahn-hilliard}) as resulting equation from the numerical scheme, instead of Eq.~(\ref{eq:cahn-hilliard added}). I will assume the newer literature is correct. 
 
-\section{CM}
-\begin{equation}
-    \bm{f}^* = \bm{f} - \underline{\underline{T}}^{-1}\underline{\underline{S}}\,\underline{\underline{T}}\Bigl(\bm{f} - \bm{f}^\text{eq}\Bigr) + \underline{\underline{T}}^{-1}\left(\underline{\underline{I}} - \frac{1}{2}\underline{\underline{S}}\right)\underline{\underline{T}}\bm{\Phi},
+\section{Numerical scheme}
+I will apply the mixed Free Energy Model~\cite{kruger_lattice_2017}. We rewrite Eq.~(\ref{eq:pressure tensor}),
+\begin{equation}\label{eq:pressure tensor rewritten}
+    \partial_\beta P_{\alpha \beta} = \Bigl[\rho \partial_\alpha \mu_\rho + \partial_\alpha \left(\phi \mu_\phi\right)\Bigr] - \mu_\phi \partial_\alpha \phi
 \end{equation}
-where $\underline{\underline{T}}$ is the transformation matrix to central moment space, $\underline{\underline{S}}$ is the diagonal relaxation matrix and $\bm{\Phi}$ is the Guo forcing source term in population space. The rows of the transformation matrix are given as follows,
+Usually, this can be rewritten in the following form,
 \begin{equation}
-\begin{split}
-    T_{0,i} &= 1,\quad T_{1,i} = \tilde{c}_{ix},\quad T_{2,i} = \tilde{c}_{iy},\quad T_{3,i} = \tilde{c}_{iz},\\
-    T_{4,i} &= \tilde{c}_{ix}\tilde{c}_{iy},\quad T_{5,i} = \tilde{c}_{ix}\tilde{c}_{iz},\quad T_{6,i}=\tilde{c}_{iy}\tilde{c}_{iz},\\
-    T_{7,i} &= \tilde{c}_{ix}^2 - \tilde{c}_{iy}^2,\quad T_{8,i} = \tilde{c}_{ix}^2 - \tilde{c}_{iz}^2,\quad T_{9,i} = \tilde{c}_{ix}^2 + \tilde{c}_{iy}^2 + \tilde{c}_{iz}^2,\\
-    T_{10,i} &= t_i^{120},\ T_{11,i} = t_i^{102},\ T_{12,i} = t_i^{012},\ T_{13,i} = t_i^{210},\ T_{14,i} = t_i^{201},\ T_{15,i} = t_i^{021},\ T_{16,i} = t_i^{111},\\
-    T_{17,i} &= t_i^{220},\ T_{18,i} = t_i^{202},\ T_{19,i} = t_i^{022},\ T_{20,i} = t_i^{211},\ T_{21,i} = t_i^{121},\ T_{22,i} = t_i^{112},\\
-    T_{23,i} &= t_i^{122},\quad T_{24,i} = t_i^{212},\quad T_{25,i} = t_i^{221},\quad T_{26,i} = t_i^{222},
-\end{split}
+    \partial_\beta P_{\alpha \beta} = \Bigl[\partial_\alpha \left(\rho / 3\right) + \partial_\alpha \left(\phi \mu_\phi\right)\Bigr] - \mu_\phi \partial_\alpha \phi
 \end{equation}
-where $\tilde{c}_{i\alpha} \equiv c_{i\alpha} - u_\alpha$ and $t_{i}^{abc} = \tilde{c}_{ix}^a \tilde{c}_{iy}^b \tilde{c}_{iz}^c$. The equilibrium is given explicitly in central moment space,
+The first part on the right hand side will be added to the equilibrium distribution. We will solve the total fluid motion with a distribution function $f$, 
 \begin{equation}
-    t^\text{eq}_0 = \rho,\quad t^\text{eq}_9 = 3p,\quad t^\text{eq}_{17} = \frac{1}{3}p,\quad t^\text{eq}_{18} = \frac{1}{3}p,\quad t^\text{eq}_{19} = \frac{1}{3}p,\quad t^\text{eq}_{26} = \frac{1}{9}p,
+    \rho = \sum_i f_i, \quad \rho \bm{u} = \sum_i \bm{c}_i f_i + \frac12 \bm{F}, 
 \end{equation}
-where $\bm{t}^\text{eq} \equiv \underline{\underline{T}}\bm{f}^\text{eq}$. Note that the indices that are not mentioned are zero. The same is done for the Guo forcing source term,
+where $\bm{F}$ is additional body forces, and $\bm{c}_i$ are the discrete velocities. The equilibrium distribution is given as follows,
 \begin{equation}
-\begin{split}
-    t^\Phi_1 &= F_x,\quad t^\Phi_2 = F_y,\quad t^\Phi_3 = F_z,\quad,\\
-    t^\Phi_{10} &= \frac{1}{3}F_x,\quad t^\Phi_{11} = \frac{1}{3}F_x,\quad t^\Phi_{12} = \frac{1}{3}F_y,\quad t^\Phi_{13} = \frac{1}{3}F_y,\quad t^\Phi_{14} = \frac{1}{3}F_z,\quad t^\Phi_{15} = \frac{1}{3}F_z,\\
-    t^\Phi_{23} &= \frac{1}{9}F_x,\quad t^\Phi_{24} = \frac{1}{9}F_y,\quad t^\Phi_{25} = \frac{1}{9}F_z,\quad,
-\end{split}
+    f_i^\text{eq} = w_i \rho \left(1 + 3\frac{\phi \mu_\phi}{\rho} + 3 \bm{u} \cdot \bm{c}_i + \frac{9}{2}\left(\bm{u} \cdot \bm{c}_i\right)^2 - \frac32|\bm{u}|^2\right).
 \end{equation}
-where $\bm{t}^\Phi \equiv \underline{\underline{T}}\bm{\Phi}$.
+Note that we used $f_0^\text{eq} = \rho - \sum_{i\neq 0} f_i^\text{eq}$. The second term on the right hand side in Eq.~(\ref{eq:pressure tensor rewritten}) will be modeled by an additional force,
+\begin{equation}
+    \bm{F} = -\mu_\phi \bm{\nabla}\phi. 
+\end{equation}
+Finally, we will also solve Eq.~(\ref{eq:cahn-hilliard}) using a distribution function $g$, with $\phi = \sum_i g_i$. We use the following equilibrium,
+\begin{equation}
+    g_i^\text{eq} = w_i \left(3\Gamma \mu_\phi + 3 \phi \bm{u}\cdot \bm{c}_i + \frac{9}{2}\phi\left(\bm{u} \cdot \bm{c}_i\right)^2 -  \frac32\phi|\bm{u}|^2\right).
+\end{equation}
+Note that we used $g_0^\text{eq} = \phi - \sum_{i\neq 0}g_i^\text{eq}$. Finally, $M = \Gamma \left(\tau_\phi - \frac12\right)$, where $\tau_\phi$ is the relaxation time for the Lattice Boltzmann algorithm. 
 
 \clearpage % Restrict floats (images)
 \printbibliography{}

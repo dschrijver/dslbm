@@ -16,5 +16,147 @@
   {}
 \endgroup
 
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{swift_lattice_1996}{article}{}
+      \name{author}{4}{}{%
+        {{hash=2a548b9f3f5f0483d411eeeaf91dd6ff}{%
+           family={Swift},
+           familyi={S\bibinitperiod},
+           given={Michael\bibnamedelima R.},
+           giveni={M\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=a19655da32d1790bfa1cf6ef916da47a}{%
+           family={Orlandini},
+           familyi={O\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod}}}%
+        {{hash=b5ac89cc359cf4d01e79b3b396e2bc8d}{%
+           family={Osborn},
+           familyi={O\bibinitperiod},
+           given={W.\bibnamedelimi R.},
+           giveni={W\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=b559cc2b706e29eb246bddad4ec82091}{%
+           family={Yeomans},
+           familyi={Y\bibinitperiod},
+           given={J.\bibnamedelimi M.},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{b3181e74c4d3e3ffd3d57bbeaea49871}
+      \strng{fullhash}{91ac7b372b336fdc89a1afc9633f623a}
+      \strng{bibnamehash}{91ac7b372b336fdc89a1afc9633f623a}
+      \strng{authorbibnamehash}{91ac7b372b336fdc89a1afc9633f623a}
+      \strng{authornamehash}{b3181e74c4d3e3ffd3d57bbeaea49871}
+      \strng{authorfullhash}{91ac7b372b336fdc89a1afc9633f623a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1063-651X, 1095-3787}
+      \field{journaltitle}{Physical Review E}
+      \field{month}{11}
+      \field{number}{5}
+      \field{title}{Lattice {Boltzmann} simulations of liquid-gas and binary fluid systems}
+      \field{urlday}{8}
+      \field{urlmonth}{10}
+      \field{urlyear}{2026}
+      \field{volume}{54}
+      \field{year}{1996}
+      \field{urldateera}{ce}
+      \field{pages}{5041\bibrangedash 5052}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.1103/PhysRevE.54.5041
+      \endverb
+      \verb{file}
+      \verb PDF:/home/daan/snap/zotero-snap/common/Zotero/storage/DZXRKQ72/Swift et al. - 1996 - Lattice Boltzmann simulations of liquid-gas and binary fluid systems.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://link.aps.org/doi/10.1103/PhysRevE.54.5041
+      \endverb
+      \verb{url}
+      \verb https://link.aps.org/doi/10.1103/PhysRevE.54.5041
+      \endverb
+    \endentry
+    \entry{kruger_lattice_2017}{book}{}
+      \name{author}{6}{}{%
+        {{hash=0ac28eb0b4644afc5f56a77196ab8144}{%
+           family={Krüger},
+           familyi={K\bibinitperiod},
+           given={Timm},
+           giveni={T\bibinitperiod}}}%
+        {{hash=d34a700c514436cd2dd3e326ebbe1729}{%
+           family={Kusumaatmaja},
+           familyi={K\bibinitperiod},
+           given={Halim},
+           giveni={H\bibinitperiod}}}%
+        {{hash=a83a5ce59a4677ea90606b906911c608}{%
+           family={Kuzmin},
+           familyi={K\bibinitperiod},
+           given={Alexandr},
+           giveni={A\bibinitperiod}}}%
+        {{hash=14666c7c31359089f992eabfd087b840}{%
+           family={Shardt},
+           familyi={S\bibinitperiod},
+           given={Orest},
+           giveni={O\bibinitperiod}}}%
+        {{hash=dd122cb15d3fba32c23566c02a7b7419}{%
+           family={Silva},
+           familyi={S\bibinitperiod},
+           given={Goncalo},
+           giveni={G\bibinitperiod}}}%
+        {{hash=a9dcce68834b7fb484eb4e337629abda}{%
+           family={Viggen},
+           familyi={V\bibinitperiod},
+           given={Erlend\bibnamedelima Magnus},
+           giveni={E\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \list{location}{1}{%
+        {Cham}%
+      }
+      \list{publisher}{1}{%
+        {Springer International Publishing}%
+      }
+      \strng{namehash}{69d742af0ed1a2e152c48edbd29d473e}
+      \strng{fullhash}{79b40fb014a171994c66a679c3a8821c}
+      \strng{bibnamehash}{79b40fb014a171994c66a679c3a8821c}
+      \strng{authorbibnamehash}{79b40fb014a171994c66a679c3a8821c}
+      \strng{authornamehash}{69d742af0ed1a2e152c48edbd29d473e}
+      \strng{authorfullhash}{79b40fb014a171994c66a679c3a8821c}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{isbn}{978-3-319-44647-9 978-3-319-44649-3}
+      \field{series}{Graduate {Texts} in {Physics}}
+      \field{shorttitle}{The {Lattice} {Boltzmann} {Method}}
+      \field{title}{The {Lattice} {Boltzmann} {Method}: {Principles} and {Practice}}
+      \field{urlday}{4}
+      \field{urlmonth}{2}
+      \field{urlyear}{2026}
+      \field{year}{2017}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.1007/978-3-319-44649-3
+      \endverb
+      \verb{file}
+      \verb Full Text PDF:/home/daan/snap/zotero-snap/common/Zotero/storage/PSCSAQDR/Krüger et al. - 2017 - The Lattice Boltzmann Method Principles and Practice.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://link.springer.com/10.1007/978-3-319-44649-3
+      \endverb
+      \verb{url}
+      \verb http://link.springer.com/10.1007/978-3-319-44649-3
+      \endverb
+      \keyw{Complex Fluids Simulation,Computational Fluid Dynamics,fluid- and aerodynamics,Graduate Text on Lattice Boltzmann,High Performance Computing,Lattice Boltzmann Method Introduction,Multiphase Flow Simulation}
+    \endentry
+  \enddatalist
+\endrefsection
 \endinput
 

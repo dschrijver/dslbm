@@ -33,29 +33,8 @@ int main(int argc, char **argv)
     params->t_output = 0;
     params->t_log = 0;
     params->n_output = 0;
-
-    initialize_flags(sim);
     
     initialize_fields(sim);
-
-    communicate_field(fields->rho_N, sim);
-
-    evaluate_color_gradients(sim);
-
-    communicate_field(fields->nx, sim);
-    communicate_field(fields->ny, sim);
-    communicate_field(fields->nz, sim);
-
-    evaluate_forces(sim);
-
-    communicate_field(fields->rho, sim);
-    communicate_field(fields->pressure, sim);
-    communicate_field(fields->u, sim);
-    communicate_field(fields->v, sim);
-    communicate_field(fields->w, sim);
-
-    compute_Q_corrections(sim);
-
     initialize_distributions(sim);
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -91,8 +70,8 @@ int main(int argc, char **argv)
         )
 
         TIME("> Communicate distributions...",
-            communicate_dist(dists->f2_RED, sim);
-            communicate_dist(dists->f2_BLUE, sim);
+            communicate_dist(dists->f2, sim);
+            communicate_dist(dists->g2, sim);
         )
 
         TIME("> Streaming...",
@@ -103,28 +82,7 @@ int main(int argc, char **argv)
             extract_moments(sim);
             evaluate_pressure(sim);
 
-            wetnode_macroscopic_fields(sim);
-
-            communicate_field(fields->rho_N, sim);
-            evaluate_color_gradients(sim);
-
-            communicate_field(fields->nx, sim);
-            communicate_field(fields->ny, sim);
-            communicate_field(fields->nz, sim);
-            evaluate_forces(sim);
-
-            wetnode_distributions(sim);
-
-            extract_moments(sim);
             update_final_velocity(sim);
-
-            communicate_field(fields->rho, sim);
-            communicate_field(fields->pressure, sim);
-            communicate_field(fields->u, sim);
-            communicate_field(fields->v, sim);
-            communicate_field(fields->w, sim);
-
-            compute_Q_corrections(sim);
         )
 
         double duration_timestep = MPI_Wtime() - start_timestep;

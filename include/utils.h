@@ -9,7 +9,7 @@ enum flags
 };
 
 #define DS_PI 3.14159265358979323846
-#define INDEX(i, j, k) ((NY_proc + 4) * (NZ_proc + 4) * (i + 2 - i_start) + (NZ_proc + 4) * (j + 2 - j_start) + (k + 2 - k_start))
+#define INDEX(i, j, k) ((NY_proc + 2) * (NZ_proc + 2) * (i + 1 - i_start) + (NZ_proc + 2) * (j + 1 - j_start) + (k + 1 - k_start))
 #define INDEX_F(i, j, k, p) ((NY_proc + 2) * (NZ_proc + 2) * NP * (i + 1 - i_start) + NZ_proc * NP * (j + 1 - j_start) + NP * (k + 1 - k_start) + (p))
 
 inline int mod(int x, int n)

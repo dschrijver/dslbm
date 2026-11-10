@@ -73,9 +73,9 @@ void initialize_MPI(ParamBag *params)
 
 void dims_create(int dims[3], ParamBag *params)
 {
-    const int x_max = params->NX / 2;
-    const int y_max = params->NY / 2;
-    const int z_max = params->NZ / 2;
+    const int x_max = params->NX;
+    const int y_max = params->NY;
+    const int z_max = params->NZ;
 
     const int N_proc = params->number_of_processes;
     int A = 1000000000;
@@ -148,260 +148,17 @@ void initialize_fields(SimulationBag *sim)
     UNPACK_GRID
 
     WRITE_FIELD(rho)
-    WRITE_FIELD(rho_RED)
-    WRITE_FIELD(rho_BLUE)
+    WRITE_FIELD(phi)
     WRITE_FIELD(u)
     WRITE_FIELD(v)
     WRITE_FIELD(w)
-    WRITE_FIELD(rho_N)
-
-    PARAM(rho_0_RED)
-    PARAM(rho_0_BLUE)
-
-#ifdef INI_POISEUILLE
-    FOR_DOMAIN
-    {
-        rho_RED[INDEX(i, j, k)] = rho_0_RED;
-        rho_BLUE[INDEX(i, j, k)] = 0.0;
-
-        u[INDEX(i, j, k)] = 0.0;
-        v[INDEX(i, j, k)] = 0.0;
-        w[INDEX(i, j, k)] = 0.0;
-    }
-#endif
-
-#ifdef INI_DROPLET
-    FOR_DOMAIN
-    {
-        const double x = physx(i) - INI_DROPLET_X;
-        const double y = physy(j) - INI_DROPLET_Y;
-        const double z = physz(k) - INI_DROPLET_Z;
-        const double r = sqrt(x * x + y * y + z * z);
-
-        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
-        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 + tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
-
-        u[INDEX(i, j, k)] = 0.5 * INI_DROPLET_U * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
-        v[INDEX(i, j, k)] = 0.5 * INI_DROPLET_V * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
-        w[INDEX(i, j, k)] = 0.5 * INI_DROPLET_W * (1.0 - tanh((r - INI_DROPLET_R) / INI_DROPLET_SF));
-    }
-#endif
-
-#ifdef INI_BUBBLE
-    FOR_DOMAIN
-    {
-        const double x = physx(i) - INI_BUBBLE_X;
-        const double y = physy(j) - INI_BUBBLE_Y;
-        const double z = physz(k) - INI_BUBBLE_Z;
-        const double r = sqrt(x * x + y * y + z * z);
-
-        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 + tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
-        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 - tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
-
-        u[INDEX(i, j, k)] = 0.5 * INI_BUBBLE_U * (1.0 - tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
-        v[INDEX(i, j, k)] = 0.5 * INI_BUBBLE_V * (1.0 - tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
-        w[INDEX(i, j, k)] = 0.5 * INI_BUBBLE_W * (1.0 - tanh((r - INI_BUBBLE_R) / INI_BUBBLE_SF));
-    }
-#endif
-
-#ifdef INI_TWOCOMPONENT_POISEUILLE
-    const double width = physlx(params);
-    FOR_DOMAIN
-    {
-        const double x = physx(i) - 0.5 * width;
-        const double r = fabs(x);
-
-        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 + tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_TWOCOMPONENT_POISEUILLE_SF));
-        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 - tanh((r - INI_TWOCOMPONENT_POISEUILLE_A) / INI_TWOCOMPONENT_POISEUILLE_SF));
-        u[INDEX(i, j, k)] = 0.0;
-        v[INDEX(i, j, k)] = 0.0;
-        w[INDEX(i, j, k)] = 0.0;
-    }
-#endif
-
-#ifdef INI_TWOCOMPONENT_COUETTE
-    const double width = physlx(params);
-    FOR_DOMAIN
-    {
-        const double x = physx(i);
-
-        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 - tanh((x - 0.5 * width) / INI_TWOCOMPONENT_COUETTE_SF));
-        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5 * width) / INI_TWOCOMPONENT_COUETTE_SF));
-
-        u[INDEX(i, j, k)] = 0.0;
-
-        if (i == 0)
-        {
-            v[INDEX(i, j, k)] = LEFT_V_VELOCITY;
-        }
-        else if (i == NX - 1)
-        {
-            v[INDEX(i, j, k)] = RIGHT_V_VELOCITY;
-        }
-        else
-        {
-            v[INDEX(i, j, k)] = 0.0;
-        }
-
-        w[INDEX(i, j, k)] = 0.0;
-    }
-#endif
-
-#ifdef INI_TWODROPLETS
-    FOR_DOMAIN
-    {
-        const double x1 = physx(i) - INI_TWODROPLETS_X1;
-        const double y1 = physy(j) - INI_TWODROPLETS_Y1;
-        const double z1 = physz(k) - INI_TWODROPLETS_Z1;
-        const double r1 = sqrt(x1 * x1 + y1 * y1 + z1 * z1);
-
-        const double x2 = physx(i) - INI_TWODROPLETS_X2;
-        const double y2 = physy(j) - INI_TWODROPLETS_Y2;
-        const double z2 = physz(k) - INI_TWODROPLETS_Z2;
-        const double r2 = sqrt(x2 * x2 + y2 * y2 + z2 * z2);
-
-        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (2.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)  - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
-        rho_BLUE[INDEX(i, j, k)] = rho_0_BLUE - 0.5 * rho_0_BLUE * (2.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)  - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
-
-        u[INDEX(i, j, k)] = 0.5 * INI_TWODROPLETS_U1 * (1.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)) + 
-                            0.5 * INI_TWODROPLETS_U2 * (1.0 - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
-        u[INDEX(i, j, k)] = 0.5 * INI_TWODROPLETS_V1 * (1.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)) + 
-                            0.5 * INI_TWODROPLETS_V2 * (1.0 - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
-        u[INDEX(i, j, k)] = 0.5 * INI_TWODROPLETS_W1 * (1.0 - tanh((r1 - INI_TWODROPLETS_R1) / INI_TWODROPLETS_SF)) + 
-                            0.5 * INI_TWODROPLETS_W2 * (1.0 - tanh((r2 - INI_TWODROPLETS_R2) / INI_TWODROPLETS_SF));
-    }
-#endif
-
-#ifdef INI_LAYERED_POISEUILLE
-    FOR_DOMAIN
-    {
-        const double x = physx(i);
-
-        rho_RED[INDEX(i, j, k)] = 0.5 * rho_0_RED * (1.0 - tanh((x - 0.5*(double)NX) / INI_LAYERED_POISEUILLE_SF));
-        rho_BLUE[INDEX(i, j, k)] = 0.5 * rho_0_BLUE * (1.0 + tanh((x - 0.5*(double)NX)  / INI_LAYERED_POISEUILLE_SF));
-
-        u[INDEX(i, j, k)] = 0.0;
-        v[INDEX(i, j, k)] = 0.0;
-        w[INDEX(i, j, k)] = 0.0;
-    }
-#endif
 
     FOR_DOMAIN
     {
-        rho[INDEX(i, j, k)] = rho_RED[INDEX(i, j, k)] + rho_BLUE[INDEX(i, j, k)];
-        rho_N[INDEX(i, j, k)] = (rho_RED[INDEX(i, j, k)] / params->rho_0_RED - rho_BLUE[INDEX(i, j, k)] / params->rho_0_BLUE) / (rho_RED[INDEX(i, j, k)] / params->rho_0_RED + rho_BLUE[INDEX(i, j, k)] / params->rho_0_BLUE);
+        // TODO
     }
 
     evaluate_pressure(sim);
-}
-
-void initialize_flags(SimulationBag *sim)
-{
-    UNPACK_BAGS
-    UNPACK_GRID
-
-    int *flag = fields->flag;
-
-    for (int i = i_start - 2; i < i_end + 2; i++)
-    {
-        for (int j = -2; j < NY + 2; j++)
-        {
-            for (int k = -2; k < NZ + 2; k++)
-            {
-                flag[INDEX(i, j, k)] = FLUID;
-
-#ifdef LEFT_HWBB_NOSLIP
-                if (i < 0)
-                    flag[INDEX(i, j, k)] = BOUNDARY;
-#endif
-
-#ifdef RIGHT_HWBB_NOSLIP
-                if (i > params->NX - 1)
-                    flag[INDEX(i, j, k)] = BOUNDARY;
-#endif
-
-#ifdef BOTTOM_HWBB_NOSLIP
-                if (j < 0)
-                    flag[INDEX(i, j, k)] = BOUNDARY;
-#endif
-
-#ifdef TOP_HWBB_NOSLIP
-                if (j > NY - 1)
-                    flag[INDEX(i, j, k)] = BOUNDARY;
-#endif
-
-#ifdef BACK_HWBB_NOSLIP
-                if (k < 0)
-                    flag[INDEX(i, j, k)] = BOUNDARY;
-#endif
-
-#ifdef FRONT_HWBB_NOSLIP
-                if (k > NZ - 1)
-                    flag[INDEX(i, j, k)] = BOUNDARY;
-#endif
-
-#ifdef LEFT_NEBB_VELOCITY
-                if (i < 0)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef RIGHT_NEBB_VELOCITY
-                if (i > params->NX - 1)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef BOTTOM_NEBB_VELOCITY
-                if (j < 0)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef TOP_NEBB_VELOCITY
-                if (j > NY - 1)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef BACK_NEBB_VELOCITY
-                if (k < 0)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef FRONT_NEBB_VELOCITY
-                if (k > NZ - 1)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef LEFT_NEBB_PRESSURE
-                if (i < 0)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef RIGHT_NEBB_PRESSURE
-                if (i > params->NX - 1)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef BOTTOM_NEBB_PRESSURE
-                if (j < 0)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef TOP_NEBB_PRESSURE
-                if (j > NY - 1)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef BACK_NEBB_PRESSURE
-                if (k < 0)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-
-#ifdef FRONT_NEBB_PRESSURE
-                if (k > NZ - 1)
-                    flag[INDEX(i, j, k)] = WETNODE;
-#endif
-            }
-        }
-    }
 }
 
 void initialize_distributions(SimulationBag *sim)
@@ -411,8 +168,7 @@ void initialize_distributions(SimulationBag *sim)
     UNPACK_STENCIL
 
     READ_FIELD(rho)
-    READ_FIELD(rho_RED)
-    READ_FIELD(rho_BLUE)
+    READ_FIELD(phi)
     READ_FIELD(pressure)
     READ_FIELD(u)
     READ_FIELD(v)
@@ -421,30 +177,13 @@ void initialize_distributions(SimulationBag *sim)
     READ_FIELD(Fy)
     READ_FIELD(Fz)
 
-    WRITE_DIST(f1_RED)
-    WRITE_DIST(f1_BLUE)
+    WRITE_DIST(f1)
+    WRITE_DIST(g1)
 
     FOR_DOMAIN
     {
         const int idx = INDEX(i, j, k);
 
-        const double rho_i = rho[idx];
-        const double rho_RED_i = rho_RED[idx];
-        const double rho_BLUE_i = rho_BLUE[idx];
-        const double pressure_i = pressure[idx];
-        const double u_i = u[idx] - 0.5 * Fx[idx] / rho_i;
-        const double v_i = v[idx] - 0.5 * Fy[idx] / rho_i;
-        const double w_i = w[idx] - 0.5 * Fz[idx] / rho_i;
-
-        compute_equilibrium(rho_i, u_i, v_i, w_i, pressure_i, &f1_RED[INDEX_F(i, j, k, 0)], sim);
-        memcpy(&f1_BLUE[INDEX_F(i, j, k, 0)], &f1_RED[INDEX_F(i, j, k, 0)], NP * sizeof(double));
-
-        for (int p = 0; p < NP; p++)
-        {
-            const int idxf = INDEX_F(i, j, k, p);
-
-            f1_RED[idxf] *= rho_RED_i / rho_i;
-            f1_BLUE[idxf] *= rho_BLUE_i / rho_i;
-        }
+        
     }
 }

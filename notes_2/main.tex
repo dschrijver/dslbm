@@ -1,0 +1,68 @@
+\documentclass[fleqn,a4paper]{article} % Flush Left Equation Numbers
+
+% --- PACKAGES ---
+\usepackage{graphicx} % Required for inserting images
+\usepackage{a4wide} % Tell LaTeX to use the room there is on the page
+\usepackage[calc,showdow,english]{datetime2} % To get the date of today
+\usepackage{amsmath} % For matrices
+\usepackage{algorithm} % Algorithm
+\usepackage{algpseudocode} % Algorithm
+\usepackage{subcaption} % For captions of subfigures
+\usepackage{booktabs} % toprule
+\usepackage[hidelinks,colorlinks=true,citecolor=red,urlcolor=blue]{hyperref} % Make clickable references which are less ugly (borders removed)
+\usepackage[style=phys, articletitle=false,biblabel=brackets, chaptertitle=false,pageranges=false]{biblatex} % APS style (American Physical Society)
+\usepackage[absolute]{textpos}
+\usepackage{bm} % For bold Greek letters
+\usepackage{siunitx} % For units in equations
+\numberwithin{equation}{section} % For equation numbering
+\numberwithin{figure}{section} % For figure numbering
+\numberwithin{algorithm}{section} % For algorithm numbering
+
+\addbibresource{references.bib}
+
+\begin{document}
+\section{Continuous equations}
+We have a two-component fluid. The continuity equations are given as follows,
+\begin{equation}
+    \frac{\partial \rho^\sigma}{\partial t} + \bm{\nabla}\cdot \Bigl(\rho^\sigma \bm{u}^\sigma\Bigr) = 0. 
+\end{equation}
+We define $\rho^a$ as the active component and $\rho^p$ as the passive component. The momentum equation for the passive component is given as follows,
+\begin{equation}
+    \frac{\partial \left(\rho^p \bm{u}^p\right)}{\partial t} + \bm{\nabla} \cdot\Bigl(\rho^p \bm{u}^p\bm{u}^p\Bigr) = -\rho^p \bm{\nabla}\mu^p + \bm{\nabla}\cdot \underline{\underline{\tau}}^p + \gamma \phi \Bigl(1 - \phi\Bigr)\Bigl(\bm{u}^a - \bm{u}^p\Bigr),
+\end{equation}
+where $\mu$ indicates the chemical potential, $\underline{\underline{\tau}}$ is the viscous stress tensor, $\gamma$ is the momentum transfer coefficient and $\phi = \rho^a / \rho$. The momentum equation for the active component is given as follows,
+\begin{equation}
+    \frac{\partial \left(\rho^a \bm{u}^a\right)}{\partial t} + \bm{\nabla} \cdot\Bigl(\rho^a \bm{u}^a\bm{u}^a\Bigr) = -\rho^a \bm{\nabla}\mu^a + \bm{\nabla}\cdot \underline{\underline{\tau}}^a + \gamma \phi \Bigl(1 - \phi\Bigr)\Bigl(\bm{u}^p - \bm{u}^a\Bigr) + \bm{\nabla}\cdot \underline{\underline{\sigma}}^\text{nem},
+\end{equation}
+where $\underline{\underline{\sigma}}^\text{nem}$ is the nematic stress tensor. The chemical potentials can be derived from the free energy,
+\begin{equation}
+    \mu^p = \frac{\delta \mathcal{F}}{\delta \rho^p} = \frac{\delta \mathcal{F}}{\delta \rho}\frac{\partial \rho}{\partial \rho^p} + \frac{\delta \mathcal{F}}{\delta \phi}\frac{\partial \phi}{\partial \rho^p} = \mu^\rho - \frac{\phi}{\rho}\mu^\phi,
+\end{equation}
+where the free energy functional is given as $\mathcal{F} = \int f \mathrm{d}^3 x$. The chemical potential for the active potential is given as follows,
+\begin{equation}
+    \mu^a = \frac{\delta \mathcal{F}}{\delta \rho^a} = \frac{\delta \mathcal{F}}{\delta \rho}\frac{\partial \rho}{\partial \rho^a} + \frac{\delta \mathcal{F}}{\delta \phi}\frac{\partial \phi}{\partial \rho^a} = \mu^\rho + \frac{1 - \phi}{\rho}\mu^\phi
+\end{equation}
+The functional derivative can be computed as follows,
+\begin{equation}
+    \frac{\delta \mathcal{F}}{\delta g} = \frac{\partial f}{\partial g} - \partial_\alpha \frac{\partial f}{\partial\left(\partial_\alpha g\right)},
+\end{equation}
+if $f$ depends on $g$ and $\bm{\nabla}g$. For the free energy given in previous literature~\cite{bhattacharyya_phase_2023}, we get the following,
+\begin{equation}
+\begin{split}
+    \mu^\rho &= \frac{1}{3}\Bigl(\ln \left(\rho\right) + 1\Bigr) + a \left(\phi - \frac12\right)^2\\
+    \mu^\phi &= 2 a \rho \left(\phi - \frac12\right) + C\left(S_\text{nem}^2 \phi - \frac12 \text{Tr}\left(Q^2\right)\right)S_\text{nem}^2 - \partial_\alpha\Bigl(\kappa \partial_\alpha \phi\Bigr).
+\end{split}
+\end{equation}
+We can write the following,
+\begin{equation}
+    \rho^p\partial_\alpha \mu^p + \rho^a\partial_\alpha \mu^a = \rho \partial_\alpha \mu^\rho - \mu^\phi \partial_\alpha \phi.
+\end{equation}
+In this particular case, we can write the first term on the right hand side as follows,
+\begin{equation}
+    \rho \partial_\alpha \mu^\rho = \partial_\alpha \left(\frac13 \rho\right) + 2 a \rho \left(\phi - \frac12\right) \partial_\alpha \phi. 
+\end{equation}
+
+\clearpage % Restrict floats (images)
+\printbibliography{}
+
+\end{document}
