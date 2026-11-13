@@ -175,6 +175,7 @@ void compute_final_velocity(SimulationBag *sim)
     UNPACK_GRID
 
     READ_FIELD(phi)
+    READ_FIELD(rho)
     READ_FIELD(rho_a)
     READ_FIELD(rho_p)
     READ_FIELD(Fx_a)
@@ -190,12 +191,16 @@ void compute_final_velocity(SimulationBag *sim)
     WRITE_FIELD(u_p)
     WRITE_FIELD(v_p)
     WRITE_FIELD(w_p)
+    WRITE_FIELD(u)
+    WRITE_FIELD(v)
+    WRITE_FIELD(w)
 
     // Preliminary velocity shift
     FOR_DOMAIN
     {
         const int idx0 = INDEX(i, j, k);
 
+        const double rho_i = rho[idx0];
         const double phi_i = phi[idx0];
         const double rho_a_i = rho_a[idx0];
         const double rho_p_i = rho_p[idx0];
@@ -225,5 +230,9 @@ void compute_final_velocity(SimulationBag *sim)
         u_p[idx0] = D * (C*u_a_i + (1.0 + B)*u_p_i);
         v_p[idx0] = D * (C*v_a_i + (1.0 + B)*v_p_i);
         w_p[idx0] = D * (C*w_a_i + (1.0 + B)*w_p_i);
+
+        u[idx0] = 1.0/rho_i * (rho_a_i*u_a_i + rho_p_i*u_p_i);
+        v[idx0] = 1.0/rho_i * (rho_a_i*v_a_i + rho_p_i*v_p_i);
+        w[idx0] = 1.0/rho_i * (rho_a_i*w_a_i + rho_p_i*w_p_i);
     }
 }

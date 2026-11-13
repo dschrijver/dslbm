@@ -126,8 +126,12 @@ void allocate_matrices(SimulationBag *sim)
     long malloc_size = (long)(NX_proc + 2) * (NY_proc + 2) * (NZ_proc + 2) * sizeof(matrix);
 
     matrices->Q = (matrix *)malloc(malloc_size);
+    matrices->Q_new = (matrix *)malloc(malloc_size);
     matrices->H = (matrix *)malloc(malloc_size);
     matrices->sigma_nem = (matrix *)malloc(malloc_size);
+    matrices->nabla_u = (matrix *)malloc(malloc_size);
+    matrices->E = (matrix *)malloc(malloc_size);
+    matrices->Omega = (matrix *)malloc(malloc_size);
     matrices->matrix_gradient_output_x = (matrix *)malloc(malloc_size);
     matrices->matrix_gradient_output_y = (matrix *)malloc(malloc_size);
     matrices->matrix_gradient_output_z = (matrix *)malloc(malloc_size);
@@ -219,8 +223,12 @@ void free_all(SimulationBag *sim)
     free(fields->recv_buffer_z);
 
     free(matrices->Q);
+    free(matrices->Q_new);
     free(matrices->H);
     free(matrices->sigma_nem);
+    free(matrices->nabla_u);
+    free(matrices->E);
+    free(matrices->Omega);
     free(matrices->matrix_gradient_output_x);
     free(matrices->matrix_gradient_output_y);
     free(matrices->matrix_gradient_output_z);

@@ -41,6 +41,9 @@ typedef struct ParamBag
     double K_LC;
     double lambda;
     double zeta;
+    double Gamma_Q;
+
+    int N_active_substeps;
 
     // MPI
     int number_of_processes; 
@@ -153,9 +156,12 @@ typedef struct Stencil
 typedef struct MatrixBag
 {
     matrix *Q;
-
+    matrix *Q_new;
     matrix *H;
     matrix *sigma_nem;
+    matrix *nabla_u;
+    matrix *E;
+    matrix *Omega;
 
     matrix *matrix_gradient_output_x;
     matrix *matrix_gradient_output_y;

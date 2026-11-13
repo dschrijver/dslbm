@@ -173,3 +173,111 @@ void compute_nematic_stress(SimulationBag *sim)
         }
     }
 }
+
+void evolve_Q(SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+
+    READ_FIELD(u_a)
+    READ_FIELD(v_a)
+    READ_FIELD(w_a)
+
+    matrix *H = matrices->H;
+    matrix *nabla_u = matrices->nabla_u;
+    matrix *E = matrices->E;
+    matrix *Omega = matrices->Omega;
+
+    PARAM(lambda)
+    PARAM(Gamma_Q)
+
+    const int N_active_substeps = params->N_active_substeps;
+
+    communicate_field(fields->u_a, sim);
+    communicate_field(fields->v_a, sim);
+    communicate_field(fields->w_a, sim);
+
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+
+        // TODO: boundary conditions
+        nabla_u[idx0][0][0] = 0.5 * (u_a[INDEX(i+1, j, k)] - u_a[INDEX(i-1, j, k)]);
+        nabla_u[idx0][0][1] = 0.5 * (u_a[INDEX(i, j+1, k)] - u_a[INDEX(i, j-1, k)]);
+        nabla_u[idx0][0][2] = 0.5 * (u_a[INDEX(i, j, k+1)] - u_a[INDEX(i, j, k-1)]);
+
+        nabla_u[idx0][1][0] = 0.5 * (v_a[INDEX(i+1, j, k)] - v_a[INDEX(i-1, j, k)]);
+        nabla_u[idx0][1][1] = 0.5 * (v_a[INDEX(i, j+1, k)] - v_a[INDEX(i, j-1, k)]);
+        nabla_u[idx0][1][2] = 0.5 * (v_a[INDEX(i, j, k+1)] - v_a[INDEX(i, j, k-1)]);
+
+        nabla_u[idx0][2][0] = 0.5 * (w_a[INDEX(i+1, j, k)] - w_a[INDEX(i-1, j, k)]);
+        nabla_u[idx0][2][1] = 0.5 * (w_a[INDEX(i, j+1, k)] - w_a[INDEX(i, j-1, k)]);
+        nabla_u[idx0][2][2] = 0.5 * (w_a[INDEX(i, j, k+1)] - w_a[INDEX(i, j, k-1)]);
+
+        FOR_MAT
+        {
+            E[idx0][a][b] = 0.5 * (nabla_u[idx0][a][b] + nabla_u[idx0][b][a]);
+            Omega[idx0][a][b] = 0.5 * (nabla_u[idx0][a][b] - nabla_u[idx0][b][a]);
+        }
+    }
+
+    for (int n = 0; n < N_active_substeps; n++)
+    {
+        // Because they get swapped every step
+        matrix *Q = matrices->Q;
+        matrix *Q_new = matrices->Q_new;
+
+        communicate_matrix(matrices->Q, sim);
+
+        compute_molecular_field(sim);
+
+        FOR_DOMAIN
+        {
+            const int idx0 = INDEX(i, j, k);
+
+            matrix u_nabla_Q;
+
+            FOR_MAT
+            {
+                // TODO: boundary conditions
+                u_nabla_Q[a][b] = u_a[idx0] * 0.5 * (Q[INDEX(i+1, j, k)][a][b] - Q[INDEX(i-1, j, k)][a][b]) + 
+                                  v_a[idx0] * 0.5 * (Q[INDEX(i, j+1, k)][a][b] - Q[INDEX(i, j-1, k)][a][b]) + 
+                                  w_a[idx0] * 0.5 * (Q[INDEX(i, j, k+1)][a][b] - Q[INDEX(i, j, k-1)][a][b]);
+            }
+
+            matrix S1;
+            matrix S2;
+            matrix S3;
+
+            FOR_MAT
+            {
+                S1[a][b] = lambda*E[idx0][a][b] + Omega[idx0][a][b];
+                S2[a][b] = Q[idx0][a][b] + delta(a, b)/3.0;
+                S3[a][b] = lambda*E[idx0][a][b] - Omega[idx0][a][b];
+            }
+
+            const double prefac = 2.0*lambda*matcontraction(Q[idx0], nabla_u[idx0]);
+
+            matrix S4;
+            matmul(S1, S2, S4);
+
+            matrix S5;
+            matmul(S2, S3, S5);
+
+            matrix S;
+
+            FOR_MAT
+            {
+                S[a][b] = S4[a][b] + S5[a][b] - prefac*S2[a][b];
+            }
+
+            FOR_MAT
+            {
+                Q_new[idx0][a][b] = Q[idx0][a][b] + 1.0/(double)params->N_active_substeps * (-u_nabla_Q[a][b] + S[a][b] + Gamma_Q*H[idx0][a][b]);
+            }
+        }
+        matrix *tmp = matrices->Q;
+        matrices->Q = matrices->Q_new;
+        matrices->Q_new = tmp;
+    }
+}

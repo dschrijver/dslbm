@@ -33,6 +33,9 @@ static inline void set_params(ParamBag *params)
     params->K_LC = 0.15;
     params->lambda = 0.0;
     params->zeta = 0.1;
+    params->Gamma_Q = 0.1;
+
+    params->N_active_substeps = 5;
 }
 
 #endif

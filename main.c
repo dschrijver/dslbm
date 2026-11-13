@@ -84,6 +84,10 @@ int main(int argc, char **argv)
             )
         }
 
+        TIME("> Evolving Q",
+            evolve_Q(sim);
+        )
+
         TIME("> Collision...",
             collide(sim);
         )
