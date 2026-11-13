@@ -1,9 +1,108 @@
 #include <math.h>
+#include <string.h>
 
 #include "../include/datatypes.h"
-#include "../definitions.h"
-#include "../include/forcing.h"
-#include "../include/fields.h"
+#include "../include/communicate.h"
+
+void compute_gradient(SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
+
+    READ_FIELD(gradient_input)
+    WRITE_FIELD(gradient_output_x)
+    WRITE_FIELD(gradient_output_y)
+    WRITE_FIELD(gradient_output_z)
+
+    communicate_field(sim->fields->gradient_input, sim);
+
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+
+        double gradient_x_i = 0.0;
+        double gradient_y_i = 0.0;
+        double gradient_z_i = 0.0;
+        for (int p = 0; p < NP; p++)
+        {
+            // TODO: boundary conditions
+            const double intput_local = gradient_input[INDEX(i + cx[p], j + cy[p], k + cz[p])];
+
+            gradient_x_i += wp[p] * intput_local * (double)cx[p];
+            gradient_y_i += wp[p] * intput_local * (double)cy[p];
+            gradient_z_i += wp[p] * intput_local * (double)cz[p];
+        }
+        gradient_output_x[idx0] = 3.0 * gradient_x_i;
+        gradient_output_y[idx0] = 3.0 * gradient_y_i;
+        gradient_output_z[idx0] = 3.0 * gradient_z_i;
+    }
+}
+
+void compute_laplacian(SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+    UNPACK_STENCIL
+
+    READ_FIELD(laplacian_input)
+    WRITE_FIELD(laplacian_output)
+
+    communicate_field(sim->fields->laplacian_input, sim);
+
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+
+        double laplacian_i = 0.0;
+        for (int p = 0; p < NP; p++)
+        {
+            // TODO: boundary conditions
+            const double intput_local = laplacian_input[INDEX(i + cx[p], j + cy[p], k + cz[p])];
+
+            laplacian_i += wp[p] * intput_local;
+        }
+        laplacian_output[idx0] = 6.0 * (laplacian_i - laplacian_input[idx0]);
+    }
+}
+
+void compute_chemical_potentials(SimulationBag *sim)
+{
+    UNPACK_BAGS
+    UNPACK_GRID
+
+    READ_FIELD(phi)
+    READ_FIELD(rho)
+    READ_FIELD(laplacian_output)
+
+    WRITE_FIELD(laplacian_input)
+    WRITE_FIELD(mu_a)
+    WRITE_FIELD(mu_p)
+    
+
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+        laplacian_input[idx0] = phi[idx0];
+    }
+
+    compute_laplacian(sim);
+
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+        const double rho_i = rho[idx0];
+        const double phi_i = phi[idx0];
+
+        const double term = phi_i - 0.5;
+
+        const double mu_rho_i = 1.0/3.0*(log(rho_i) + 1.0) + params->a*term*term;
+        const double mu_phi_i = 2.0*params->a*term - params->kappa*laplacian_output[idx0];
+
+        mu_a[idx0] = mu_rho_i - phi_i/rho_i*mu_phi_i;
+        mu_p[idx0] = mu_rho_i + (1.0 - phi_i)/rho_i*mu_phi_i;
+    }
+}
 
 void extract_moments(SimulationBag *sim)
 {
@@ -11,115 +110,120 @@ void extract_moments(SimulationBag *sim)
     UNPACK_GRID
     UNPACK_STENCIL
 
-    READ_DIST(f1_RED)
-    READ_DIST(f1_BLUE)
+    READ_DIST(f1_a)
+    READ_DIST(f1_p)
 
     WRITE_FIELD(rho)
-    WRITE_FIELD(rho_RED)
-    WRITE_FIELD(rho_BLUE)
-    WRITE_FIELD(u)
-    WRITE_FIELD(v)
-    WRITE_FIELD(w)
-    WRITE_FIELD(rho_N)
-
-    PARAM(rho_0_RED)
-    PARAM(rho_0_BLUE)
+    WRITE_FIELD(phi)
+    WRITE_FIELD(rho_a)
+    WRITE_FIELD(rho_p)
+    WRITE_FIELD(u_a)
+    WRITE_FIELD(v_a)
+    WRITE_FIELD(w_a)
+    WRITE_FIELD(u_p)
+    WRITE_FIELD(v_p)
+    WRITE_FIELD(w_p)
 
     FOR_DOMAIN
     {
-        double rho_RED_i = 0.0;
-        double rho_BLUE_i = 0.0;
-        double u_i = 0.0;
-        double v_i = 0.0;
-        double w_i = 0.0;
+        const int idx0 = INDEX(i, j, k);
 
+        double rho_a_i = 0.0;
+        double rho_p_i = 0.0;
+        double u_a_i = 0.0;
+        double v_a_i = 0.0;
+        double w_a_i = 0.0;
+        double u_p_i = 0.0;
+        double v_p_i = 0.0;
+        double w_p_i = 0.0;
+        
         for (int p = 0; p < NP; p++)
         {
-            const int idfx = INDEX_F(i, j, k, p);
+            const int idxf0 = INDEX_F(i, j, k, p);
+            const double f_a = f1_a[idxf0];
+            const double f_p = f1_p[idxf0];
 
-            const double f1_RED_i = f1_RED[idfx];
-            const double f1_BLUE_i = f1_BLUE[idfx];
-            const double f1_i = f1_RED_i + f1_BLUE_i;
+            rho_a_i += f_a;
+            rho_p_i += f_p;
 
-            rho_RED_i += f1_RED_i;
-            rho_BLUE_i += f1_BLUE_i;
-            u_i += f1_i * (double)cx[p];
-            v_i += f1_i * (double)cy[p];
-            w_i += f1_i * (double)cz[p];
+            u_a_i += f_a * (double)cx[p];
+            v_a_i += f_a * (double)cy[p];
+            w_a_i += f_a * (double)cz[p];
+            u_p_i += f_p * (double)cx[p];
+            v_p_i += f_p * (double)cy[p];
+            w_p_i += f_p * (double)cz[p];
         }
 
-        const int idx = INDEX(i, j, k);
+        rho[idx0] = rho_a_i + rho_p_i;
+        phi[idx0] = rho_a_i / (rho_a_i + rho_p_i);
 
-        const double rho_i = rho_RED_i + rho_BLUE_i;
-        rho[idx] = rho_i;
-        rho_N[idx] = (rho_RED_i / rho_0_RED - rho_BLUE_i / rho_0_BLUE) / (rho_RED_i / rho_0_RED + rho_BLUE_i / rho_0_BLUE);
+        rho_a[idx0] = rho_a_i;
+        rho_p[idx0] = rho_p_i;
 
-        rho_RED[idx] = rho_RED_i;
-        rho_BLUE[idx] = rho_BLUE_i;
-
-        u[idx] = u_i / rho_i;
-        v[idx] = v_i / rho_i;
-        w[idx] = w_i / rho_i;
+        u_a[idx0] = u_a_i / rho_a_i;
+        v_a[idx0] = v_a_i / rho_a_i;
+        w_a[idx0] = w_a_i / rho_a_i;
+        u_p[idx0] = u_p_i / rho_p_i;
+        v_p[idx0] = v_p_i / rho_p_i;
+        w_p[idx0] = w_p_i / rho_p_i;
     }
 }
 
-void update_final_velocity(SimulationBag *sim)
-{
-    UNPACK_BAGS
-    UNPACK_GRID
-    
-    READ_FIELD(rho)
-    READ_FIELD(Fx)
-    READ_FIELD(Fy)
-    READ_FIELD(Fz)
-
-    WRITE_FIELD(u)
-    WRITE_FIELD(v)
-    WRITE_FIELD(w)
-
-    FOR_DOMAIN
-    {
-        const int idx = INDEX(i, j, k);
-
-        const double rho_i = rho[idx];
-
-        const double Fx_i = Fx[idx];
-        const double Fy_i = Fy[idx];
-        const double Fz_i = Fz[idx];
-
-        u[idx] += 0.5 * Fx_i / rho_i;
-        v[idx] += 0.5 * Fy_i / rho_i;
-        w[idx] += 0.5 * Fz_i / rho_i;
-    }
-}
-
-void evaluate_pressure(SimulationBag *sim)
+void compute_final_velocity(SimulationBag *sim)
 {
     UNPACK_BAGS
     UNPACK_GRID
 
-    READ_FIELD(rho)
-    READ_FIELD(rho_RED)
-    READ_FIELD(rho_BLUE)
+    READ_FIELD(phi)
+    READ_FIELD(rho_a)
+    READ_FIELD(rho_p)
+    READ_FIELD(Fx_a)
+    READ_FIELD(Fy_a)
+    READ_FIELD(Fz_a)
+    READ_FIELD(Fx_p)
+    READ_FIELD(Fy_p)
+    READ_FIELD(Fz_p)
 
-    WRITE_FIELD(pressure)
+    WRITE_FIELD(u_a)
+    WRITE_FIELD(v_a)
+    WRITE_FIELD(w_a)
+    WRITE_FIELD(u_p)
+    WRITE_FIELD(v_p)
+    WRITE_FIELD(w_p)
 
-    PARAM(cs2_RED)
-    PARAM(cs2_BLUE)
-    PARAM(rho_0_RED)
-    PARAM(rho_0_BLUE)
-
-    const double p_star_RED = rho_0_RED * cs2_RED - rho_0_BLUE * cs2_BLUE;
-
+    // Preliminary velocity shift
     FOR_DOMAIN
     {
-        const int idx = INDEX(i, j, k);
+        const int idx0 = INDEX(i, j, k);
 
-        const double rho_RED_i = rho_RED[idx];
-        const double rho_BLUE_i = rho_BLUE[idx];
+        const double phi_i = phi[idx0];
+        const double rho_a_i = rho_a[idx0];
+        const double rho_p_i = rho_p[idx0];
+        const double Fx_a_i = Fx_a[idx0];
+        const double Fy_a_i = Fy_a[idx0];
+        const double Fz_a_i = Fz_a[idx0];
+        const double Fx_p_i = Fx_p[idx0];
+        const double Fy_p_i = Fy_p[idx0];
+        const double Fz_p_i = Fz_p[idx0];
 
-        const double b = rho_RED_i * cs2_RED + rho_BLUE_i * cs2_BLUE - p_star_RED;
+        // Compute preliminary velociites
+        const double u_a_i = u_a[idx0] + 0.5 / rho_a_i * Fx_a_i;
+        const double v_a_i = v_a[idx0] + 0.5 / rho_a_i * Fy_a_i;
+        const double w_a_i = w_a[idx0] + 0.5 / rho_a_i * Fz_a_i;
+        const double u_p_i = u_p[idx0] + 0.5 / rho_p_i * Fx_p_i;
+        const double v_p_i = v_p[idx0] + 0.5 / rho_p_i * Fy_p_i;
+        const double w_p_i = w_p[idx0] + 0.5 / rho_p_i * Fz_p_i;
 
-        pressure[idx] = 0.5 * (b + sqrt(b * b + 4.0 * rho_BLUE_i * cs2_BLUE * p_star_RED));
+        const double A = params->gamma * phi_i * (1.0 - phi_i);
+        const double B = 0.5 / rho_a_i * A;
+        const double C = 0.5 / rho_p_i * A;
+        const double D = 1.0 / (1.0 + B + C);
+
+        u_a[idx0] = D * ((1.0 + C)*u_a_i + B*u_p_i);
+        v_a[idx0] = D * ((1.0 + C)*v_a_i + B*v_p_i);
+        w_a[idx0] = D * ((1.0 + C)*w_a_i + B*w_p_i);
+        u_p[idx0] = D * (C*u_a_i + (1.0 + B)*u_p_i);
+        v_p[idx0] = D * (C*v_a_i + (1.0 + B)*v_p_i);
+        w_p[idx0] = D * (C*w_a_i + (1.0 + B)*w_p_i);
     }
 }

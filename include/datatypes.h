@@ -6,6 +6,8 @@
 
 #include "utils.h"
 
+typedef double matrix[3][3];
+
 typedef struct ParamBag
 {
     // Simulation variables
@@ -23,32 +25,22 @@ typedef struct ParamBag
     int NZ;  
 
     // Initial denities
-    double rho_0_RED;
-    double rho_0_BLUE;
+    double rho_0_a;
+    double rho_0_p;
 
-    // Dynamic viscosities
-    double mu_RED;
-    double mu_BLUE;
+    // Kinematic viscosities
+    double nu_a;
+    double nu_p;
 
-    // Speeds of sound squared
-    double cs2_RED;
-    double cs2_BLUE;
+    double kappa;
+    double a;
+    double gamma;
 
-    // Surface tension
-    double sigma;
-
-    // Recoloring parameter
-    double beta;
-
-    // Gravitational accelerations
-    double gx;
-    double gy;
-    double gz;
-
-    // Constant body forces
-    double Fb_x;
-    double Fb_y;
-    double Fb_z;
+    double S_nem;
+    double C;
+    double K_LC;
+    double lambda;
+    double zeta;
 
     // MPI
     int number_of_processes; 
@@ -69,7 +61,8 @@ typedef struct ParamBag
     int k_start;             
     int k_end;              
     int NZ_proc;            
-    MPI_Comm comm_cart;    
+    MPI_Comm comm_cart;
+    MPI_Datatype MPI_MATRIX;
 
     // HDF5
     hid_t fapl_id;
@@ -83,18 +76,13 @@ typedef struct ParamBag
 
 typedef struct DistributionBag
 {
-    double *f1_RED;
-    double *f2_RED;
+    double *f1_a;
+    double *f2_a;
 
-    double *f1_BLUE;
-    double *f2_BLUE;
+    double *f1_p;
+    double *f2_p;
 
-    double *meq;
-    double *t_star;
-    double *m_star;
-    double *f_star;
-
-    // Communication
+    // Distribution buffers
     double *send_buffer_x;
     double *recv_buffer_x;
     double *send_buffer_y;
@@ -105,43 +93,44 @@ typedef struct DistributionBag
 
 typedef struct FieldBag
 {
-    // Densities and pressure
+    // Densities and composition
     double *rho;
-
-    double *rho_RED;
-    double *rho_BLUE;
-
-    double *pressure;
+    double *phi;
+    double *rho_a;
+    double *rho_p;
 
     // Velocities
     double *u;
     double *v;
     double *w;
-
-    // Color-Gradient
-    double *rho_N;
-    double *G_norm;
-    double *Gx;
-    double *Gy;
-    double *Gz;
-    double *nx;
-    double *ny;
-    double *nz;
-
-    // Wen's correction
-    double *Qx;
-    double *Qy;
-    double *Qz;
+    double *u_a;
+    double *v_a;
+    double *w_a;
+    double *u_p;
+    double *v_p;
+    double *w_p;
 
     // Forces
-    double *Fx;
-    double *Fy;
-    double *Fz;
+    double *Fx_a;
+    double *Fy_a;
+    double *Fz_a;
+    double *Fx_p;
+    double *Fy_p;
+    double *Fz_p;
 
-    // Boundaries
-    int *flag;
+    // Chemical potentials
+    double *mu_a;
+    double *mu_p;
 
-    // Communication
+    // Helper fields
+    double *gradient_input;
+    double *gradient_output_x;
+    double *gradient_output_y;
+    double *gradient_output_z;
+    double *laplacian_input;
+    double *laplacian_output;
+
+    // Scalar buffers
     double *send_buffer_x;
     double *recv_buffer_x;
     double *send_buffer_y;
@@ -161,12 +150,36 @@ typedef struct Stencil
     int *p_bounceback;
 } Stencil;
 
+typedef struct MatrixBag
+{
+    matrix *Q;
+
+    matrix *H;
+    matrix *sigma_nem;
+
+    matrix *matrix_gradient_output_x;
+    matrix *matrix_gradient_output_y;
+    matrix *matrix_gradient_output_z;
+    double *matrix_divergence_output_x;
+    double *matrix_divergence_output_y;
+    double *matrix_divergence_output_z;
+
+    // Matrix buffers
+    matrix *send_buffer_x;
+    matrix *recv_buffer_x;
+    matrix *send_buffer_y;
+    matrix *recv_buffer_y;
+    matrix *send_buffer_z;
+    matrix *recv_buffer_z;
+} MatrixBag;
+
 typedef struct SimulationBag
 {
     struct ParamBag *params;
     struct DistributionBag *dists;
     struct FieldBag *fields;
     struct Stencil *stencil;
+    struct MatrixBag *matrices;
 } SimulationBag;
 
 #endif

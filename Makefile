@@ -6,7 +6,7 @@ H5_LIB_DIR = $(shell pwd)/hdf5/lib
 # ADDITIONAL_OPT_FLAGS = -march=znver4
 
 OPT_FLAGS = -std=c11 -O3
-DEBUG_FLAGS = -Wall -Wextra -Wno-discarded-qualifiers -fdiagnostics-color=auto
+DEBUG_FLAGS = -Wall -Wextra -fdiagnostics-color=auto
 
 LIB_FLAGS = -I$(H5_INC_DIR) -L$(H5_LIB_DIR) -lhdf5 -lz -lm
 
@@ -16,6 +16,10 @@ LFLAGS = $(LIB_FLAGS)
 SRC = $(wildcard src/*.c)
 OBJ = $(patsubst src/%.c,obj/%.o,$(SRC))
 HDF5_TAR = $(wildcard archives/hdf5*.tar.gz)
+
+dslbm: $(OBJ) obj/main.o
+	@printf '\033[1;32mCCLD %s\033[0m\n' "$^"
+	@$(CC) $^ -o $@  $(CFLAGS)
 
 obj/%.o: src/%.c definitions.h
 	@mkdir -p obj
@@ -27,9 +31,8 @@ obj/main.o: main.c definitions.h params.h
 	@printf '\033[1;34mCC   %s\033[0m\n' "$<"
 	@$(CC) -c $< -o $@ $(CFLAGS)
 
-dslbm: $(OBJ) obj/main.o
-	@printf '\033[1;32mCCLD %s\033[0m\n' "$^"
-	@$(CC) $^ -o $@  $(CFLAGS)
+clean: 
+	rm -rf obj
 
 cleandata:
 	rm -f *.h5

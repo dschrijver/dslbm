@@ -1,6 +1,7 @@
 #include <string.h>
 
-#include "../include/stencil.h"
+#include "../include/datatypes.h"
+#include "../include/memory.h"
 
 void initialize_stencil(SimulationBag *sim)
 {

@@ -16,41 +16,85 @@
 \usepackage{siunitx} % For units in equations
 \numberwithin{equation}{section} % For equation numbering
 \numberwithin{figure}{section} % For figure numbering
-\numberwithin{table}{section} % For table numbering
 \numberwithin{algorithm}{section} % For algorithm numbering
 
 \addbibresource{references.bib}
 
 \begin{document}
-
-\section{CM}
+\section{Continuous equations}
+We have a two-component fluid. The continuity equations are given as follows,
 \begin{equation}
-    \bm{f}^* = \bm{f} - \underline{\underline{T}}^{-1}\underline{\underline{S}}\,\underline{\underline{T}}\Bigl(\bm{f} - \bm{f}^\text{eq}\Bigr) + \underline{\underline{T}}^{-1}\left(\underline{\underline{I}} - \frac{1}{2}\underline{\underline{S}}\right)\underline{\underline{T}}\bm{\Phi},
+    \frac{\partial \rho^\sigma}{\partial t} + \bm{\nabla}\cdot \Bigl(\rho^\sigma \bm{u}^\sigma\Bigr) = 0. 
 \end{equation}
-where $\underline{\underline{T}}$ is the transformation matrix to central moment space, $\underline{\underline{S}}$ is the diagonal relaxation matrix and $\bm{\Phi}$ is the Guo forcing source term in population space. The rows of the transformation matrix are given as follows,
+We define $\rho^a$ as the active component and $\rho^p$ as the passive component. The momentum equation for the passive component is given as follows,
+\begin{equation}
+    \frac{\partial \left(\rho^p \bm{u}^p\right)}{\partial t} + \bm{\nabla} \cdot\Bigl(\rho^p \bm{u}^p\bm{u}^p\Bigr) = -\rho^p \bm{\nabla}\mu^p + \bm{\nabla}\cdot \underline{\underline{\tau}}^p + \gamma \phi \Bigl(1 - \phi\Bigr)\Bigl(\bm{u}^a - \bm{u}^p\Bigr),
+\end{equation}
+where $\mu$ indicates the chemical potential, $\underline{\underline{\tau}}$ is the viscous stress tensor, $\gamma$ is the momentum transfer coefficient and $\phi = \rho^a / \rho$. The momentum equation for the active component is given as follows,
+\begin{equation}
+    \frac{\partial \left(\rho^a \bm{u}^a\right)}{\partial t} + \bm{\nabla} \cdot\Bigl(\rho^a \bm{u}^a\bm{u}^a\Bigr) = -\rho^a \bm{\nabla}\mu^a + \bm{\nabla}\cdot \underline{\underline{\tau}}^a + \gamma \phi \Bigl(1 - \phi\Bigr)\Bigl(\bm{u}^p - \bm{u}^a\Bigr) + \bm{\nabla}\cdot \underline{\underline{\sigma}}^\text{nem},
+\end{equation}
+where $\underline{\underline{\sigma}}^\text{nem}$ is the nematic stress tensor. The chemical potentials can be derived from the free energy,
+\begin{equation}
+    \mu^p = \frac{\delta \mathcal{F}}{\delta \rho^p} = \frac{\delta \mathcal{F}}{\delta \rho}\frac{\partial \rho}{\partial \rho^p} + \frac{\delta \mathcal{F}}{\delta \phi}\frac{\partial \phi}{\partial \rho^p} = \mu^\rho - \frac{\phi}{\rho}\mu^\phi,
+\end{equation}
+where the free energy functional is given as $\mathcal{F} = \int f \mathrm{d}^3 x$. The chemical potential for the active potential is given as follows,
+\begin{equation}
+    \mu^a = \frac{\delta \mathcal{F}}{\delta \rho^a} = \frac{\delta \mathcal{F}}{\delta \rho}\frac{\partial \rho}{\partial \rho^a} + \frac{\delta \mathcal{F}}{\delta \phi}\frac{\partial \phi}{\partial \rho^a} = \mu^\rho + \frac{1 - \phi}{\rho}\mu^\phi
+\end{equation}
+The functional derivative can be computed as follows,
+\begin{equation}
+    \frac{\delta \mathcal{F}}{\delta g} = \frac{\partial f}{\partial g} - \partial_\alpha \frac{\partial f}{\partial\left(\partial_\alpha g\right)},
+\end{equation}
+if $f$ depends on $g$ and $\bm{\nabla}g$. For the free energy given in previous literature~\cite{bhattacharyya_phase_2023}, we get the following,
 \begin{equation}
 \begin{split}
-    T_{0,i} &= 1,\quad T_{1,i} = \tilde{c}_{ix},\quad T_{2,i} = \tilde{c}_{iy},\quad T_{3,i} = \tilde{c}_{iz},\\
-    T_{4,i} &= \tilde{c}_{ix}\tilde{c}_{iy},\quad T_{5,i} = \tilde{c}_{ix}\tilde{c}_{iz},\quad T_{6,i}=\tilde{c}_{iy}\tilde{c}_{iz},\\
-    T_{7,i} &= \tilde{c}_{ix}^2 - \tilde{c}_{iy}^2,\quad T_{8,i} = \tilde{c}_{ix}^2 - \tilde{c}_{iz}^2,\quad T_{9,i} = \tilde{c}_{ix}^2 + \tilde{c}_{iy}^2 + \tilde{c}_{iz}^2,\\
-    T_{10,i} &= t_i^{120},\ T_{11,i} = t_i^{102},\ T_{12,i} = t_i^{012},\ T_{13,i} = t_i^{210},\ T_{14,i} = t_i^{201},\ T_{15,i} = t_i^{021},\ T_{16,i} = t_i^{111},\\
-    T_{17,i} &= t_i^{220},\ T_{18,i} = t_i^{202},\ T_{19,i} = t_i^{022},\ T_{20,i} = t_i^{211},\ T_{21,i} = t_i^{121},\ T_{22,i} = t_i^{112},\\
-    T_{23,i} &= t_i^{122},\quad T_{24,i} = t_i^{212},\quad T_{25,i} = t_i^{221},\quad T_{26,i} = t_i^{222},
+    \mu^\rho &= \frac{1}{3}\Bigl(\ln \left(\rho\right) + 1\Bigr) + a \left(\phi - \frac12\right)^2\\
+    \mu^\phi &= 2 a \rho \left(\phi - \frac12\right) + C\left(S_\text{nem}^2 \phi - \frac23 Q_{\mu\nu}Q_{\mu\nu} \right)S_\text{nem}^2 - \partial_\alpha\Bigl(\kappa \partial_\alpha \phi\Bigr).
 \end{split}
 \end{equation}
-where $\tilde{c}_{i\alpha} \equiv c_{i\alpha} - u_\alpha$ and $t_{i}^{abc} = \tilde{c}_{ix}^a \tilde{c}_{iy}^b \tilde{c}_{iz}^c$. The equilibrium is given explicitly in central moment space,
+We can write the following,
 \begin{equation}
-    t^\text{eq}_0 = \rho,\quad t^\text{eq}_9 = 3p,\quad t^\text{eq}_{17} = \frac{1}{3}p,\quad t^\text{eq}_{18} = \frac{1}{3}p,\quad t^\text{eq}_{19} = \frac{1}{3}p,\quad t^\text{eq}_{26} = \frac{1}{9}p,
+    \rho^p\partial_\alpha \mu^p + \rho^a\partial_\alpha \mu^a = \rho \partial_\alpha \mu^\rho - \mu^\phi \partial_\alpha \phi.
 \end{equation}
-where $\bm{t}^\text{eq} \equiv \underline{\underline{T}}\bm{f}^\text{eq}$. Note that the indices that are not mentioned are zero. The same is done for the Guo forcing source term,
+In this particular case, we can write the first term on the right hand side as follows,
+\begin{equation}
+    \rho \partial_\alpha \mu^\rho = \partial_\alpha \left(\frac13 \rho\right) + 2 a \rho \left(\phi - \frac12\right) \partial_\alpha \phi. 
+\end{equation}
+\subsection{Simple implementation}
+We simulate the fluids fully seperate, including the following force terms,
 \begin{equation}
 \begin{split}
-    t^\Phi_1 &= F_x,\quad t^\Phi_2 = F_y,\quad t^\Phi_3 = F_z,\quad,\\
-    t^\Phi_{10} &= \frac{1}{3}F_x,\quad t^\Phi_{11} = \frac{1}{3}F_x,\quad t^\Phi_{12} = \frac{1}{3}F_y,\quad t^\Phi_{13} = \frac{1}{3}F_y,\quad t^\Phi_{14} = \frac{1}{3}F_z,\quad t^\Phi_{15} = \frac{1}{3}F_z,\\
-    t^\Phi_{23} &= \frac{1}{9}F_x,\quad t^\Phi_{24} = \frac{1}{9}F_y,\quad t^\Phi_{25} = \frac{1}{9}F_z,\quad,
+    \bm{F}^p &= -\rho^p \bm{\nabla} \left(\mu^\rho - \frac{\phi}{\rho}\mu^\phi\right) + \bm{\nabla} \left(\frac13 \rho^p\right),\\
+    \bm{F}^a &= -\rho^a \bm{\nabla} \left(\mu^\rho + \frac{1 - \phi}{\rho}\mu^\phi\right) + \bm{\nabla} \left(\frac13 \rho^a\right).
 \end{split}
 \end{equation}
-where $\bm{t}^\Phi \equiv \underline{\underline{T}}\bm{\Phi}$.
+\subsection{Activity}
+\begin{equation}
+\begin{split}
+    \mu^Q_{\alpha \beta} &= \frac{\delta \mathcal{F}}{\delta Q_{\alpha \beta}} = \frac{\partial f}{\partial Q_{\alpha \beta}} - \partial_\gamma\frac{\partial f}{\partial\left(\partial_\gamma Q_{\alpha \beta}\right)}\\
+    &= -\frac43 C \left(S_\text{nem}^2 \phi - \frac23Q_{\mu\nu}Q_{\mu\nu}\right)Q_{\alpha \beta} - K_\text{LC}\partial_\gamma \partial_\gamma Q_{\alpha \beta}
+\end{split}
+\end{equation}
+We define the molecular field,
+\begin{equation}
+    H_{\alpha\beta} = -\mu^Q_{\alpha\beta} + \frac13 \delta_{\alpha\beta}\text{Tr}\left(\mu^Q\right) = -\mu^Q_{\alpha\beta}.
+\end{equation}
+The last simplification is made using the fact that $Q$ is traceless. 
+\begin{equation}
+\begin{split}
+    \sigma_{\alpha \beta}^\text{el} &= 2\lambda \left(Q_{\alpha \beta} + \frac13 \delta_{\alpha\beta}\right)Q_{\mu\nu}H_{\mu\nu} - \lambda H_{\alpha \gamma}\left(Q_{\gamma \beta} + \frac13 \delta_{\gamma\beta}\right) - \lambda \left(Q_{\alpha \gamma} + \frac13 \delta_{\alpha\gamma}\right)H_{\gamma\beta}\\
+    &\ - K_\text{LC}\Bigl(\partial_\alpha Q_{\mu \nu}\Bigr) \Bigl(\partial_\beta Q_{\mu \nu}\Bigr) + Q_{\alpha \gamma}H_{\gamma\beta} - H_{\alpha\gamma}Q_{\gamma\beta}.
+\end{split}
+\end{equation}
+The active stress is given as follows,
+\begin{equation}
+    \sigma_{\alpha \beta}^\text{act} = - \zeta Q_{\alpha \beta}
+\end{equation}
+The nematic stress is given as follows,
+\begin{equation}
+    \sigma_{\alpha\beta}^\text{nem} = \phi \left(\sigma_{\alpha \beta}^\text{el} + \sigma_{\alpha \beta}^\text{act}\right).
+\end{equation}
 
 \clearpage % Restrict floats (images)
 \printbibliography{}

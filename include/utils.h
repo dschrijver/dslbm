@@ -9,8 +9,16 @@ enum flags
 };
 
 #define DS_PI 3.14159265358979323846
-#define INDEX(i, j, k) ((NY_proc + 4) * (NZ_proc + 4) * (i + 2 - i_start) + (NZ_proc + 4) * (j + 2 - j_start) + (k + 2 - k_start))
+#define INDEX(i, j, k) ((NY_proc + 2) * (NZ_proc + 2) * (i + 1 - i_start) + (NZ_proc + 2) * (j + 1 - j_start) + (k + 1 - k_start))
 #define INDEX_F(i, j, k, p) ((NY_proc + 2) * (NZ_proc + 2) * NP * (i + 1 - i_start) + NZ_proc * NP * (j + 1 - j_start) + NP * (k + 1 - k_start) + (p))
+
+inline double delta(int a, int b)
+{
+    if (a == b)
+        return 1.0;
+    else
+        return 0.0;
+}
 
 inline int mod(int x, int n)
 {
@@ -28,23 +36,23 @@ inline int min(int x, int y)
     else return y;
 }
 
-inline double delta(int a, int b)
-{
-    if (a == b) return 1.0;
-    else return 0.0;
-}
-
 #define FOR_DOMAIN                        \
     for (int i = i_start; i < i_end; i++) \
         for (int j = j_start; j < j_end; j++)      \
             for (int k = k_start; k < k_end; k++)
+
+#define FOR_MAT \
+    for (int a = 0; a < 3; a++) \
+        for (int b = 0; b < 3; b++)
+
 
 #define UNPACK_BAGS \
     ParamBag * const params = sim->params; \
     DistributionBag * const dists = sim->dists; \
     FieldBag * const fields = sim->fields; \
     Stencil * const stencil = sim->stencil; \
-    (void)params; (void)dists; (void)fields; (void)stencil;
+    MatrixBag * const matrices = sim->matrices; \
+    (void)params; (void)dists; (void)fields; (void)stencil; (void)matrices;
 
 #define UNPACK_STENCIL \
     const int NP = stencil->NP; \
@@ -74,6 +82,8 @@ inline double delta(int a, int b)
 #define WRITE_DIST(name) double * restrict const name = dists->name;(void)name;
 #define READ_FIELD(name) const double * restrict const name = fields->name;(void)name;
 #define WRITE_FIELD(name) double * restrict const name = fields->name;(void)name;
+#define READ_MATRIX(name) const matrix * restrict const name = matrices->name;(void)name;
+#define WRITE_MATRIX(name) matrix * restrict const name = matrices->name;(void)name;
 #define PARAM(name) const double name = params->name;(void)name;
 
 #define TIME(name, functions)                                        \

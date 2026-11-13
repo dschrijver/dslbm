@@ -1,187 +1,164 @@
-#include <math.h>
-
 #include "../include/datatypes.h"
-#include "../definitions.h"
-#include "../include/collide.h"
-#include "../include/forcing.h"
+#include "../include/fields.h"
+#include "../include/active.h"
 
-void evaluate_forces(SimulationBag *sim)
+void compute_preliminary_forces(SimulationBag *sim)
 {
     UNPACK_BAGS
     UNPACK_GRID
+
+    READ_FIELD(mu_a)
+    READ_FIELD(mu_p)
+    READ_FIELD(gradient_output_x)
+    READ_FIELD(gradient_output_y)
+    READ_FIELD(gradient_output_z)
+    READ_FIELD(rho_a)
+    READ_FIELD(rho_p)
+    READ_FIELD(phi)
+    READ_FIELD(u_a)
+    READ_FIELD(v_a)
+    READ_FIELD(w_a)
+    READ_FIELD(u_p)
+    READ_FIELD(v_p)
+    READ_FIELD(w_p)
+    
+    WRITE_FIELD(gradient_input)
+    WRITE_FIELD(Fx_a)
+    WRITE_FIELD(Fy_a)
+    WRITE_FIELD(Fz_a)
+    WRITE_FIELD(Fx_p)
+    WRITE_FIELD(Fy_p)
+    WRITE_FIELD(Fz_p)
+
+    // Compute gradient of mu_a
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+        gradient_input[idx0] = mu_a[idx0];
+    }
+    compute_gradient(sim);
+
+    // Add to active forces
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+        const double rho_a_i = rho_a[idx0];
+
+        Fx_a[idx0] = -rho_a_i * gradient_output_x[idx0];
+        Fy_a[idx0] = -rho_a_i * gradient_output_y[idx0];
+        Fz_a[idx0] = -rho_a_i * gradient_output_z[idx0];
+    }
+
+    // Compute gradient of mu_p
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+        gradient_input[idx0] = mu_p[idx0];
+    }
+    compute_gradient(sim);
+
+    // Add to passive forces
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+        const double rho_p_i = rho_p[idx0];
+
+        Fx_p[idx0] = -rho_p_i * gradient_output_x[idx0];
+        Fy_p[idx0] = -rho_p_i * gradient_output_y[idx0];
+        Fz_p[idx0] = -rho_p_i * gradient_output_z[idx0];
+    }
+
+    // Compute gradient of rho_a
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+        gradient_input[idx0] = rho_a[idx0];
+    }
+    compute_gradient(sim);
+
+    // Offset active pressure from equilibrium
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+
+        Fx_a[idx0] += 1.0/3.0*gradient_output_x[idx0];
+        Fy_a[idx0] += 1.0/3.0*gradient_output_y[idx0];
+        Fz_a[idx0] += 1.0/3.0*gradient_output_z[idx0];
+    }
+
+    // Compute gradient of rho_p;
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+        gradient_input[idx0] = rho_p[idx0];
+    }
+    compute_gradient(sim);
+
+    // Offset passive pressure from equilibrium
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+
+        Fx_p[idx0] += 1.0/3.0*gradient_output_x[idx0];
+        Fy_p[idx0] += 1.0/3.0*gradient_output_y[idx0];
+        Fz_p[idx0] += 1.0/3.0*gradient_output_z[idx0];
+    }
+
+    compute_matrix_divergence(matrices->sigma_nem, sim);
 
     FOR_DOMAIN
     {
-        evaluate_force(i, j, k, sim);
+        const int idx0 = INDEX(i, j, k);
+
+        Fx_a[idx0] += matrices->matrix_divergence_output_x[idx0];
+        Fy_a[idx0] += matrices->matrix_divergence_output_y[idx0];
+        Fz_a[idx0] += matrices->matrix_divergence_output_z[idx0];
     }
 }
 
-void evaluate_force(int i, int j, int k, SimulationBag *sim)
+void compute_final_forces(SimulationBag *sim)
 {
     UNPACK_BAGS
     UNPACK_GRID
 
-    READ_FIELD(rho)
+    READ_FIELD(phi)
+    READ_FIELD(u_a)
+    READ_FIELD(v_a)
+    READ_FIELD(w_a)
+    READ_FIELD(u_p)
+    READ_FIELD(v_p)
+    READ_FIELD(w_p)
+    
+    WRITE_FIELD(Fx_a)
+    WRITE_FIELD(Fy_a)
+    WRITE_FIELD(Fz_a)
+    WRITE_FIELD(Fx_p)
+    WRITE_FIELD(Fy_p)
+    WRITE_FIELD(Fz_p)
 
-    WRITE_FIELD(Fx)
-    WRITE_FIELD(Fy)
-    WRITE_FIELD(Fz)
-
-    PARAM(gx)
-    PARAM(gy)
-    PARAM(gz)
-
-    PARAM(Fb_x)
-    PARAM(Fb_y)
-    PARAM(Fb_z)
-
-    const double rho_i = rho[INDEX(i, j, k)];
-
-    const int idx = INDEX(i, j, k);
-
-    Fx[idx] = rho_i * gx + Fb_x;
-    Fy[idx] = rho_i * gy + Fb_y;
-    Fz[idx] = rho_i * gz + Fb_z;
-
-    evaluate_surface_force(i, j, k, sim);
-}
-
-void evaluate_surface_force(int i, int j, int k, SimulationBag *sim)
-{
-    UNPACK_BAGS
-    UNPACK_GRID
-    UNPACK_STENCIL
-
-    READ_FIELD(nx)
-    READ_FIELD(ny)
-    READ_FIELD(nz)
-    READ_FIELD(Gx)
-    READ_FIELD(Gy)
-    READ_FIELD(Gz)
-
-    WRITE_FIELD(Fx)
-    WRITE_FIELD(Fy)
-    WRITE_FIELD(Fz)
-
-    PARAM(sigma)
-
-    int *c_vec[3] = {cx, cy, cz};
-
-    const int * restrict const flag = fields->flag;
-
-    double n_i[3];
-    double n_local[3];
-    double dn[3][3];
-
-    for (int alpha = 0; alpha < 3; alpha++)
+    // Compute exchange forces
+    FOR_DOMAIN
     {
-        for (int beta = 0; beta < 3; beta++)
-        {
-            dn[alpha][beta] = 0.0;
-        }
+        const int idx0 = INDEX(i, j, k);
+
+        const double phi_i = phi[idx0];
+        const double u_a_i = u_a[idx0];
+        const double v_a_i = v_a[idx0];
+        const double w_a_i = w_a[idx0];
+        const double u_p_i = u_p[idx0];
+        const double v_p_i = v_p[idx0];
+        const double w_p_i = w_p[idx0];
+
+        const double mom_x = params->gamma * phi_i * (1.0 - phi_i) * (u_p_i - u_a_i);
+        const double mom_y = params->gamma * phi_i * (1.0 - phi_i) * (v_p_i - v_a_i);
+        const double mom_z = params->gamma * phi_i * (1.0 - phi_i) * (w_p_i - w_a_i);
+
+        Fx_a[idx0] += mom_x;
+        Fy_a[idx0] += mom_y;
+        Fz_a[idx0] += mom_z;
+
+        Fx_p[idx0] -= mom_x;
+        Fy_p[idx0] -= mom_y;
+        Fz_p[idx0] -= mom_z;
     }
-
-    for (int p = 0; p < NP; p++)
-    {
-        int ic = i + cx[p];
-        int jc = j + cy[p];
-        int kc = k + cz[p];
-
-#ifdef YPERIODIC
-        jc = mod(jc, NY);
-#endif
-#ifdef ZPERIODIC
-        kc = mod(kc, NZ);
-#endif
-
-        if (flag[INDEX(ic, jc, kc)] > 0)
-        {
-            n_local[0] = extrapolate_wall_n(ic, jc, kc, 0, sim);
-            n_local[1] = extrapolate_wall_n(ic, jc, kc, 1, sim);
-            n_local[2] = extrapolate_wall_n(ic, jc, kc, 2, sim);
-            goto skip;
-        }
-
-        n_local[0] = nx[INDEX(ic, jc, kc)];
-        n_local[1] = ny[INDEX(ic, jc, kc)];
-        n_local[2] = nz[INDEX(ic, jc, kc)];
-
-    skip:
-
-        for (int alpha = 0; alpha < 3; alpha++)
-        {
-            for (int beta = 0; beta < 3; beta++)
-            {
-                dn[alpha][beta] += 3.0 * wp[p] * n_local[beta] * (double)c_vec[alpha][p];
-            }
-        }
-    }
-
-    const int idx = INDEX(i, j, k);
-
-    n_i[0] = nx[idx];
-    n_i[1] = ny[idx];
-    n_i[2] = nz[idx];
-
-    double kappa = 0.0;
-    for (int alpha = 0; alpha < 3; alpha++)
-    {
-        kappa += -dn[alpha][alpha];
-        for (int beta = 0; beta < 3; beta++)
-        {
-            kappa += n_i[alpha] * n_i[beta] * dn[beta][alpha];
-        }
-    }
-
-    Fx[idx] += 0.5 * sigma * kappa * Gx[idx];
-    Fy[idx] += 0.5 * sigma * kappa * Gy[idx];
-    Fz[idx] += 0.5 * sigma * kappa * Gz[idx];
-}
-
-double extrapolate_wall_n(const int i, const int j, const int k, const int alpha, SimulationBag *sim)
-{
-    UNPACK_BAGS
-    UNPACK_GRID
-    UNPACK_STENCIL
-
-    READ_FIELD(nx)
-    READ_FIELD(ny)
-    READ_FIELD(nz)
-
-    double *n_vec[3] = {nx, ny, nz};
-
-    double sum_n = 0.0;
-    double sum_wp = 0.0;
-
-    for (int p = 1; p < NP; p++)
-    {
-        int ic = i + cx[p];
-        int jc = j + cy[p];
-        int kc = k + cz[p];
-
-#ifndef XPERIODIC
-        if ((ic < 0) || (ic > params->NX - 1))
-            continue;
-#endif
-#ifndef YPERIODIC
-        if ((jc < 0) || (jc > NY - 1))
-            continue;
-#else
-        jc = mod(jc, NY);
-#endif
-#ifndef ZPERIODIC
-        if ((kc < 0) || (kc > NZ - 1))
-            continue;
-#else
-        kc = mod(kc, NZ);
-#endif
-
-        sum_n += wp[p] * n_vec[alpha][INDEX(ic, jc, kc)];
-        sum_wp += wp[p];
-    }
-
-    if (sum_wp == 0.0)
-        return 0.0;
-    else
-        return sum_n / sum_wp;
 }

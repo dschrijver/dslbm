@@ -6,40 +6,33 @@
 static inline void set_params(ParamBag *params)
 {
     // General parameters
-    params->NTIME = 100000;
-    params->NSTORE = 10000;
-    params->NLOG = 1000;
-    params->NX = 100;
-    params->NY = 2;
-    params->NZ = 2;
+    params->NTIME = 10;
+    params->NSTORE = 1;
+    params->NLOG = 1;
+    params->NX = 64;
+    params->NY = 64;
+    params->NZ = 64;
 
     // Initial denities
-    params->rho_0_RED   = 1.0;
-    params->rho_0_BLUE  = 0.001;
+    params->rho_0_a   = 20.0;
+    params->rho_0_p  = 20.0;
 
     // Kinematic viscosities
-    params->mu_RED  = 0.1;
-    params->mu_BLUE = 0.0025;
+    const double mu_a = 10.0 / 3.0;
+    const double mu_p = 10.0 / 3.0;
 
-    // Speeds of sound squared
-    params->cs2_RED = 1.0/3.0/1000.0;
-    params->cs2_BLUE = 1.0/3.0;
+    params->nu_a  = mu_a / params->rho_0_a;
+    params->nu_p = mu_p / params->rho_0_p;
 
-    // Surface tension
-    params->sigma = 1e-4;
+    params->kappa = 5.0;
+    params->a = 0.0025;
+    params->gamma = 4.0;
 
-    // Recoloring parameter
-    params->beta = 0.7;
-
-    // Gravitational accelerations
-    params->gx = 0.0;
-    params->gy = 0.0;
-    params->gz = 0.0;
-
-    // Constant body forces
-    params->Fb_x = 0.0;
-    params->Fb_y = 1.5e-8;
-    params->Fb_z = 0.0;
+    params->S_nem = 1.0;
+    params->C = 0.1;
+    params->K_LC = 0.15;
+    params->lambda = 0.0;
+    params->zeta = 0.1;
 }
 
 #endif

@@ -2,8 +2,17 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "include/dslbm.h"
+#include "include/memory.h"
 #include "params.h"
+#include "include/initialize.h"
+#include "include/stencil.h"
+#include "include/fields.h"
+#include "include/forcing.h"
+#include "include/output.h"
+#include "include/collide.h"
+#include "include/stream.h"
+#include "include/communicate.h"
+#include "include/active.h"
 
 int main(int argc, char **argv)
 {
@@ -14,8 +23,9 @@ int main(int argc, char **argv)
     FieldBag *fields;
     ParamBag *params;
     Stencil *stencil;
+    MatrixBag *matrices;
 
-    allocate_bags(&sim, &dists, &fields, &params, &stencil);
+    allocate_bags(&sim, &dists, &fields, &params, &stencil, &matrices);
 
     set_params(params);
 
@@ -29,32 +39,20 @@ int main(int argc, char **argv)
 
     allocate_fields(sim);
 
+    allocate_matrices(sim);
+
     params->t = 0;
     params->t_output = 0;
     params->t_log = 0;
     params->n_output = 0;
-
-    initialize_flags(sim);
     
     initialize_fields(sim);
 
-    communicate_field(fields->rho_N, sim);
-
-    evaluate_color_gradients(sim);
-
-    communicate_field(fields->nx, sim);
-    communicate_field(fields->ny, sim);
-    communicate_field(fields->nz, sim);
-
-    evaluate_forces(sim);
-
-    communicate_field(fields->rho, sim);
-    communicate_field(fields->pressure, sim);
-    communicate_field(fields->u, sim);
-    communicate_field(fields->v, sim);
-    communicate_field(fields->w, sim);
-
-    compute_Q_corrections(sim);
+    compute_chemical_potentials(sim);
+    compute_molecular_field(sim);
+    compute_nematic_stress(sim);
+    compute_preliminary_forces(sim);
+    compute_final_forces(sim);
 
     initialize_distributions(sim);
 
@@ -91,8 +89,8 @@ int main(int argc, char **argv)
         )
 
         TIME("> Communicate distributions...",
-            communicate_dist(dists->f2_RED, sim);
-            communicate_dist(dists->f2_BLUE, sim);
+            communicate_dist(dists->f2_a, sim);
+            communicate_dist(dists->f2_p, sim);
         )
 
         TIME("> Streaming...",
@@ -101,30 +99,12 @@ int main(int argc, char **argv)
 
         TIME("> Computing macroscopic fields...",
             extract_moments(sim);
-            evaluate_pressure(sim);
-
-            wetnode_macroscopic_fields(sim);
-
-            communicate_field(fields->rho_N, sim);
-            evaluate_color_gradients(sim);
-
-            communicate_field(fields->nx, sim);
-            communicate_field(fields->ny, sim);
-            communicate_field(fields->nz, sim);
-            evaluate_forces(sim);
-
-            wetnode_distributions(sim);
-
-            extract_moments(sim);
-            update_final_velocity(sim);
-
-            communicate_field(fields->rho, sim);
-            communicate_field(fields->pressure, sim);
-            communicate_field(fields->u, sim);
-            communicate_field(fields->v, sim);
-            communicate_field(fields->w, sim);
-
-            compute_Q_corrections(sim);
+            compute_chemical_potentials(sim);
+            compute_molecular_field(sim);
+            compute_nematic_stress(sim);
+            compute_preliminary_forces(sim);
+            compute_final_velocity(sim);
+            compute_final_forces(sim);
         )
 
         double duration_timestep = MPI_Wtime() - start_timestep;

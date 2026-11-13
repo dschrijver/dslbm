@@ -3,7 +3,6 @@
 
 #include "datatypes.h"
 
-// memory.c
-void allocate_stencil(SimulationBag *sim);
+void initialize_stencil(SimulationBag *sim);
 
 #endif

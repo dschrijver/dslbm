@@ -16,5 +16,62 @@
   {}
 \endgroup
 
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{bhattacharyya_phase_2023}{article}{}
+      \name{author}{2}{}{%
+        {{hash=e5cfaf432a14a06bd697bf5bc66f2327}{%
+           family={Bhattacharyya},
+           familyi={B\bibinitperiod},
+           given={Saraswat},
+           giveni={S\bibinitperiod}}}%
+        {{hash=73af657ec6419b30734afac6080b5377}{%
+           family={Yeomans},
+           familyi={Y\bibinitperiod},
+           given={Julia\bibnamedelima M.},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{923b331a3048fe5cdbdcd9b20d413640}
+      \strng{fullhash}{923b331a3048fe5cdbdcd9b20d413640}
+      \strng{bibnamehash}{923b331a3048fe5cdbdcd9b20d413640}
+      \strng{authorbibnamehash}{923b331a3048fe5cdbdcd9b20d413640}
+      \strng{authornamehash}{923b331a3048fe5cdbdcd9b20d413640}
+      \strng{authorfullhash}{923b331a3048fe5cdbdcd9b20d413640}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0031-9007, 1079-7114}
+      \field{journaltitle}{Physical Review Letters}
+      \field{month}{6}
+      \field{number}{23}
+      \field{title}{Phase {Separation} {Driven} by {Active} {Flows}}
+      \field{urlday}{8}
+      \field{urlmonth}{10}
+      \field{urlyear}{2026}
+      \field{volume}{130}
+      \field{year}{2023}
+      \field{urldateera}{ce}
+      \field{pages}{238201}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1103/PhysRevLett.130.238201
+      \endverb
+      \verb{file}
+      \verb PDF:/home/daan/snap/zotero-snap/common/Zotero/storage/S6ABMNUJ/Bhattacharyya and Yeomans - 2023 - Phase Separation Driven by Active Flows.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://link.aps.org/doi/10.1103/PhysRevLett.130.238201
+      \endverb
+      \verb{url}
+      \verb https://link.aps.org/doi/10.1103/PhysRevLett.130.238201
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
 \endinput
 
