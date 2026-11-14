@@ -228,12 +228,12 @@ void initialize_distributions(SimulationBag *sim)
     READ_FIELD(u_p)
     READ_FIELD(v_p)
     READ_FIELD(w_p)
-    READ_FIELD(Fx_a);
-    READ_FIELD(Fy_a);
-    READ_FIELD(Fz_a);
-    READ_FIELD(Fx_p);
-    READ_FIELD(Fy_p);
-    READ_FIELD(Fz_p);
+    READ_FIELD(Fx_a)
+    READ_FIELD(Fy_a)
+    READ_FIELD(Fz_a)
+    READ_FIELD(Fx_p)
+    READ_FIELD(Fy_p)
+    READ_FIELD(Fz_p)
 
     WRITE_DIST(f1_a)
     WRITE_DIST(f1_p)

@@ -2,39 +2,40 @@
 #include "../include/communicate.h"
 #include "../include/matrix.h"
 
-void compute_matrix_gradient(matrix *input, SimulationBag *sim)
+void compute_matrix_gradient(matrix *input, matrix *output_x, matrix *output_y, matrix *output_z, SimulationBag *sim)
 {
     UNPACK_BAGS
     UNPACK_GRID
     UNPACK_STENCIL
 
-    WRITE_MATRIX(matrix_gradient_output_x)
-    WRITE_MATRIX(matrix_gradient_output_y)
-    WRITE_MATRIX(matrix_gradient_output_z)
-
-    communicate_matrix(input, sim);
-
     FOR_DOMAIN
     {
         const int idx0 = INDEX(i, j, k);
 
+        matrix gradient_x = {{0.0}};
+        matrix gradient_y = {{0.0}};
+        matrix gradient_z = {{0.0}};
+
+        for (int p = 0; p < NP; p++)
+        {
+            const int idxp = INDEX(i + cx[p], j + cy[p], k + cz[p]);
+            const double weight = wp[p];
+
+            FOR_MAT
+            {
+                const double res = weight * input[idxp][a][b];
+
+                gradient_x[a][b] += res * (double)cx[p];
+                gradient_y[a][b] += res * (double)cy[p];
+                gradient_z[a][b] += res * (double)cz[p];
+            }
+        }
+
         FOR_MAT
         {
-            double gradient_x_i = 0.0;
-            double gradient_y_i = 0.0;
-            double gradient_z_i = 0.0;
-            for (int p = 0; p < NP; p++)
-            {
-                // TODO: boundary conditions
-                const double input_local = input[INDEX(i + cx[p], j + cy[p], k + cz[p])][a][b];
-
-                gradient_x_i += wp[p] * input_local * (double)cx[p];
-                gradient_y_i += wp[p] * input_local * (double)cy[p];
-                gradient_z_i += wp[p] * input_local * (double)cz[p];
-            }
-            matrix_gradient_output_x[idx0][a][b] = 3.0 * gradient_x_i;
-            matrix_gradient_output_y[idx0][a][b] = 3.0 * gradient_y_i;
-            matrix_gradient_output_z[idx0][a][b] = 3.0 * gradient_z_i;
+            output_x[idx0][a][b] = 3.0 * gradient_x[a][b];
+            output_y[idx0][a][b] = 3.0 * gradient_y[a][b];
+            output_z[idx0][a][b] = 3.0 * gradient_z[a][b];
         }
     }
 }
@@ -45,57 +46,60 @@ void compute_matrix_laplacian(matrix *input, matrix *output, SimulationBag *sim)
     UNPACK_GRID
     UNPACK_STENCIL
 
-    communicate_matrix(input, sim);
-
     FOR_DOMAIN
     {
         const int idx0 = INDEX(i, j, k);
 
+        matrix laplacian = {{0.0}};
+        for (int p = 0; p < NP; p++)
+        {
+            // TODO: boundary conditions
+            const int idxp = INDEX(i + cx[p], j + cy[p], k + cz[p]);
+            const double weight = wp[p];
+
+            FOR_MAT
+            {
+                laplacian[a][b] += weight * input[idxp][a][b];
+            }
+        }
+
         FOR_MAT
         {
-            double laplacian_i = 0.0;
-            for (int p = 0; p < NP; p++)
-            {
-                // TODO: boundary conditions
-                const double input_local = input[INDEX(i + cx[p], j + cy[p], k + cz[p])][a][b];
-
-                laplacian_i += wp[p] * input_local;
-            }
-            output[idx0][a][b] = 6.0 * (laplacian_i - input[idx0][a][b]);
+            output[idx0][a][b] = 6.0 * (laplacian[a][b] - input[idx0][a][b]);
         }
     }
 }
 
-void compute_matrix_divergence(matrix *input, SimulationBag *sim)
+void compute_matrix_divergence(matrix *input, double *output_x, double *output_y, double *output_z, SimulationBag *sim)
 {
     UNPACK_BAGS
     UNPACK_GRID
     UNPACK_STENCIL
 
-    communicate_matrix(input, sim);
-
-    double *output[3] = {matrices->matrix_divergence_output_x, matrices->matrix_divergence_output_y, matrices->matrix_divergence_output_z};
+    double *output[3] = {output_x, output_y, output_z};
 
     FOR_DOMAIN
     {
         const int idx0 = INDEX(i, j, k);
 
+        double divergence[3] = {0.0};
+
+        for (int p = 0; p < NP; p++)
+        {
+            const int idxp = INDEX(i + cx[p], j + cy[p], k + cz[p]);
+            const double weight = wp[p];
+
+            for (int a = 0; a < 3; a++)
+            {
+                divergence[a] += weight * (input[idxp][a][0] * (double)cx[p] + 
+                                           input[idxp][a][1] * (double)cy[p] + 
+                                           input[idxp][a][2] * (double)cz[p]);
+            }
+        }
+
         for (int a = 0; a < 3; a++)
         {
-            double div = 0.0;
-            
-            for (int p = 0; p < NP; p++)
-            {
-                const int idxp = INDEX(i + cx[p], j + cy[p], k + cz[p]);
-
-                // TODO: boundary conditions
-
-                div += wp[p] * (input[idxp][a][0] * (double)cx[p] + 
-                                input[idxp][a][1] * (double)cy[p] + 
-                                input[idxp][a][2] * (double)cz[p]);
-            }
-            
-            output[a][idx0] = 3.0*div;
+            output[a][idx0] = 3.0*divergence[a];
         }
     }
 }
@@ -108,13 +112,13 @@ void compute_molecular_field(SimulationBag *sim)
     READ_FIELD(phi)
 
     matrix *Q = matrices->Q;
-    matrix *H = matrices->Q;
+    matrix *H = matrices->H;
 
     PARAM(S_nem)
     PARAM(K_LC)
     PARAM(C)
 
-    compute_matrix_laplacian(matrices->Q, matrices->H, sim);
+    compute_matrix_laplacian(Q, H, sim);
 
     FOR_DOMAIN
     {
@@ -127,7 +131,7 @@ void compute_molecular_field(SimulationBag *sim)
 
         FOR_MAT
         {
-            H[idx0][a][b] = prefac*Q[idx0][a][b] + K_LC*H[idx0][a][b];
+            H[idx0][a][b] = prefac*Q[idx0][a][b] + K_LC*H[idx0][a][b]; // H contains laplacian
         }
     }
 }
@@ -142,14 +146,17 @@ void compute_nematic_stress(SimulationBag *sim)
     matrix *Q = matrices->Q;
     matrix *H = matrices->H;
     matrix *sigma_nem = matrices->sigma_nem;
+    matrix *dx_Q = matrices->dx_Q;
+    matrix *dy_Q = matrices->dy_Q;
+    matrix *dz_Q = matrices->dz_Q;
 
     PARAM(K_LC)
     PARAM(lambda)
     PARAM(zeta)
 
-    matrix *gradient[3] = {matrices->matrix_gradient_output_x, matrices->matrix_gradient_output_y, matrices->matrix_gradient_output_z};
+    matrix *gradient[3] = {dx_Q, dy_Q, dz_Q};
 
-    compute_matrix_gradient(matrices->Q, sim);
+    compute_matrix_gradient(Q, dx_Q, dy_Q, dz_Q, sim);
 
     FOR_DOMAIN
     {
@@ -192,10 +199,6 @@ void evolve_Q(SimulationBag *sim)
     PARAM(Gamma_Q)
 
     const int N_active_substeps = params->N_active_substeps;
-
-    communicate_field(fields->u_a, sim);
-    communicate_field(fields->v_a, sim);
-    communicate_field(fields->w_a, sim);
 
     FOR_DOMAIN
     {

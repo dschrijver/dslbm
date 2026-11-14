@@ -4,18 +4,11 @@
 #include "../include/datatypes.h"
 #include "../include/communicate.h"
 
-void compute_gradient(SimulationBag *sim)
+void compute_gradient(double *input, double *output_x, double *output_y, double *output_z, SimulationBag *sim)
 {
     UNPACK_BAGS
     UNPACK_GRID
     UNPACK_STENCIL
-
-    READ_FIELD(gradient_input)
-    WRITE_FIELD(gradient_output_x)
-    WRITE_FIELD(gradient_output_y)
-    WRITE_FIELD(gradient_output_z)
-
-    communicate_field(sim->fields->gradient_input, sim);
 
     FOR_DOMAIN
     {
@@ -27,28 +20,23 @@ void compute_gradient(SimulationBag *sim)
         for (int p = 0; p < NP; p++)
         {
             // TODO: boundary conditions
-            const double intput_local = gradient_input[INDEX(i + cx[p], j + cy[p], k + cz[p])];
+            const double input_local = input[INDEX(i + cx[p], j + cy[p], k + cz[p])];
 
-            gradient_x_i += wp[p] * intput_local * (double)cx[p];
-            gradient_y_i += wp[p] * intput_local * (double)cy[p];
-            gradient_z_i += wp[p] * intput_local * (double)cz[p];
+            gradient_x_i += wp[p] * input_local * (double)cx[p];
+            gradient_y_i += wp[p] * input_local * (double)cy[p];
+            gradient_z_i += wp[p] * input_local * (double)cz[p];
         }
-        gradient_output_x[idx0] = 3.0 * gradient_x_i;
-        gradient_output_y[idx0] = 3.0 * gradient_y_i;
-        gradient_output_z[idx0] = 3.0 * gradient_z_i;
+        output_x[idx0] = 3.0 * gradient_x_i;
+        output_y[idx0] = 3.0 * gradient_y_i;
+        output_z[idx0] = 3.0 * gradient_z_i;
     }
 }
 
-void compute_laplacian(SimulationBag *sim)
+void compute_laplacian(double *input, double *output, SimulationBag *sim)
 {
     UNPACK_BAGS
     UNPACK_GRID
     UNPACK_STENCIL
-
-    READ_FIELD(laplacian_input)
-    WRITE_FIELD(laplacian_output)
-
-    communicate_field(sim->fields->laplacian_input, sim);
 
     FOR_DOMAIN
     {
@@ -58,11 +46,11 @@ void compute_laplacian(SimulationBag *sim)
         for (int p = 0; p < NP; p++)
         {
             // TODO: boundary conditions
-            const double intput_local = laplacian_input[INDEX(i + cx[p], j + cy[p], k + cz[p])];
+            const double input_local = input[INDEX(i + cx[p], j + cy[p], k + cz[p])];
 
-            laplacian_i += wp[p] * intput_local;
+            laplacian_i += wp[p] * input_local;
         }
-        laplacian_output[idx0] = 6.0 * (laplacian_i - laplacian_input[idx0]);
+        output[idx0] = 6.0 * (laplacian_i - input[idx0]);
     }
 }
 
@@ -73,20 +61,13 @@ void compute_chemical_potentials(SimulationBag *sim)
 
     READ_FIELD(phi)
     READ_FIELD(rho)
-    READ_FIELD(laplacian_output)
 
-    WRITE_FIELD(laplacian_input)
     WRITE_FIELD(mu_a)
     WRITE_FIELD(mu_p)
-    
 
-    FOR_DOMAIN
-    {
-        const int idx0 = INDEX(i, j, k);
-        laplacian_input[idx0] = phi[idx0];
-    }
+    PARAM(kappa)
 
-    compute_laplacian(sim);
+    compute_laplacian(fields->phi, fields->mu_a, sim);
 
     FOR_DOMAIN
     {
@@ -97,7 +78,7 @@ void compute_chemical_potentials(SimulationBag *sim)
         const double term = phi_i - 0.5;
 
         const double mu_rho_i = 1.0/3.0*(log(rho_i) + 1.0) + params->a*term*term;
-        const double mu_phi_i = 2.0*params->a*term - params->kappa*laplacian_output[idx0];
+        const double mu_phi_i = 2.0*params->a*term - kappa*mu_a[idx0]; // mu_a contains laplacian
 
         mu_a[idx0] = mu_rho_i - phi_i/rho_i*mu_phi_i;
         mu_p[idx0] = mu_rho_i + (1.0 - phi_i)/rho_i*mu_phi_i;

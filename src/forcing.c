@@ -9,9 +9,9 @@ void compute_preliminary_forces(SimulationBag *sim)
 
     READ_FIELD(mu_a)
     READ_FIELD(mu_p)
-    READ_FIELD(gradient_output_x)
-    READ_FIELD(gradient_output_y)
-    READ_FIELD(gradient_output_z)
+    READ_FIELD(dx_rho)
+    READ_FIELD(dy_rho)
+    READ_FIELD(dz_rho)
     READ_FIELD(rho_a)
     READ_FIELD(rho_p)
     READ_FIELD(phi)
@@ -21,8 +21,10 @@ void compute_preliminary_forces(SimulationBag *sim)
     READ_FIELD(u_p)
     READ_FIELD(v_p)
     READ_FIELD(w_p)
+    READ_FIELD(Fx_nem)
+    READ_FIELD(Fy_nem)
+    READ_FIELD(Fz_nem)
     
-    WRITE_FIELD(gradient_input)
     WRITE_FIELD(Fx_a)
     WRITE_FIELD(Fy_a)
     WRITE_FIELD(Fz_a)
@@ -31,12 +33,7 @@ void compute_preliminary_forces(SimulationBag *sim)
     WRITE_FIELD(Fz_p)
 
     // Compute gradient of mu_a
-    FOR_DOMAIN
-    {
-        const int idx0 = INDEX(i, j, k);
-        gradient_input[idx0] = mu_a[idx0];
-    }
-    compute_gradient(sim);
+    compute_gradient(fields->mu_a, fields->Fx_a, fields->Fy_a, fields->Fz_a, sim);
 
     // Add to active forces
     FOR_DOMAIN
@@ -44,18 +41,13 @@ void compute_preliminary_forces(SimulationBag *sim)
         const int idx0 = INDEX(i, j, k);
         const double rho_a_i = rho_a[idx0];
 
-        Fx_a[idx0] = -rho_a_i * gradient_output_x[idx0];
-        Fy_a[idx0] = -rho_a_i * gradient_output_y[idx0];
-        Fz_a[idx0] = -rho_a_i * gradient_output_z[idx0];
+        Fx_a[idx0] *= -rho_a_i;
+        Fy_a[idx0] *= -rho_a_i;
+        Fz_a[idx0] *= -rho_a_i;
     }
 
     // Compute gradient of mu_p
-    FOR_DOMAIN
-    {
-        const int idx0 = INDEX(i, j, k);
-        gradient_input[idx0] = mu_p[idx0];
-    }
-    compute_gradient(sim);
+    compute_gradient(fields->mu_p, fields->Fx_p, fields->Fy_p, fields->Fz_p, sim);
 
     // Add to passive forces
     FOR_DOMAIN
@@ -63,56 +55,47 @@ void compute_preliminary_forces(SimulationBag *sim)
         const int idx0 = INDEX(i, j, k);
         const double rho_p_i = rho_p[idx0];
 
-        Fx_p[idx0] = -rho_p_i * gradient_output_x[idx0];
-        Fy_p[idx0] = -rho_p_i * gradient_output_y[idx0];
-        Fz_p[idx0] = -rho_p_i * gradient_output_z[idx0];
+        Fx_p[idx0] *= -rho_p_i;
+        Fy_p[idx0] *= -rho_p_i;
+        Fz_p[idx0] *= -rho_p_i;
     }
 
     // Compute gradient of rho_a
-    FOR_DOMAIN
-    {
-        const int idx0 = INDEX(i, j, k);
-        gradient_input[idx0] = rho_a[idx0];
-    }
-    compute_gradient(sim);
+    compute_gradient(fields->rho_a, fields->dx_rho, fields->dy_rho, fields->dz_rho, sim);
 
     // Offset active pressure from equilibrium
     FOR_DOMAIN
     {
         const int idx0 = INDEX(i, j, k);
 
-        Fx_a[idx0] += 1.0/3.0*gradient_output_x[idx0];
-        Fy_a[idx0] += 1.0/3.0*gradient_output_y[idx0];
-        Fz_a[idx0] += 1.0/3.0*gradient_output_z[idx0];
+        Fx_a[idx0] += 1.0/3.0*dx_rho[idx0];
+        Fy_a[idx0] += 1.0/3.0*dy_rho[idx0];
+        Fz_a[idx0] += 1.0/3.0*dz_rho[idx0];
     }
 
     // Compute gradient of rho_p;
-    FOR_DOMAIN
-    {
-        const int idx0 = INDEX(i, j, k);
-        gradient_input[idx0] = rho_p[idx0];
-    }
-    compute_gradient(sim);
+    compute_gradient(fields->rho_p, fields->dx_rho, fields->dy_rho, fields->dz_rho, sim);
 
     // Offset passive pressure from equilibrium
     FOR_DOMAIN
     {
         const int idx0 = INDEX(i, j, k);
 
-        Fx_p[idx0] += 1.0/3.0*gradient_output_x[idx0];
-        Fy_p[idx0] += 1.0/3.0*gradient_output_y[idx0];
-        Fz_p[idx0] += 1.0/3.0*gradient_output_z[idx0];
+        Fx_p[idx0] += 1.0/3.0*dx_rho[idx0];
+        Fy_p[idx0] += 1.0/3.0*dy_rho[idx0];
+        Fz_p[idx0] += 1.0/3.0*dz_rho[idx0];
     }
 
-    compute_matrix_divergence(matrices->sigma_nem, sim);
+    // Add nematic force
+    compute_matrix_divergence(matrices->sigma_nem, fields->Fx_nem, fields->Fy_nem, fields->Fz_nem, sim);
 
     FOR_DOMAIN
     {
         const int idx0 = INDEX(i, j, k);
 
-        Fx_a[idx0] += matrices->matrix_divergence_output_x[idx0];
-        Fy_a[idx0] += matrices->matrix_divergence_output_y[idx0];
-        Fz_a[idx0] += matrices->matrix_divergence_output_z[idx0];
+        Fx_a[idx0] += Fx_nem[idx0];
+        Fy_a[idx0] += Fy_nem[idx0];
+        Fz_a[idx0] += Fz_nem[idx0];
     }
 }
 

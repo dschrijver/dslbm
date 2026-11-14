@@ -48,10 +48,21 @@ int main(int argc, char **argv)
     
     initialize_fields(sim);
 
+    communicate_field(fields->phi, sim);
     compute_chemical_potentials(sim);
+
+    communicate_matrix(matrices->Q, sim);
     compute_molecular_field(sim);
+
     compute_nematic_stress(sim);
+    
+    communicate_field(fields->mu_a, sim);
+    communicate_field(fields->mu_p, sim);
+    communicate_field(fields->rho_a, sim);
+    communicate_field(fields->rho_p, sim);
+    communicate_matrix(matrices->sigma_nem, sim);
     compute_preliminary_forces(sim);
+
     compute_final_forces(sim);
 
     initialize_distributions(sim);
@@ -85,6 +96,9 @@ int main(int argc, char **argv)
         }
 
         TIME("> Evolving Q",
+            communicate_field(fields->u_a, sim);
+            communicate_field(fields->v_a, sim);
+            communicate_field(fields->w_a, sim);
             evolve_Q(sim);
         )
 
@@ -103,10 +117,22 @@ int main(int argc, char **argv)
 
         TIME("> Computing macroscopic fields...",
             extract_moments(sim);
+
+            communicate_field(fields->phi, sim);
             compute_chemical_potentials(sim);
+
+            communicate_matrix(matrices->Q, sim);
             compute_molecular_field(sim);
+
             compute_nematic_stress(sim);
+    
+            communicate_field(fields->mu_a, sim);
+            communicate_field(fields->mu_p, sim);
+            communicate_field(fields->rho_a, sim);
+            communicate_field(fields->rho_p, sim);
+            communicate_matrix(matrices->sigma_nem, sim);
             compute_preliminary_forces(sim);
+
             compute_final_velocity(sim);
             compute_final_forces(sim);
         )
@@ -150,8 +176,6 @@ int main(int argc, char **argv)
     {
         printf("\nSimulation done!\n");
     }
-
-    free_all(sim);
 
     MPI_Finalize();
     return 0;

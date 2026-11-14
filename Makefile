@@ -32,7 +32,7 @@ obj/main.o: main.c definitions.h params.h
 	@$(CC) -c $< -o $@ $(CFLAGS)
 
 clean: 
-	rm -rf obj
+	rm -rf obj dslbm
 
 cleandata:
 	rm -f *.h5

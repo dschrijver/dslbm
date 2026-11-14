@@ -121,17 +121,17 @@ typedef struct FieldBag
     double *Fy_p;
     double *Fz_p;
 
+    double *Fx_nem;
+    double *Fy_nem;
+    double *Fz_nem;
+
+    double *dx_rho;
+    double *dy_rho;
+    double *dz_rho;
+
     // Chemical potentials
     double *mu_a;
     double *mu_p;
-
-    // Helper fields
-    double *gradient_input;
-    double *gradient_output_x;
-    double *gradient_output_y;
-    double *gradient_output_z;
-    double *laplacian_input;
-    double *laplacian_output;
 
     // Scalar buffers
     double *send_buffer_x;
@@ -163,12 +163,9 @@ typedef struct MatrixBag
     matrix *E;
     matrix *Omega;
 
-    matrix *matrix_gradient_output_x;
-    matrix *matrix_gradient_output_y;
-    matrix *matrix_gradient_output_z;
-    double *matrix_divergence_output_x;
-    double *matrix_divergence_output_y;
-    double *matrix_divergence_output_z;
+    matrix *dx_Q;
+    matrix *dy_Q;
+    matrix *dz_Q;
 
     // Matrix buffers
     matrix *send_buffer_x;

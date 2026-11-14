@@ -8,7 +8,6 @@ void allocate_stencil(SimulationBag *sim);
 void allocate_distributions(SimulationBag *sim);
 void allocate_fields(SimulationBag *sim);
 void allocate_matrices(SimulationBag *sim);
-void free_all(SimulationBag *sim);
 int get_VmRSS(ParamBag *params) ;
 
 #endif

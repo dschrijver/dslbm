@@ -91,18 +91,16 @@ void allocate_fields(SimulationBag *sim)
     fields->Fx_p = (double *)malloc(malloc_size);
     fields->Fy_p = (double *)malloc(malloc_size);
     fields->Fz_p = (double *)malloc(malloc_size);
+    fields->Fx_nem = (double *)malloc(malloc_size);
+    fields->Fy_nem = (double *)malloc(malloc_size);
+    fields->Fz_nem = (double *)malloc(malloc_size);
+    fields->dx_rho = (double *)malloc(malloc_size);
+    fields->dy_rho = (double *)malloc(malloc_size);
+    fields->dz_rho = (double *)malloc(malloc_size);
 
     // Chemical potentials
     fields->mu_a = (double *)malloc(malloc_size);
     fields->mu_p = (double *)malloc(malloc_size);
-
-    // Helper fields
-    fields->gradient_input = (double *)malloc(malloc_size);
-    fields->gradient_output_x = (double *)malloc(malloc_size);
-    fields->gradient_output_y = (double *)malloc(malloc_size);
-    fields->gradient_output_z = (double *)malloc(malloc_size);
-    fields->laplacian_input = (double *)malloc(malloc_size);
-    fields->laplacian_output = (double *)malloc(malloc_size);
 
     // Scalar buffers
     malloc_size = (long)NY_proc * NZ_proc * sizeof(double);
@@ -132,12 +130,9 @@ void allocate_matrices(SimulationBag *sim)
     matrices->nabla_u = (matrix *)malloc(malloc_size);
     matrices->E = (matrix *)malloc(malloc_size);
     matrices->Omega = (matrix *)malloc(malloc_size);
-    matrices->matrix_gradient_output_x = (matrix *)malloc(malloc_size);
-    matrices->matrix_gradient_output_y = (matrix *)malloc(malloc_size);
-    matrices->matrix_gradient_output_z = (matrix *)malloc(malloc_size);
-    matrices->matrix_divergence_output_x = (double *)malloc((long)(NX_proc + 2) * (NY_proc + 2) * (NZ_proc + 2) * sizeof(double));
-    matrices->matrix_divergence_output_y = (double *)malloc((long)(NX_proc + 2) * (NY_proc + 2) * (NZ_proc + 2) * sizeof(double));
-    matrices->matrix_divergence_output_z = (double *)malloc((long)(NX_proc + 2) * (NY_proc + 2) * (NZ_proc + 2) * sizeof(double));
+    matrices->dx_Q = (matrix *)malloc(malloc_size);
+    matrices->dy_Q = (matrix *)malloc(malloc_size);
+    matrices->dz_Q = (matrix *)malloc(malloc_size);
 
     // Matrix buffers
     malloc_size = (long)NY_proc * NZ_proc * sizeof(matrix);
@@ -151,104 +146,6 @@ void allocate_matrices(SimulationBag *sim)
     malloc_size = (long)(NX_proc + 2) * (NY_proc + 2) * sizeof(matrix);
     matrices->send_buffer_z = (matrix *)malloc(malloc_size);
     matrices->recv_buffer_z = (matrix *)malloc(malloc_size);
-}
-
-void free_all(SimulationBag *sim)
-{
-    UNPACK_BAGS
-
-    H5Pclose(params->fapl_id);
-    H5Sclose(params->scalar_space);
-    H5Sclose(params->filespace);
-    H5Sclose(params->memspace);
-    H5Pclose(params->dcpl_id);
-    H5Pclose(params->dxpl_id);
-
-    free(stencil->cx);
-    free(stencil->cy);
-    free(stencil->cz);
-    free(stencil->wp);
-    free(stencil->p_bounceback);
-
-    free(dists->f1_a);
-    free(dists->f1_p);
-    free(dists->f2_a);
-    free(dists->f2_p);
-
-    // Distribution buffers
-    free(dists->send_buffer_x);
-    free(dists->recv_buffer_x);
-    free(dists->send_buffer_y);
-    free(dists->recv_buffer_y);
-    free(dists->send_buffer_z);
-    free(dists->recv_buffer_z);
-
-    // Densities and composition
-    free(fields->rho);
-    free(fields->phi);
-    free(fields->rho_a);
-    free(fields->rho_p);
-
-    // Velocities
-    free(fields->u);
-    free(fields->v);
-    free(fields->w);
-
-    // Forces
-    free(fields->Fx_a);
-    free(fields->Fy_a);
-    free(fields->Fz_a);
-    free(fields->Fx_p);
-    free(fields->Fy_p);
-    free(fields->Fz_p);
-
-    // Chemical potentials
-    free(fields->mu_a);
-    free(fields->mu_p);
-
-    // Helper fields
-    free(fields->gradient_input);
-    free(fields->gradient_output_x);
-    free(fields->gradient_output_y);
-    free(fields->gradient_output_z);
-    free(fields->laplacian_input);
-    free(fields->laplacian_output);
-
-    // Scalar buffers
-    free(fields->send_buffer_x);
-    free(fields->recv_buffer_x);
-    free(fields->send_buffer_y);
-    free(fields->recv_buffer_y);
-    free(fields->send_buffer_z);
-    free(fields->recv_buffer_z);
-
-    free(matrices->Q);
-    free(matrices->Q_new);
-    free(matrices->H);
-    free(matrices->sigma_nem);
-    free(matrices->nabla_u);
-    free(matrices->E);
-    free(matrices->Omega);
-    free(matrices->matrix_gradient_output_x);
-    free(matrices->matrix_gradient_output_y);
-    free(matrices->matrix_gradient_output_z);
-    free(matrices->matrix_divergence_output_x);
-    free(matrices->matrix_divergence_output_y);
-    free(matrices->matrix_divergence_output_z);
-
-    // Matrix buffers
-    free(matrices->send_buffer_x);
-    free(matrices->recv_buffer_x);
-    free(matrices->send_buffer_y);
-    free(matrices->recv_buffer_y);
-    free(matrices->send_buffer_z);
-    free(matrices->recv_buffer_z);
-
-    free(dists);
-    free(fields);
-    free(stencil);
-    free(matrices);
-    free(params);
 }
 
 int get_VmRSS(ParamBag *params) 
