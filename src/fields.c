@@ -3,6 +3,8 @@
 
 #include "../include/datatypes.h"
 #include "../include/communicate.h"
+#include "../include/matrix.h"
+#include "../definitions.h"
 
 void compute_gradient(double *input, double *output_x, double *output_y, double *output_z, SimulationBag *sim)
 {
@@ -65,7 +67,17 @@ void compute_chemical_potentials(SimulationBag *sim)
     WRITE_FIELD(mu_a)
     WRITE_FIELD(mu_p)
 
+    matrix *Q = matrices->Q;
+
     PARAM(kappa)
+    PARAM(C)
+    PARAM(S_nem)
+
+#ifdef   DIM_2D
+    const double d = 2.0;
+#else // DIM_3D
+    const double d = 3.0;
+#endif
 
     compute_laplacian(fields->phi, fields->mu_a, sim);
 
@@ -76,12 +88,13 @@ void compute_chemical_potentials(SimulationBag *sim)
         const double phi_i = phi[idx0];
 
         const double term = phi_i - 0.5;
+        const double contraction = matcontraction(Q[idx0], Q[idx0]);
 
         const double mu_rho_i = 1.0/3.0*(log(rho_i) + 1.0) + params->a*term*term;
-        const double mu_phi_i = 2.0*params->a*term - kappa*mu_a[idx0]; // mu_a contains laplacian
+        const double mu_phi_i = 2.0*params->a*rho_i*term + C*S_nem*S_nem*(S_nem*S_nem*phi_i - (d-1)/d*contraction) - kappa*mu_a[idx0]; // mu_a contains laplacian
 
-        mu_a[idx0] = mu_rho_i - phi_i/rho_i*mu_phi_i;
-        mu_p[idx0] = mu_rho_i + (1.0 - phi_i)/rho_i*mu_phi_i;
+        mu_a[idx0] = mu_rho_i + (1.0 - phi_i)/rho_i*mu_phi_i;
+        mu_p[idx0] = mu_rho_i - phi_i/rho_i*mu_phi_i;
     }
 }
 

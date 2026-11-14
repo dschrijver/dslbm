@@ -12,12 +12,22 @@ enum flags
 #define INDEX(i, j, k) ((NY_proc + 2) * (NZ_proc + 2) * ((i) + 1 - i_start) + (NZ_proc + 2) * ((j) + 1 - j_start) + ((k) + 1 - k_start))
 #define INDEX_F(i, j, k, p) ((NY_proc + 2) * (NZ_proc + 2) * NP * ((i) + 1 - i_start) + (NZ_proc + 2) * NP * ((j) + 1 - j_start) + NP * ((k) + 1 - k_start) + (p))
 
+#include "../definitions.h"
 inline double delta(int a, int b)
 {
+#ifdef DIM_2D
+    if ((a == 2) || (b == 2))
+        return 0.0;
+    else if (a == b)
+        return 1.0;
+    else 
+        return 0.0;
+#else
     if (a == b)
         return 1.0;
-    else
+    else 
         return 0.0;
+#endif
 }
 
 inline int mod(int x, int n)

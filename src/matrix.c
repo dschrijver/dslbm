@@ -16,28 +16,6 @@ void matmul(matrix A, matrix B, matrix C)
     }
 }
 
-void matadd(matrix A, matrix B, matrix C)
-{
-    for (int a = 0; a < 3; a++)
-    {
-        for (int b = 0; b < 3; b++)
-        {
-            C[a][b] = A[a][b] + B[a][b];
-        }
-    }
-}
-
-void matsub(matrix A, matrix B, matrix C)
-{
-    for (int a = 0; a < 3; a++)
-    {
-        for (int b = 0; b < 3; b++)
-        {
-            C[a][b] = A[a][b] + B[a][b];
-        }
-    }
-}
-
 void matsca(matrix A, double s, matrix C)
 {
     for (int a = 0; a < 3; a++)

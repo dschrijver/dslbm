@@ -1,15 +1,12 @@
 #include <mpi.h>
 #include <hdf5.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
 
 #include "../include/datatypes.h"
 #include "../definitions.h"
 #include "../include/collide.h"
-
-#ifdef INI_1
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-#endif
 
 void dims_create(int dims[3], ParamBag *params)
 {
@@ -116,9 +113,7 @@ void initialize_MPI(ParamBag *params)
     MPI_Type_contiguous(9, MPI_DOUBLE, &params->MPI_MATRIX);
     MPI_Type_commit(&params->MPI_MATRIX);
 
-#ifdef INI_1
     srand(time(NULL) + params->process_rank);
-#endif
 }
 
 void initialize_HDF5(ParamBag *params)
@@ -171,11 +166,17 @@ void initialize_fields(SimulationBag *sim)
     PARAM(rho_0_a)
     PARAM(rho_0_p)
 
+#ifdef   DIM_2D
+    const double d = 2.0;
+#else // DIM_3D
+    const double d = 3.0;
+#endif
+
     FOR_DOMAIN
     {
         const int idx0 = INDEX(i, j, k);
 
-#ifdef INI_1
+#ifdef INI_FLUID_1
         rho_a[idx0] = rho_0_a;
         rho_p[idx0] = rho_0_p;
 
@@ -183,21 +184,26 @@ void initialize_fields(SimulationBag *sim)
         v[idx0] = 0.0;
         w[idx0] = 0.0;
 
+#ifdef INI_ACTIVE_1
         const double phi_i = rho_0_a / (rho_0_a + rho_0_p);
 
         double x = (double)rand() / ((double)RAND_MAX + 1.0);
         const double phi_n = x*2.0*DS_PI;
+#ifdef   DIM_3D
         x = (double)rand() / ((double)RAND_MAX + 1.0);
-        const double theta_n = x*DS_PI;
-
+        const double theta_n = x*0.5*DS_PI;
         double n[3] = {sin(theta_n)*cos(phi_n), sin(theta_n)*sin(phi_n), cos(theta_n)};
+#else // DIM_2D
+        double n[3] = {cos(phi_n), sin(phi_n), 0.0};
+#endif
+#endif
 
         for (int a = 0; a < 3; a++)
         {
             for (int b = 0; b < 3; b++)
             {
                 const double S = params->S_nem * sqrt(phi_i);
-                Q[idx0][a][b] = 1.5 * S * (n[a]*n[b] - delta(a, b)/3.0);
+                Q[idx0][a][b] = d/(d-1.0) * S * (n[a]*n[b] - delta(a, b)/d);
             }
         }
 #endif

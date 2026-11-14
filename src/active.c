@@ -1,6 +1,7 @@
 #include "../include/datatypes.h"
 #include "../include/communicate.h"
 #include "../include/matrix.h"
+#include "../definitions.h"
 
 void compute_matrix_gradient(matrix *input, matrix *output_x, matrix *output_y, matrix *output_z, SimulationBag *sim)
 {
@@ -118,6 +119,12 @@ void compute_molecular_field(SimulationBag *sim)
     PARAM(K_LC)
     PARAM(C)
 
+#ifdef   DIM_2D
+    const double d = 2.0;
+#else // DIM_3D
+    const double d = 3.0;
+#endif
+
     compute_matrix_laplacian(Q, H, sim);
 
     FOR_DOMAIN
@@ -127,7 +134,8 @@ void compute_molecular_field(SimulationBag *sim)
         const double phi_i = phi[idx0];
 
         const double contraction = matcontraction(Q[idx0], Q[idx0]);
-        const double prefac = 4.0/3.0*C*(S_nem*S_nem*phi_i - 2.0/3.0*contraction);
+
+        const double prefac = 2.0*C*(d-1)/d*(S_nem*S_nem*phi_i - (d-1)/d*contraction);
 
         FOR_MAT
         {
@@ -154,6 +162,12 @@ void compute_nematic_stress(SimulationBag *sim)
     PARAM(lambda)
     PARAM(zeta)
 
+#ifdef   DIM_2D
+    const double d = 2.0;
+#else // DIM_3D
+    const double d = 3.0;
+#endif
+
     matrix *gradient[3] = {dx_Q, dy_Q, dz_Q};
 
     compute_matrix_gradient(Q, dx_Q, dy_Q, dz_Q, sim);
@@ -173,7 +187,7 @@ void compute_nematic_stress(SimulationBag *sim)
         FOR_MAT
         {
             const double dQdQ_contraction = matcontraction(gradient[a][idx0], gradient[b][idx0]);
-            const double sigma_el = 2.0*lambda*QH_contraction*(Q[idx0][a][b] + delta(a, b)/3.0) - lambda*(HQ_product[a][b] + H[idx0][a][b]/3.0) - lambda*(QH_product[a][b] + H[idx0][a][b]/3.0) - K_LC*dQdQ_contraction + QH_product[a][b] - HQ_product[a][b];
+            const double sigma_el = 2.0*lambda*QH_contraction*(Q[idx0][a][b] + delta(a, b)/d) - lambda*(HQ_product[a][b] + H[idx0][a][b]/d) - lambda*(QH_product[a][b] + H[idx0][a][b]/d) - K_LC*dQdQ_contraction + QH_product[a][b] - HQ_product[a][b];
             const double sigma_act = - zeta*Q[idx0][a][b];
 
             sigma_nem[idx0][a][b] = phi_i * (sigma_el + sigma_act);
@@ -199,6 +213,12 @@ void evolve_Q(SimulationBag *sim)
     PARAM(Gamma_Q)
 
     const int N_active_substeps = params->N_active_substeps;
+
+#ifdef   DIM_2D
+    const double d = 2.0;
+#else // DIM_3D
+    const double d = 3.0;
+#endif
 
     FOR_DOMAIN
     {
@@ -255,7 +275,7 @@ void evolve_Q(SimulationBag *sim)
             FOR_MAT
             {
                 S1[a][b] = lambda*E[idx0][a][b] + Omega[idx0][a][b];
-                S2[a][b] = Q[idx0][a][b] + delta(a, b)/3.0;
+                S2[a][b] = Q[idx0][a][b] + delta(a, b)/d;
                 S3[a][b] = lambda*E[idx0][a][b] - Omega[idx0][a][b];
             }
 
