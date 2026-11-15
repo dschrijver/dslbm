@@ -5,13 +5,13 @@
 //         Dimension
 // ---------------------------
 #define DIM_2D
-#define DIM_3D
+// #define DIM_3D
 
 // ---------------------------
 //          Stencil
 // ---------------------------
 #define D2Q9
-#define D3Q27
+// #define D3Q27
 
 // ---------------------------
 //     Boundary conditions
@@ -23,8 +23,10 @@
 // --------------------------
 //     Initial conditions
 // --------------------------
+// Fluid initial conditions
 #define INI_FLUID_1 // Stationary fluid, constant density, random orientation
 
+// Activity initial conditions
 #define INI_ACTIVE_1 // Random orientation
 
 #endif

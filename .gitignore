@@ -2,16 +2,9 @@ dslbm
 *.h5
 hdf5/
 .vscode/
-/make.def.*
-post_processing/
-*.png
-*_old.h
-test_code/
-openmpi*/
-/methods.h
-/definitions.h
-/params.h
-/runs
+obj/
+frames/
+scripts/__pycache__/
 *.aux
 *.bbl
 *.bcf
@@ -22,6 +15,3 @@ openmpi*/
 *.out
 *.synctex.gz
 *.xml
-NOT_PASSED
-PASS
-obj/

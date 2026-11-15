@@ -1,19 +1,19 @@
-CC = mpicc
-
 H5_INC_DIR = $(shell pwd)/hdf5/include
 H5_LIB_DIR = $(shell pwd)/hdf5/lib
 
 # ADDITIONAL_OPT_FLAGS = -march=znver4
 
-OPT_FLAGS = -std=c11 -O3
-DEBUG_FLAGS = -Wall -Wextra -fdiagnostics-color=auto
+CC = mpicc
 
-LIB_FLAGS = -I$(H5_INC_DIR) -L$(H5_LIB_DIR) -lhdf5 -lz -lm
+OPT_FLAGS = -std=c11 -O3
+DEBUG_FLAGS = -Wall -Wextra
+
+LIB_FLAGS = -I$(H5_INC_DIR) -L$(H5_LIB_DIR) -lhdf5 -lm
 
 CFLAGS = $(OPT_FLAGS) $(ADDITIONAL_OPT_FLAGS) $(DEBUG_FLAGS) $(LIB_FLAGS)
-LFLAGS = $(LIB_FLAGS)
 
 SRC = $(wildcard src/*.c)
+HEAD = $(wildcard include/*.h)
 OBJ = $(patsubst src/%.c,obj/%.o,$(SRC))
 HDF5_TAR = $(wildcard archives/hdf5*.tar.gz)
 
@@ -21,12 +21,12 @@ dslbm: $(OBJ) obj/main.o
 	@printf '\033[1;32mCCLD %s\033[0m\n' "$^"
 	@$(CC) $^ -o $@  $(CFLAGS)
 
-obj/%.o: src/%.c definitions.h
+obj/%.o: src/%.c definitions.h $(HEAD)
 	@mkdir -p obj
 	@printf '\033[1;34mCC   %s\033[0m\n' "$<"
 	@$(CC) -c $< -o $@ $(CFLAGS)
 
-obj/main.o: main.c definitions.h params.h
+obj/main.o: main.c definitions.h params.h $(HEAD)
 	@mkdir -p obj
 	@printf '\033[1;34mCC   %s\033[0m\n' "$<"
 	@$(CC) -c $< -o $@ $(CFLAGS)
@@ -43,7 +43,7 @@ hdf5: $(HDF5_TAR)
 	cd hdf5;\
 	export ac_cv_lib_sz_SZ_BufftoBuffCompress=no;\
 	export ac_cv_header_szlib_h=no;\
-	CC=mpicc ./configure --enable-parallel --disable-shared --disable-szlib;\
+	CC=mpicc ./configure --enable-parallel --disable-shared --without-zlib --disable-szlib;\
 	make;\
 	make install;\
 	cd ../;\
