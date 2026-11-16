@@ -15,3 +15,5 @@ scripts/__pycache__/
 *.out
 *.synctex.gz
 *.xml
+PASS
+NOT_PASSED
