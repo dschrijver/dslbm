@@ -6,23 +6,20 @@
 static inline void set_params(ParamBag *params)
 {
     // General parameters
-    params->NTIME = 20000;
-    params->NSTORE = 40;
-    params->NLOG = 5;
-    params->NX = 200;
-    params->NY = 200;
+    params->NTIME = 6000;
+    params->NSTORE = 60;
+    params->NLOG = 6;
+    params->NX = 1;
+    params->NY = 33;
     params->NZ = 1;
 
     // Initial denities
-    params->rho_0_a = 20.0;
-    params->rho_0_p = 20.0;
+    params->rho_0_a = 0.5;
+    params->rho_0_p = 0.5;
 
-    // Kinematic viscosities
-    const double mu_a = 10.0 / 3.0;
-    const double mu_p = 10.0 / 3.0;
-
-    params->nu_a = mu_a / params->rho_0_a;
-    params->nu_p = mu_p / params->rho_0_p;
+    // Dynamic viscosities
+    params->eta_a = 0.075;
+    params->eta_p = 0.075;
 
     params->kappa = 5.0;
     params->a = 0.0025;
@@ -34,6 +31,13 @@ static inline void set_params(ParamBag *params)
     params->lambda = 0.0;
     params->zeta = 0.1;
     params->Gamma_Q = 0.1;
+
+    params->Fx_ext_a = 0.5e-5;
+    params->Fy_ext_a = 0.0;
+    params->Fz_ext_a = 0.0;
+    params->Fx_ext_p = 0.5e-5;
+    params->Fy_ext_p = 0.0;
+    params->Fz_ext_p = 0.0;
 
     params->N_active_substeps = 5;
 }

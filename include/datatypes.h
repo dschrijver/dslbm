@@ -28,9 +28,9 @@ typedef struct ParamBag
     double rho_0_a;
     double rho_0_p;
 
-    // Kinematic viscosities
-    double nu_a;
-    double nu_p;
+    // Dynamic viscosities
+    double eta_a;
+    double eta_p;
 
     double kappa;
     double a;
@@ -42,6 +42,13 @@ typedef struct ParamBag
     double lambda;
     double zeta;
     double Gamma_Q;
+
+    double Fx_ext_a;
+    double Fy_ext_a;
+    double Fz_ext_a;
+    double Fx_ext_p;
+    double Fy_ext_p;
+    double Fz_ext_p;
 
     int N_active_substeps;
 

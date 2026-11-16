@@ -13,6 +13,8 @@
 #include "include/stream.h"
 #include "include/communicate.h"
 #include "include/active.h"
+#include "include/bc.h"
+#include "definitions.h"
 
 int main(int argc, char **argv)
 {
@@ -48,19 +50,27 @@ int main(int argc, char **argv)
     
     initialize_fields(sim);
 
+#ifndef NO_NEMATICS
     communicate_field(fields->phi, sim);
     compute_chemical_potentials(sim);
+#endif
 
+#ifndef NO_NEMATICS
     communicate_matrix(matrices->Q, sim);
     compute_molecular_field(sim);
+#endif
 
+#ifndef NO_NEMATICS
     compute_nematic_stress(sim);
-    
+#endif
+
+#ifndef NO_NEMATICS
     communicate_field(fields->mu_a, sim);
     communicate_field(fields->mu_p, sim);
     communicate_field(fields->rho_a, sim);
     communicate_field(fields->rho_p, sim);
     communicate_matrix(matrices->sigma_nem, sim);
+#endif
     compute_preliminary_forces(sim);
 
     compute_final_forces(sim);
@@ -95,12 +105,14 @@ int main(int argc, char **argv)
             )
         }
 
+#ifndef NO_NEMATICS
         TIME("> Evolving Q",
             communicate_field(fields->u_a, sim);
             communicate_field(fields->v_a, sim);
             communicate_field(fields->w_a, sim);
             evolve_Q(sim);
         )
+#endif
 
         TIME("> Collision...",
             collide(sim);
@@ -112,25 +124,34 @@ int main(int argc, char **argv)
         )
 
         TIME("> Streaming...",
+            bc_distributions(sim);
             stream_distributions(sim);
         )
 
         TIME("> Computing macroscopic fields...",
             extract_moments(sim);
 
+#ifndef NO_NEMATICS
             communicate_field(fields->phi, sim);
             compute_chemical_potentials(sim);
+#endif
 
+#ifndef NO_NEMATICS
             communicate_matrix(matrices->Q, sim);
             compute_molecular_field(sim);
+#endif
 
+#ifndef NO_NEMATICS
             compute_nematic_stress(sim);
+#endif
     
+#ifndef NO_NEMATICS
             communicate_field(fields->mu_a, sim);
             communicate_field(fields->mu_p, sim);
             communicate_field(fields->rho_a, sim);
             communicate_field(fields->rho_p, sim);
             communicate_matrix(matrices->sigma_nem, sim);
+#endif
             compute_preliminary_forces(sim);
 
             compute_final_velocity(sim);

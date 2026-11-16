@@ -21,7 +21,6 @@ void stream_distributions(SimulationBag *sim)
             int jc = j - cy[p];
             int kc = k - cz[p];
 
-            // TODO: boundary conditions
             f1_a[INDEX_F(i, j, k, p)] = f2_a[INDEX_F(ic, jc, kc, p)];
             f1_p[INDEX_F(i, j, k, p)] = f2_p[INDEX_F(ic, jc, kc, p)];
         }

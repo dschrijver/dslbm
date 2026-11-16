@@ -1,6 +1,7 @@
 #include "../include/datatypes.h"
 #include "../include/fields.h"
 #include "../include/active.h"
+#include "../definitions.h"
 
 void compute_preliminary_forces(SimulationBag *sim)
 {
@@ -32,6 +33,7 @@ void compute_preliminary_forces(SimulationBag *sim)
     WRITE_FIELD(Fy_p)
     WRITE_FIELD(Fz_p)
 
+#ifndef NO_NEMATICS
     // Compute gradient of mu_a
     compute_gradient(fields->mu_a, fields->Fx_a, fields->Fy_a, fields->Fz_a, sim);
 
@@ -96,6 +98,22 @@ void compute_preliminary_forces(SimulationBag *sim)
         Fx_a[idx0] += Fx_nem[idx0];
         Fy_a[idx0] += Fy_nem[idx0];
         Fz_a[idx0] += Fz_nem[idx0];
+    }
+#endif
+
+    FOR_DOMAIN
+    {
+        const int idx0 = INDEX(i, j, k);
+
+#ifdef NO_NEMATICS
+        Fx_a[idx0] = params->Fx_ext_a;
+        Fy_a[idx0] = params->Fy_ext_a;
+        Fz_a[idx0] = params->Fz_ext_a;
+#else
+        Fx_a[idx0] += params->Fx_ext_a;
+        Fy_a[idx0] += params->Fy_ext_a;
+        Fz_a[idx0] += params->Fz_ext_a;
+#endif
     }
 }
 
