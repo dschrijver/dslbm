@@ -23,3 +23,4 @@ $(TEST_CASES:/=):
 	./compare.sh;\
 	mv ../../params_old.h ../../params.h;\
 	mv ../../definitions_old.h ../../definitions.h
+	cd ../; make cleandata; rm std.out

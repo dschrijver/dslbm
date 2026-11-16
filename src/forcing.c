@@ -116,9 +116,9 @@ void compute_preliminary_forces(SimulationBag *sim)
         Fx_a[idx0] += params->Fx_ext_a;
         Fy_a[idx0] += params->Fy_ext_a;
         Fz_a[idx0] += params->Fz_ext_a;
-        Fx_p[idx0] = params->Fx_ext_p;
-        Fy_p[idx0] = params->Fy_ext_p;
-        Fz_p[idx0] = params->Fz_ext_p;
+        Fx_p[idx0] += params->Fx_ext_p;
+        Fy_p[idx0] += params->Fy_ext_p;
+        Fz_p[idx0] += params->Fz_ext_p;
 #endif
     }
 }
