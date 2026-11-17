@@ -88,8 +88,8 @@ void collide(SimulationBag *sim)
         const double Fy_p_i = Fy_p[idx0];
         const double Fz_p_i = Fz_p[idx0];
 
-        const double tau_a = 3.0*eta_a + 0.5;
-        const double tau_p = 3.0*eta_p + 0.5;
+        const double tau_a = 3.0*eta_a/rho_a_i + 0.5;
+        const double tau_p = 3.0*eta_p/rho_p_i + 0.5;
 
         compute_equilibrium(rho_a_i, u_a_i, v_a_i, w_a_i, feq_a, sim);
         compute_equilibrium(rho_p_i, u_p_i, v_p_i, w_p_i, feq_p, sim);

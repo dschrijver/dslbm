@@ -18,8 +18,8 @@ static inline void set_params(ParamBag *params)
     params->rho_0_p = 20.0;
 
     // Kinematic viscosities
-    params->eta_a = 10.0 / 3.0 / params->rho_0_a;
-    params->eta_p = 10.0 / 3.0 / params->rho_0_p;
+    params->eta_a = 10.0 / 3.0;
+    params->eta_p = 10.0 / 3.0;
 
     params->kappa = 5.0;
     params->a = 0.0025;
