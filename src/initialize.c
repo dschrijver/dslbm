@@ -113,7 +113,7 @@ void initialize_MPI(ParamBag *params)
     MPI_Type_contiguous(9, MPI_DOUBLE, &params->MPI_MATRIX);
     MPI_Type_commit(&params->MPI_MATRIX);
 
-    srand(time(NULL) + params->process_rank);
+    srand(params->process_rank);
 }
 
 void initialize_HDF5(ParamBag *params)

@@ -8,7 +8,7 @@ all: .PHONY
 $(TEST_CASES:/=): 
 	echo $@
 	@cd $@;\
-	rm -f NOT_PASSED PASSED;\
+	rm -f NOT_PASSED PASS;\
 	mv ../../params.h ../../params_old.h;\
 	mv ../../definitions.h ../../definitions_old.h;\
 	cp params.h ../../params.h;\
